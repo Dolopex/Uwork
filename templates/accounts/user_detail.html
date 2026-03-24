@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}{{ profile_user.get_full_name|default:profile_user.username }} — U-Work{% endblock %}
+{% block content %}
+<div class="card mb-3">
+    <div class="card-body text-center" style="padding: 28px 16px;">
+        {% if profile_user.foto %}
+        <img src="{{ profile_user.foto.url }}" alt="Foto" style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary);">
+        {% else %}
+        <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#4F46E5,#818CF8);display:flex;align-items:center;justify-content:center;margin:0 auto;color:#fff;font-size:2.2rem;">
+            <i class="bi bi-person-fill"></i>
+        </div>
+        {% endif %}
+        <h4 class="mt-2 mb-0" style="font-weight:700; color:var(--text);">{{ profile_user.get_full_name|default:profile_user.username }}</h4>
+        <p class="small mb-1" style="color:var(--text-secondary);">{{ profile_user.email }}</p>
+        <span class="badge mt-1" style="background: {% if profile_user.es_estudiante %}linear-gradient(135deg,#F59E0B,#F97316){% else %}linear-gradient(135deg,#10B981,#059669){% endif %}; color:#fff;">
+            {% if profile_user.es_estudiante %}<i class="bi bi-mortarboard-fill"></i> Estudiante{% else %}<i class="bi bi-megaphone-fill"></i> Empleador{% endif %}
+        </span>
+        <div class="mt-2">
+            <span style="color: var(--star-active); font-size: 1.1rem; font-weight: 700;">
+                <i class="bi bi-star-fill"></i> {{ profile_user.calificacion_promedio }}
+            </span>
+        </div>
+    </div>
+</div>
+
+{% if profile_user.habilidades %}
+<div class="card mb-3">
+    <div class="card-body">
+        <div style="font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary-light); margin-bottom:8px;">
+            <i class="bi bi-lightning"></i> Habilidades
+        </div>
+        <p class="mb-0" style="color:var(--text);">{{ profile_user.habilidades }}</p>
+    </div>
+</div>
+{% endif %}
+
+{% if profile_user.es_estudiante and profile_user.universidad %}
+<div class="card mb-3">
+    <div class="card-body">
+        <div style="font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary-light); margin-bottom:8px;">
+            <i class="bi bi-bank"></i> Universidad
+        </div>
+        <p class="mb-0" style="color:var(--text);">{{ profile_user.universidad }}{% if profile_user.carrera %} — {{ profile_user.carrera }}{% endif %}</p>
+    </div>
+</div>
+{% endif %}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div style="font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary-light); margin-bottom:10px;">
+            <i class="bi bi-star-fill"></i> Calificaciones recibidas
+        </div>
+        {% for review in profile_user.reviews_recibidas.all %}
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:0.9rem; color:var(--text);">{{ review.autor }}</strong>
+                <span>
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= review.puntuacion %}<i class="bi bi-star-fill" style="color:var(--star-active);font-size:0.8rem;"></i>{% else %}<i class="bi bi-star" style="color:var(--star-inactive);font-size:0.8rem;"></i>{% endif %}
+                    {% endfor %}
+                </span>
+            </div>
+            {% if review.comentario %}<p class="mb-0 small mt-1" style="color:var(--text-secondary);">{{ review.comentario }}</p>{% endif %}
+        </div>
+        {% empty %}
+        <p class="text-center small mb-0" style="color:var(--text-secondary);">Sin calificaciones aún</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

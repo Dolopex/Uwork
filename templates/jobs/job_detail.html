@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+{% load form_tags %}
+{% block title %}{{ job.titulo }} — U-Work{% endblock %}
+{% block content %}
+<!-- Header card -->
+<div class="card mb-3">
+    <div class="card-body">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+            <div class="d-flex flex-wrap gap-1">
+                {% if job.urgente %}
+                <span class="badge" style="background:var(--badge-red-bg); color:var(--badge-red-text);"><i class="bi bi-lightning-charge-fill"></i> Urgente</span>
+                {% endif %}
+                {% if job.estado == 'disponible' %}
+                <span class="badge" style="background:var(--badge-blue-bg); color:var(--badge-blue-text);">Disponible</span>
+                {% elif job.estado == 'en_proceso' %}
+                <span class="badge" style="background:var(--badge-amber-bg); color:var(--badge-amber-text);">En proceso</span>
+                {% else %}
+                <span class="badge" style="background:var(--badge-gray-bg); color:var(--badge-gray-text);">Finalizado</span>
+                {% endif %}
+                <span class="badge" style="background:var(--badge-indigo-bg); color:var(--badge-indigo-text);">{{ job.get_categoria_display }}</span>
+                <span class="badge" style="background:var(--badge-green-bg); color:var(--badge-green-text);">{{ job.get_modalidad_display }}</span>
+            </div>
+            <span style="font-size:1.5rem; font-weight:800; color:var(--money);">{{ job.pago|cop }}</span>
+        </div>
+
+        {% if job.imagen %}
+        <div style="border-radius:12px; overflow:hidden; margin-bottom:14px;">
+            <img src="{{ job.imagen.url }}" alt="{{ job.titulo }}" style="width:100%; max-height:200px; object-fit:cover;">
+        </div>
+        {% endif %}
+
+        <h4 style="font-weight:800; margin-bottom:8px; color:var(--text);">{{ job.titulo }}</h4>
+
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <a href="{% url 'accounts:user_detail' job.creador.pk %}" class="d-flex align-items-center gap-2 text-decoration-none" style="color:var(--text);">
+                {% if job.creador.foto %}
+                <img src="{{ job.creador.foto.url }}" class="avatar" style="width:32px;height:32px;">
+                {% else %}
+                <div class="avatar" style="width:32px;height:32px;font-size:0.9rem;"><i class="bi bi-person-fill"></i></div>
+                {% endif %}
+                <span style="font-weight:600; font-size:0.9rem;">{{ job.creador.first_name|default:job.creador.username }}</span>
+            </a>
+            <span style="font-size:0.8rem; color:var(--text-secondary);">· <i class="bi bi-calendar"></i> {{ job.fecha_limite|date:"d M Y" }}</span>
+        </div>
+
+        <!-- Info pills -->
+        <div class="d-flex flex-wrap gap-2 mb-3">
+            {% if job.ubicacion %}
+            <div style="background:var(--surface-alt); border:1px solid var(--border); border-radius:10px; padding:6px 12px; font-size:0.8rem; color:var(--text);">
+                <i class="bi bi-pin-map" style="color:var(--primary-light);"></i> {{ job.ubicacion }}
+            </div>
+            {% endif %}
+            {% if job.duracion_estimada %}
+            <div style="background:var(--surface-alt); border:1px solid var(--border); border-radius:10px; padding:6px 12px; font-size:0.8rem; color:var(--text);">
+                <i class="bi bi-hourglass-split" style="color:var(--star-active);"></i> {{ job.duracion_estimada }}
+            </div>
+            {% endif %}
+        </div>
+
+        <p style="color:var(--text-secondary); line-height:1.6; font-size:0.9rem;">{{ job.descripcion|linebreaks }}</p>
+
+        {% if job.requisitos %}
+        <div style="background:var(--badge-amber-bg); border:1px solid var(--badge-amber-bg); border-radius:12px; padding:14px; margin-top:8px; margin-bottom:8px;">
+            <div style="font-weight:700; font-size:0.8rem; color:var(--badge-amber-text); margin-bottom:6px;">
+                <i class="bi bi-list-check"></i> Requisitos
+            </div>
+            <div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5;">{{ job.requisitos|linebreaks }}</div>
+        </div>
+        {% endif %}
+
+        {% if job.habilidades_requeridas %}
+        <div style="margin-top:8px;">
+            <span style="font-weight:700; font-size:0.8rem; color:var(--text-secondary);"><i class="bi bi-lightning"></i> Habilidades:</span>
+            <div class="d-flex flex-wrap gap-1 mt-1">
+                {% for hab in job.habilidades_requeridas|split:"," %}
+                <span class="badge" style="background:var(--badge-indigo-bg); color:var(--badge-indigo-text); font-weight:500; font-size:0.75rem; padding:4px 10px; border-radius:8px;">{{ hab }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        {% if job.asignado %}
+        <div style="background:var(--badge-blue-bg); border:1px solid var(--badge-blue-bg); border-radius:12px; padding:12px; margin-top:8px;">
+            <i class="bi bi-person-check-fill" style="color:var(--badge-blue-text);"></i>
+            <span style="font-weight:600; color:var(--text);">Asignado a:</span>
+            <a href="{% url 'accounts:user_detail' job.asignado.pk %}" class="fw-bold text-decoration-none" style="color:var(--primary-light);">{{ job.asignado }}</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Actions -->
+{% if user.is_authenticated %}
+<div class="d-grid gap-2 mb-3">
+    {% if user == job.creador %}
+        {% if job.estado == 'disponible' %}
+        <a href="{% url 'jobs:job_edit' job.pk %}" class="btn btn-outline-primary btn-lg py-3">
+            <i class="bi bi-pencil"></i> Editar trabajo
+        </a>
+        <a href="{% url 'jobs:job_applicants' job.pk %}" class="btn btn-primary btn-lg py-3">
+            <i class="bi bi-people"></i> Ver postulantes ({{ job.postulaciones.count }})
+        </a>
+        {% elif job.estado == 'en_proceso' %}
+        <form method="post" action="{% url 'jobs:job_finish' job.pk %}">
+            {% csrf_token %}
+            <button class="btn btn-lg w-100 py-3" style="background:linear-gradient(135deg,#10B981,#059669); color:#fff; font-weight:700; border:none; box-shadow:0 4px 16px rgba(16,185,129,0.3);">
+                <i class="bi bi-check-circle-fill"></i> Marcar como finalizado
+            </button>
+        </form>
+        {% endif %}
+        {% if job.estado == 'finalizado' %}
+        <a href="{% url 'reviews:create_review' job.pk %}" class="btn btn-lg py-3" style="background:linear-gradient(135deg,#F59E0B,#F97316); color:#fff; font-weight:700; border:none; box-shadow:0 4px 16px rgba(245,158,11,0.3);">
+            <i class="bi bi-star-fill"></i> Calificar
+        </a>
+        {% endif %}
+    {% else %}
+        {% if job.estado == 'disponible' and not user_applied %}
+        <a href="{% url 'jobs:job_apply' job.pk %}" class="btn btn-primary btn-lg py-3">
+            <i class="bi bi-send-fill"></i> Postularme
+        </a>
+        {% elif user_applied %}
+        <button class="btn btn-lg py-3 disabled" style="background:var(--surface-alt); color:var(--text-secondary); border:1px solid var(--border);">
+            <i class="bi bi-check2-circle"></i> Ya te postulaste
+        </button>
+        {% endif %}
+        {% if job.estado == 'finalizado' and user == job.asignado %}
+        <a href="{% url 'reviews:create_review' job.pk %}" class="btn btn-lg py-3" style="background:linear-gradient(135deg,#F59E0B,#F97316); color:#fff; font-weight:700; border:none; box-shadow:0 4px 16px rgba(245,158,11,0.3);">
+            <i class="bi bi-star-fill"></i> Calificar
+        </a>
+        {% endif %}
+    {% endif %}
+</div>
+{% else %}
+<a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg w-100 py-3 mb-3">Inicia sesión para postularte</a>
+{% endif %}
+
+<!-- Reviews -->
+{% if job.reviews.exists %}
+<div class="card">
+    <div class="card-body">
+        <div style="font-weight:700; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary-light); margin-bottom:10px;">
+            <i class="bi bi-star-fill"></i> Calificaciones
+        </div>
+        {% for review in job.reviews.all %}
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-weight:600; font-size:0.85rem; color:var(--text);">{{ review.autor }} → {{ review.receptor }}</span>
+                <span>
+                    {% for i in "12345" %}
+                        {% if forloop.counter <= review.puntuacion %}<i class="bi bi-star-fill" style="color:var(--star-active);font-size:0.75rem;"></i>{% else %}<i class="bi bi-star" style="color:var(--star-inactive);font-size:0.75rem;"></i>{% endif %}
+                    {% endfor %}
+                </span>
+            </div>
+            {% if review.comentario %}<p class="mb-0 small mt-1" style="color:var(--text-secondary);">{{ review.comentario }}</p>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load form_tags %}
+{% block title %}Registro — U-Work{% endblock %}
+{% block extra_css %}
+<style>
+    body { background: #0F0E17 !important; padding-bottom: 0 !important; }
+    .app-topbar { display: none !important; }
+    .bottom-nav { display: none !important; }
+    .desktop-sidebar { display: none !important; }
+    .app-layout { margin-left: 0 !important; }
+    .content-wrapper { max-width: 600px !important; padding: 0 16px 40px !important; }
+
+    /* Animated BG */
+    .reg-bg {
+        position: fixed; inset: 0; z-index: 0; overflow: hidden;
+        background: linear-gradient(160deg, #0d2818 0%, #0F0E17 40%, #0a1628 100%);
+    }
+    .reg-bg .orb {
+        position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4;
+        animation: orbFloat 12s ease-in-out infinite alternate;
+    }
+    .reg-bg .orb-1 { width: 400px; height: 400px; background: #10B981; top: -100px; right: -80px; }
+    .reg-bg .orb-2 { width: 300px; height: 300px; background: #059669; bottom: -80px; left: -60px; animation-delay: -5s; }
+    @keyframes orbFloat {
+        0% { transform: translate(0, 0) scale(1); }
+        100% { transform: translate(30px, -20px) scale(1.08); }
+    }
+
+    /* Header */
+    .reg-hero {
+        text-align: center; padding: 40px 0 28px; color: #fff;
+        position: relative; z-index: 1;
+        animation: heroFadeIn 0.6s ease-out;
+    }
+    @keyframes heroFadeIn { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+    .reg-hero .icon-wrap {
+        width: 80px; height: 80px; border-radius: 24px;
+        background: linear-gradient(135deg, #10B981, #059669);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 2.2rem; color: #fff; margin-bottom: 16px;
+        box-shadow: 0 16px 48px rgba(16,185,129,0.35);
+        animation: iconBounce 2s ease-in-out infinite;
+    }
+    @keyframes iconBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-6px); }
+    }
+    .reg-hero h2 { font-weight: 900; font-size: 1.7rem; margin: 0; letter-spacing: -0.5px; }
+    .reg-hero p { opacity: 0.5; font-size: 0.9rem; margin-top: 6px; }
+
+    /* Back button */
+    .back-link {
+        display: inline-flex; align-items: center; gap: 6px;
+        color: rgba(255,255,255,0.6); text-decoration: none;
+        font-weight: 600; font-size: 0.85rem; padding: 10px 0;
+        transition: color 0.2s; position: relative; z-index: 1;
+    }
+    .back-link:hover { color: #fff; }
+
+    /* Progress steps */
+    .progress-steps {
+        display: flex; justify-content: center; gap: 8px;
+        margin-bottom: 24px; position: relative; z-index: 1;
+    }
+    .progress-step {
+        width: 48px; height: 5px; border-radius: 3px;
+        background: rgba(255,255,255,0.1);
+        transition: all 0.4s ease;
+    }
+    .progress-step.active { background: #10B981; width: 64px; }
+    .progress-step.done { background: rgba(16,185,129,0.4); }
+
+    /* Form sections */
+    .form-section {
+        background: rgba(255,255,255,0.05);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 22px; padding: 24px 20px;
+        margin-bottom: 16px; position: relative; z-index: 1;
+        animation: sectionSlideUp 0.5s ease-out both;
+    }
+    .form-section:nth-child(2) { animation-delay: 0.1s; }
+    .form-section:nth-child(3) { animation-delay: 0.2s; }
+    @keyframes sectionSlideUp {
+        from { opacity: 0; transform: translateY(24px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .form-section-title {
+        font-weight: 700; font-size: 0.78rem; text-transform: uppercase;
+        letter-spacing: 1.2px; color: #10B981; margin-bottom: 16px;
+        display: flex; align-items: center; gap: 8px;
+    }
+    .form-section-title .step-num {
+        width: 24px; height: 24px; border-radius: 50%;
+        background: linear-gradient(135deg, #10B981, #059669);
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.7rem; color: #fff; font-weight: 800;
+    }
+
+    /* Inputs */
+    .form-label { color: rgba(255,255,255,0.5); font-weight: 600; font-size: 0.8rem; }
+    .form-control, .form-select {
+        background: rgba(255,255,255,0.06) !important;
+        border: 2px solid rgba(255,255,255,0.08) !important;
+        color: #fff !important; border-radius: 14px !important;
+        padding: 14px 16px !important; font-size: 0.95rem !important;
+        transition: all 0.25s !important;
+    }
+    .form-control::placeholder { color: rgba(255,255,255,0.2) !important; }
+    .form-control:focus, .form-select:focus {
+        border-color: #10B981 !important;
+        background: rgba(16,185,129,0.06) !important;
+        box-shadow: 0 0 0 4px rgba(16,185,129,0.1) !important;
+    }
+
+    /* Upload area */
+    .upload-area {
+        border: 2px dashed rgba(255,255,255,0.12); border-radius: 18px;
+        padding: 24px; text-align: center; cursor: pointer;
+        transition: all 0.3s; background: rgba(255,255,255,0.02);
+    }
+    .upload-area:hover {
+        border-color: #10B981; background: rgba(16,185,129,0.05);
+        transform: scale(1.01);
+    }
+    .upload-area i { font-size: 2.2rem; color: rgba(255,255,255,0.2); }
+    .upload-area p { font-size: 0.8rem; color: rgba(255,255,255,0.4); margin: 10px 0 0; }
+    .upload-area .upload-hint {
+        font-size: 0.7rem; color: rgba(255,255,255,0.2); margin-top: 4px;
+    }
+
+    /* Submit button */
+    .btn-register {
+        background: linear-gradient(135deg, #10B981, #059669);
+        border: none; border-radius: 16px; padding: 18px;
+        font-size: 1.1rem; font-weight: 800; color: #fff;
+        width: 100%; cursor: pointer; position: relative; overflow: hidden;
+        transition: all 0.3s; z-index: 1;
+        box-shadow: 0 12px 32px rgba(16,185,129,0.3);
+    }
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 16px 40px rgba(16,185,129,0.4);
+    }
+    .btn-register .btn-shine {
+        position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        animation: btnShine 3s ease-in-out infinite;
+    }
+    @keyframes btnShine {
+        0%, 100% { left: -100%; } 50% { left: 100%; }
+    }
+
+    .text-danger { color: #FCA5A5 !important; }
+    .text-muted { color: rgba(255,255,255,0.35) !important; }
+    a.fw-bold { color: #10B981 !important; }
+
+    @media (min-width: 992px) {
+        .content-wrapper { max-width: 640px !important; padding-top: 20px !important; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="reg-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+</div>
+
+<a href="{% url 'accounts:role_select' %}" class="back-link"><i class="bi bi-arrow-left"></i> Volver</a>
+
+<div class="reg-hero">
+    <div class="icon-wrap"><i class="bi bi-megaphone-fill"></i></div>
+    <h2>Crear cuenta</h2>
+    <p>Regístrate para publicar trabajos y encontrar talento</p>
+</div>
+
+<div class="progress-steps">
+    <div class="progress-step active"></div>
+    <div class="progress-step"></div>
+    <div class="progress-step"></div>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="regForm">
+    {% csrf_token %}
+
+    <!-- 1. Datos personales -->
+    <div class="form-section">
+        <div class="form-section-title"><span class="step-num">1</span> Datos personales</div>
+        <div class="row g-2">
+            <div class="col-6">
+                <label class="form-label">Nombre</label>
+                {{ form.first_name|add_class:"form-control" }}
+            </div>
+            <div class="col-6">
+                <label class="form-label">Apellido</label>
+                {{ form.last_name|add_class:"form-control" }}
+            </div>
+        </div>
+        <div class="mt-2">
+            <label class="form-label">Usuario</label>
+            {{ form.username|add_class:"form-control" }}
+            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="mt-2">
+            <label class="form-label">Correo electrónico</label>
+            {{ form.email|add_class:"form-control" }}
+        </div>
+        <div class="row g-2 mt-1">
+            <div class="col-6">
+                <label class="form-label">Cédula / Documento</label>
+                {{ form.cedula|add_class:"form-control" }}
+            </div>
+            <div class="col-6">
+                <label class="form-label">Fecha de nacimiento</label>
+                {{ form.fecha_nacimiento|add_class:"form-control" }}
+            </div>
+        </div>
+        <div class="row g-2 mt-1">
+            <div class="col-6">
+                <label class="form-label">Teléfono</label>
+                {{ form.telefono|add_class:"form-control" }}
+            </div>
+            <div class="col-6">
+                <label class="form-label">Ubicación</label>
+                {{ form.direccion|add_class:"form-control" }}
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. Foto de perfil -->
+    <div class="form-section">
+        <div class="form-section-title"><span class="step-num">2</span> Foto de perfil (opcional)</div>
+        <label class="upload-area d-block" for="id_foto">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+            <p>Toca para subir tu foto</p>
+            <div class="upload-hint">JPG, PNG — Máx 5MB</div>
+        </label>
+        <div style="display:none;">{{ form.foto }}</div>
+    </div>
+
+    <!-- 3. Contraseña -->
+    <div class="form-section">
+        <div class="form-section-title"><span class="step-num">3</span> Contraseña</div>
+        <div class="mb-2">
+            <label class="form-label">Contraseña</label>
+            {{ form.password1|add_class:"form-control" }}
+            {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>{% endif %}
+        </div>
+        <div>
+            <label class="form-label">Confirmar contraseña</label>
+            {{ form.password2|add_class:"form-control" }}
+            {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>{% endif %}
+        </div>
+    </div>
+
+    <button type="submit" class="btn-register mb-3">
+        <span class="btn-shine"></span>
+        <i class="bi bi-rocket-takeoff-fill"></i> Crear mi cuenta
+    </button>
+
+    <p class="text-center small" style="color:rgba(255,255,255,0.4); position:relative; z-index:1;">
+        ¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}" class="fw-bold" style="text-decoration:none;">Inicia sesión</a>
+    </p>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Animate progress steps on scroll
+    (function() {
+        var sections = document.querySelectorAll('.form-section');
+        var steps = document.querySelectorAll('.progress-step');
+        function updateProgress() {
+            var scrollPos = window.scrollY + window.innerHeight * 0.5;
+            sections.forEach(function(s, i) {
+                if (s.offsetTop < scrollPos) {
+                    steps.forEach(function(st, j) {
+                        st.classList.toggle('active', j === i);
+                        st.classList.toggle('done', j < i);
+                    });
+                }
+            });
+        }
+        window.addEventListener('scroll', updateProgress);
+        updateProgress();
+    })();
+</script>
+{% endblock %}

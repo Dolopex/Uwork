@@ -1,0 +1,328 @@
+{% extends 'base.html' %}
+{% load form_tags %}
+{% block title %}{{ titulo_pagina }} — U-Work{% endblock %}
+{% block content %}
+<style>
+    .form-section {
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+    .form-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+    }
+    .form-section-header .icon-circle {
+        width: 36px; height: 36px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.1rem;
+        flex-shrink: 0;
+    }
+    .form-section-header h6 {
+        font-weight: 700;
+        font-size: 0.95rem;
+        margin: 0;
+        color: var(--text);
+    }
+    .form-section-header small {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+        font-weight: 400;
+        margin-top: 2px;
+    }
+    .form-field label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--text);
+        margin-bottom: 6px;
+        display: block;
+    }
+    .form-field .form-control,
+    .form-field .form-select {
+        border: 1px solid var(--input-border);
+        border-radius: 12px;
+        padding: 12px 14px;
+        font-size: 0.9rem;
+        transition: all 0.2s;
+        background: var(--input-bg);
+        color: var(--text);
+    }
+    .form-field .form-control:focus,
+    .form-field .form-select:focus {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+        background: var(--input-bg);
+        outline: none;
+        color: var(--text);
+    }
+    .form-field .form-control::placeholder { color: var(--input-placeholder); }
+    .form-field textarea.form-control { resize: vertical; min-height: 90px; }
+    .form-field .form-select option { background: var(--select-option-bg); color: var(--text); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
+    .urgente-toggle {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(245,158,11,0.08);
+        border: 1px solid rgba(245,158,11,0.2);
+        border-radius: 12px;
+        padding: 14px 16px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .urgente-toggle:has(input:checked) {
+        background: rgba(245,158,11,0.15);
+        border-color: rgba(245,158,11,0.4);
+    }
+    .urgente-toggle input { display: none; }
+    .urgente-toggle .toggle-icon {
+        width: 40px; height: 40px;
+        border-radius: 10px;
+        background: rgba(245,158,11,0.2);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+        color: #FCD34D;
+        transition: background 0.2s;
+    }
+    .urgente-toggle:has(input:checked) .toggle-icon { background: rgba(245,158,11,0.35); }
+    .urgente-toggle .toggle-text { font-weight: 600; font-size: 0.9rem; color: #FCD34D; }
+    .urgente-toggle .toggle-hint { font-size: 0.75rem; color: rgba(245,158,11,0.7); }
+    .upload-area {
+        border: 2px dashed var(--input-border);
+        border-radius: 14px;
+        padding: 24px 16px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: var(--surface);
+        position: relative;
+    }
+    .upload-area:hover { border-color: var(--primary-light); background: rgba(79,70,229,0.08); }
+    .upload-area input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+    .upload-area .upload-icon { font-size: 2rem; color: var(--text-secondary); margin-bottom: 8px; }
+    .upload-area .upload-text { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
+    .upload-area .upload-hint { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
+    .step-progress {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 20px;
+    }
+    .step-bar {
+        flex: 1;
+        height: 4px;
+        border-radius: 2px;
+        background: var(--surface-alt);
+    }
+    .step-bar.active { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+    .pago-input-wrap {
+        position: relative;
+    }
+    .pago-input-wrap .currency-prefix {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-weight: 700;
+        color: var(--money);
+        font-size: 1rem;
+        pointer-events: none;
+    }
+    .pago-input-wrap .form-control {
+        padding-left: 32px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--money);
+    }
+</style>
+
+<!-- Header -->
+<div style="text-align:center; margin-bottom: 20px;">
+    <div style="width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg,var(--primary),var(--primary-light)); display:inline-flex; align-items:center; justify-content:center; margin-bottom:10px;">
+        <i class="bi bi-{% if 'Editar' in titulo_pagina %}pencil-square{% else %}megaphone-fill{% endif %}" style="color:#fff; font-size:1.5rem;"></i>
+    </div>
+    <h5 style="font-weight:800; margin:0;">{{ titulo_pagina }}</h5>
+    <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;">Completa la información para que los estudiantes puedan encontrar tu trabajo</p>
+</div>
+
+<!-- Progress indicators -->
+<div class="step-progress">
+    <div class="step-bar active"></div>
+    <div class="step-bar active"></div>
+    <div class="step-bar active"></div>
+    <div class="step-bar active"></div>
+</div>
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Section 1: Información básica -->
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="icon-circle" style="background:var(--icon-purple-bg); color:#A78BFA;">
+                <i class="bi bi-info-circle-fill"></i>
+            </div>
+            <div>
+                <h6>Información básica</h6>
+                <small>Título y descripción del trabajo</small>
+            </div>
+        </div>
+
+        <div class="form-field mb-3">
+            <label for="id_titulo"><i class="bi bi-type-h1"></i> {{ form.titulo.label }}</label>
+            {{ form.titulo|add_class:"form-control" }}
+            {% if form.titulo.errors %}<div class="text-danger small mt-1">{{ form.titulo.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-field mb-3">
+            <label for="id_descripcion"><i class="bi bi-text-paragraph"></i> {{ form.descripcion.label }}</label>
+            {{ form.descripcion|add_class:"form-control" }}
+            {% if form.descripcion.errors %}<div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-field">
+            <label for="id_requisitos"><i class="bi bi-list-check"></i> {{ form.requisitos.label }}</label>
+            {{ form.requisitos|add_class:"form-control" }}
+            <div class="form-text" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">Opcional — detalla qué necesitas del candidato</div>
+            {% if form.requisitos.errors %}<div class="text-danger small mt-1">{{ form.requisitos.errors.0 }}</div>{% endif %}
+        </div>
+    </div>
+
+    <!-- Section 2: Categorización -->
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="icon-circle" style="background:var(--icon-blue-bg); color:var(--badge-blue-text);">
+                <i class="bi bi-tags-fill"></i>
+            </div>
+            <div>
+                <h6>Categorización</h6>
+                <small>Categoría, modalidad y habilidades</small>
+            </div>
+        </div>
+
+        <div class="form-row mb-3">
+            <div class="form-field">
+                <label for="id_categoria"><i class="bi bi-bookmark"></i> {{ form.categoria.label }}</label>
+                {{ form.categoria|add_class:"form-select" }}
+                {% if form.categoria.errors %}<div class="text-danger small mt-1">{{ form.categoria.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-field">
+                <label for="id_modalidad"><i class="bi bi-geo-alt"></i> {{ form.modalidad.label }}</label>
+                {{ form.modalidad|add_class:"form-select" }}
+                {% if form.modalidad.errors %}<div class="text-danger small mt-1">{{ form.modalidad.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-field mb-3">
+            <label for="id_ubicacion"><i class="bi bi-pin-map"></i> {{ form.ubicacion.label }}</label>
+            {{ form.ubicacion|add_class:"form-control" }}
+            <div class="form-text" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">Opcional — relevante si es presencial o híbrido</div>
+            {% if form.ubicacion.errors %}<div class="text-danger small mt-1">{{ form.ubicacion.errors.0 }}</div>{% endif %}
+        </div>
+
+        <div class="form-field">
+            <label for="id_habilidades_requeridas"><i class="bi bi-lightning"></i> {{ form.habilidades_requeridas.label }}</label>
+            {{ form.habilidades_requeridas|add_class:"form-control" }}
+            <div class="form-text" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">Separadas por comas</div>
+            {% if form.habilidades_requeridas.errors %}<div class="text-danger small mt-1">{{ form.habilidades_requeridas.errors.0 }}</div>{% endif %}
+        </div>
+    </div>
+
+    <!-- Section 3: Pago y tiempo -->
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="icon-circle" style="background:var(--icon-green-bg); color:var(--badge-green-text);">
+                <i class="bi bi-cash-stack"></i>
+            </div>
+            <div>
+                <h6>Pago y plazo</h6>
+                <small>Compensación y tiempos del trabajo</small>
+            </div>
+        </div>
+
+        <div class="form-row mb-3">
+            <div class="form-field">
+                <label for="id_pago"><i class="bi bi-currency-dollar"></i> {{ form.pago.label }}</label>
+                <div class="pago-input-wrap">
+                    <span class="currency-prefix">$</span>
+                    {{ form.pago|add_class:"form-control" }}
+                </div>
+                {% if form.pago.errors %}<div class="text-danger small mt-1">{{ form.pago.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-field">
+                <label for="id_duracion_estimada"><i class="bi bi-hourglass-split"></i> {{ form.duracion_estimada.label }}</label>
+                {{ form.duracion_estimada|add_class:"form-control" }}
+                {% if form.duracion_estimada.errors %}<div class="text-danger small mt-1">{{ form.duracion_estimada.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+
+        <div class="form-field">
+            <label for="id_fecha_limite"><i class="bi bi-calendar-event"></i> {{ form.fecha_limite.label }}</label>
+            {{ form.fecha_limite|add_class:"form-control" }}
+            {% if form.fecha_limite.errors %}<div class="text-danger small mt-1">{{ form.fecha_limite.errors.0 }}</div>{% endif %}
+        </div>
+    </div>
+
+    <!-- Section 4: Extras -->
+    <div class="form-section">
+        <div class="form-section-header">
+            <div class="icon-circle" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);">
+                <i class="bi bi-stars"></i>
+            </div>
+            <div>
+                <h6>Extras</h6>
+                <small>Prioridad e imagen de referencia</small>
+            </div>
+        </div>
+
+        <!-- Urgente toggle -->
+        <label class="urgente-toggle mb-3">
+            {{ form.urgente }}
+            <div class="toggle-icon">
+                <i class="bi bi-lightning-charge-fill"></i>
+            </div>
+            <div>
+                <div class="toggle-text">{{ form.urgente.label }}</div>
+                <div class="toggle-hint">Se mostrará con una etiqueta destacada</div>
+            </div>
+        </label>
+
+        <!-- Image upload -->
+        <div class="form-field">
+            <label><i class="bi bi-image"></i> {{ form.imagen.label }}</label>
+            <div class="upload-area">
+                {{ form.imagen }}
+                <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                <div class="upload-text">Toca para subir una imagen</div>
+                <div class="upload-hint">JPG, PNG — máximo 5 MB</div>
+            </div>
+            {% if form.imagen.errors %}<div class="text-danger small mt-1">{{ form.imagen.errors.0 }}</div>{% endif %}
+        </div>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-lg w-100 py-3" style="background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; font-weight:700; border:none; border-radius:14px; font-size:1rem; box-shadow:0 4px 16px rgba(79,70,229,0.35);">
+        <i class="bi bi-{% if 'Editar' in titulo_pagina %}check-circle{% else %}rocket-takeoff-fill{% endif %}"></i>
+        {% if 'Editar' in titulo_pagina %}Guardar cambios{% else %}Publicar trabajo{% endif %}
+    </button>
+
+    <p style="text-align:center; font-size:0.75rem; color:var(--text-secondary); margin-top:12px; margin-bottom:0;">
+        <i class="bi bi-shield-check"></i> Tu publicación será visible para todos los estudiantes
+    </p>
+</form>
+{% endblock %}

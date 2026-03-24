@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load form_tags %}
+{% block title %}Mis trabajos — U-Work{% endblock %}
+{% block extra_css %}
+<style>
+    .tab-pills { display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+    .tab-pills .pill {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        border-radius: 20px;
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-weight: 600;
+        font-size: 0.82rem;
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+    .tab-pills .pill.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .job-mini { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid var(--border); }
+    .job-mini:last-child { border-bottom: none; }
+    .job-mini .title { font-weight: 600; font-size: 0.9rem; color: var(--text); text-decoration: none; }
+    .job-mini .title:hover { color: var(--primary-light); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="section-title"><i class="bi bi-briefcase" style="color: var(--primary-light);"></i> Mis trabajos</div>
+
+<div class="tab-pills" role="tablist">
+    <button class="pill active" data-bs-toggle="pill" data-bs-target="#creados">Publicados ({{ creados.count }})</button>
+    <button class="pill" data-bs-toggle="pill" data-bs-target="#asignados">Asignados ({{ asignados.count }})</button>
+    <button class="pill" data-bs-toggle="pill" data-bs-target="#postulados">Postulados ({{ postulados.count }})</button>
+</div>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="creados">
+        <div class="card">
+            <div class="card-body">
+                {% for job in creados %}
+                <div class="job-mini">
+                    <div>
+                        <a href="{% url 'jobs:job_detail' job.pk %}" class="title">{{ job.titulo }}</a>
+                        <br>
+                        {% if job.estado == 'disponible' %}
+                        <span class="badge" style="background:var(--badge-blue-bg); color:var(--badge-blue-text); font-size:0.7rem;">Disponible</span>
+                        {% elif job.estado == 'en_proceso' %}
+                        <span class="badge" style="background:var(--badge-amber-bg); color:var(--badge-amber-text); font-size:0.7rem;">En proceso</span>
+                        {% else %}
+                        <span class="badge" style="background:var(--badge-gray-bg); color:var(--badge-gray-text); font-size:0.7rem;">Finalizado</span>
+                        {% endif %}
+                    </div>
+                    <span style="font-weight:700; color:var(--money);">{{ job.pago|cop }}</span>
+                </div>
+                {% empty %}
+                <p class="text-center small mb-0 py-3" style="color:var(--text-secondary);">No has publicado trabajos</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="asignados">
+        <div class="card">
+            <div class="card-body">
+                {% for job in asignados %}
+                <div class="job-mini">
+                    <div>
+                        <a href="{% url 'jobs:job_detail' job.pk %}" class="title">{{ job.titulo }}</a>
+                        <br>
+                        {% if job.estado == 'en_proceso' %}
+                        <span class="badge" style="background:var(--badge-amber-bg); color:var(--badge-amber-text); font-size:0.7rem;">En proceso</span>
+                        {% else %}
+                        <span class="badge" style="background:var(--badge-gray-bg); color:var(--badge-gray-text); font-size:0.7rem;">Finalizado</span>
+                        {% endif %}
+                    </div>
+                    <span style="font-weight:700; color:var(--money);">{{ job.pago|cop }}</span>
+                </div>
+                {% empty %}
+                <p class="text-center small mb-0 py-3" style="color:var(--text-secondary);">No tienes trabajos asignados</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="postulados">
+        <div class="card">
+            <div class="card-body">
+                {% for job in postulados %}
+                <div class="job-mini">
+                    <div>
+                        <a href="{% url 'jobs:job_detail' job.pk %}" class="title">{{ job.titulo }}</a>
+                        <br>
+                        {% if job.estado == 'disponible' %}
+                        <span class="badge" style="background:var(--badge-blue-bg); color:var(--badge-blue-text); font-size:0.7rem;">Disponible</span>
+                        {% elif job.estado == 'en_proceso' %}
+                        <span class="badge" style="background:var(--badge-amber-bg); color:var(--badge-amber-text); font-size:0.7rem;">En proceso</span>
+                        {% else %}
+                        <span class="badge" style="background:var(--badge-gray-bg); color:var(--badge-gray-text); font-size:0.7rem;">Finalizado</span>
+                        {% endif %}
+                    </div>
+                    <span style="font-weight:700; color:var(--money);">{{ job.pago|cop }}</span>
+                </div>
+                {% empty %}
+                <p class="text-center small mb-0 py-3" style="color:var(--text-secondary);">No te has postulado a ningún trabajo</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

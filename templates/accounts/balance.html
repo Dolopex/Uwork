@@ -1,0 +1,414 @@
+{% extends 'base.html' %}
+{% load form_tags %}
+{% block title %}Mi Balance — U-Work{% endblock %}
+{% block content %}
+<style>
+    .balance-hero {
+        background: linear-gradient(135deg, #10B981, #059669);
+        border-radius: 20px;
+        padding: 24px 20px;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 16px;
+    }
+    .balance-hero::before {
+        content: '';
+        position: absolute;
+        top: -40px; right: -40px;
+        width: 140px; height: 140px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.08);
+    }
+    .balance-hero .hero-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+    .balance-hero .hero-amount {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin: 4px 0 0;
+        line-height: 1.1;
+    }
+    .balance-hero .hero-sub {
+        font-size: 0.8rem;
+        opacity: 0.7;
+        margin-top: 4px;
+    }
+    .metric-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    .metric-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 16px;
+        position: relative;
+        overflow: hidden;
+    }
+    .metric-card .metric-icon {
+        width: 38px; height: 38px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1rem; margin-bottom: 10px;
+    }
+    .metric-card .metric-value {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--text);
+        line-height: 1;
+    }
+    .metric-card .metric-label {
+        font-size: 0.7rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-top: 4px;
+    }
+    .metric-card .metric-bar {
+        position: absolute;
+        bottom: 0; left: 0; right: 0;
+        height: 3px;
+    }
+    .section-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 16px;
+    }
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+    }
+    .section-header .sh-icon {
+        width: 34px; height: 34px;
+        border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 0.95rem;
+    }
+    .section-header h6 {
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin: 0;
+        color: var(--text);
+    }
+    /* Status breakdown */
+    .status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border);
+    }
+    .status-row:last-child { border-bottom: none; }
+    .status-dot {
+        width: 10px; height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 8px;
+    }
+    .status-row .label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+    }
+    .status-row .value {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--text);
+    }
+    /* Bar chart */
+    .bar-chart {
+        display: flex;
+        align-items: flex-end;
+        gap: 8px;
+        height: 120px;
+        padding-top: 10px;
+    }
+    .bar-col {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
+    .bar-fill {
+        width: 100%;
+        max-width: 36px;
+        border-radius: 8px 8px 4px 4px;
+        background: linear-gradient(180deg, var(--primary-light), var(--primary));
+        transition: height 0.5s ease;
+        min-height: 4px;
+    }
+    .bar-label {
+        font-size: 0.65rem;
+        color: var(--text-secondary);
+        font-weight: 600;
+    }
+    .bar-value {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--text);
+    }
+    /* Category bars */
+    .cat-bar-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+    .cat-bar-row .cat-label {
+        width: 80px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--text);
+        text-align: right;
+        flex-shrink: 0;
+    }
+    .cat-bar-track {
+        flex: 1;
+        height: 10px;
+        background: var(--surface-alt);
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    .cat-bar-fill {
+        height: 100%;
+        border-radius: 5px;
+        transition: width 0.6s ease;
+    }
+    .cat-bar-row .cat-count {
+        font-size: 0.75rem;
+        font-weight: 700;
+        width: 24px;
+        text-align: center;
+        color: var(--text-secondary);
+    }
+    /* Progress ring */
+    .completion-ring {
+        width: 80px; height: 80px;
+        position: relative;
+        display: inline-block;
+    }
+    .completion-ring svg { transform: rotate(-90deg); }
+    .completion-ring .ring-text {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: 800;
+        font-size: 1rem;
+        color: var(--text);
+    }
+</style>
+
+<!-- Header -->
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+    <div>
+        <h5 style="font-weight:800; margin:0; color:var(--text);">Mi Balance</h5>
+        <p style="font-size:0.8rem; color:var(--text-secondary); margin:2px 0 0;">Resumen de tu actividad en U-Work</p>
+    </div>
+    <a href="{% url 'accounts:profile' %}" style="width:36px;height:36px;border-radius:10px;background:var(--icon-indigo-bg);display:flex;align-items:center;justify-content:center;color:var(--badge-indigo-text);text-decoration:none;">
+        <i class="bi bi-person"></i>
+    </a>
+</div>
+
+<!-- Hero Card — Earnings for students, Spending for employers -->
+{% if user.es_estudiante %}
+<div class="balance-hero">
+    <div class="hero-label"><i class="bi bi-wallet2"></i> Total ganado</div>
+    <div class="hero-amount">{{ total_ganado|cop }}</div>
+    <div class="hero-sub">{{ asignados_finalizados }} trabajo{{ asignados_finalizados|pluralize:"s" }} completado{{ asignados_finalizados|pluralize:"s" }}</div>
+</div>
+{% else %}
+<div class="balance-hero" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));">
+    <div class="hero-label"><i class="bi bi-cash-stack"></i> Total invertido</div>
+    <div class="hero-amount">{{ total_gastado|cop }}</div>
+    <div class="hero-sub">{{ publicados_finalizados }} trabajo{{ publicados_finalizados|pluralize:"s" }} finalizado{{ publicados_finalizados|pluralize:"s" }}</div>
+</div>
+{% endif %}
+
+<!-- Key Metrics -->
+<div class="metric-grid">
+    {% if user.es_estudiante %}
+    <div class="metric-card">
+        <div class="metric-icon" style="background:var(--icon-blue-bg); color:var(--badge-blue-text);"><i class="bi bi-send-fill"></i></div>
+        <div class="metric-value">{{ total_postulaciones }}</div>
+        <div class="metric-label">Postulaciones</div>
+        <div class="metric-bar" style="background:linear-gradient(90deg,#2563EB,#60A5FA);"></div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-check2-all"></i></div>
+        <div class="metric-value">{{ postulaciones_aceptadas }}</div>
+        <div class="metric-label">Aceptadas</div>
+        <div class="metric-bar" style="background:linear-gradient(90deg,#059669,#34D399);"></div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-briefcase-fill"></i></div>
+        <div class="metric-value">{{ asignados_en_proceso }}</div>
+        <div class="metric-label">En proceso</div>
+        <div class="metric-bar" style="background:linear-gradient(90deg,#D97706,#FBBF24);"></div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon" style="background:var(--icon-purple-bg); color:var(--icon-purple-text);"><i class="bi bi-star-fill"></i></div>
+        <div class="metric-value">{{ user.calificacion_promedio }}</div>
+        <div class="metric-label">Rating</div>
+        <div class="metric-bar" style="background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div>
+    </div>
+    {% else %}
+    <div class="metric-card">
+        <div class="metric-icon" style="background:var(--icon-indigo-bg); color:var(--badge-indigo-text);"><i class="bi bi-megaphone-fill"></i></div>
+        <div class="metric-value">{{ total_publicados }}</div>
+        <div class="metric-label">Publicados</div>
+        <div class="metric-bar" style="background:linear-gradient(90deg,#4F46E5,#818CF8);"></div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-hourglass-split"></i></div>
+        <div class="metric-value">{{ publicados_en_proceso }}</div>
+        <div class="metric-label">En proceso</div>
+        <div class="metric-bar" style="background:linear-gradient(90deg,#D97706,#FBBF24);"></div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-check-circle-fill"></i></div>
+        <div class="metric-value">{{ publicados_finalizados }}</div>
+        <div class="metric-label">Finalizados</div>
+        <div class="metric-bar" style="background:linear-gradient(90deg,#059669,#34D399);"></div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-icon" style="background:var(--icon-purple-bg); color:var(--icon-purple-text);"><i class="bi bi-star-fill"></i></div>
+        <div class="metric-value">{{ user.calificacion_promedio }}</div>
+        <div class="metric-label">Rating</div>
+        <div class="metric-bar" style="background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Activity Chart (last 6 months) -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="sh-icon" style="background:var(--icon-blue-bg); color:var(--badge-blue-text);"><i class="bi bi-bar-chart-fill"></i></div>
+        <h6>Actividad (últimos 6 meses)</h6>
+    </div>
+    <div class="bar-chart">
+        {% for mes in meses %}
+        <div class="bar-col">
+            <div class="bar-value">{{ mes.count }}</div>
+            <div class="bar-fill" style="height: {% widthratio mes.count max_mes 100 %}%;"></div>
+            <div class="bar-label">{{ mes.label }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <div style="text-align:center; margin-top:8px;">
+        <span style="font-size:0.7rem; color:var(--text-secondary);">
+            {% if user.es_estudiante %}Postulaciones realizadas{% else %}Trabajos publicados{% endif %} por mes
+        </span>
+    </div>
+</div>
+
+<!-- Category Breakdown -->
+{% if categorias_data %}
+<div class="section-card">
+    <div class="section-header">
+        <div class="sh-icon" style="background:var(--icon-purple-bg); color:var(--icon-purple-text);"><i class="bi bi-pie-chart-fill"></i></div>
+        <h6>Por categoría</h6>
+    </div>
+    {% for cat in categorias_data %}
+    <div class="cat-bar-row">
+        <div class="cat-label">{{ cat.nombre }}</div>
+        <div class="cat-bar-track">
+            <div class="cat-bar-fill" style="width: {% widthratio cat.total categorias_data.0.total 100 %}%; background: {{ cat.color }};"></div>
+        </div>
+        <div class="cat-count">{{ cat.total }}</div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Status Breakdown -->
+{% if user.es_estudiante %}
+<div class="section-card">
+    <div class="section-header">
+        <div class="sh-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-list-ul"></i></div>
+        <h6>Desglose de postulaciones</h6>
+    </div>
+    <div class="status-row">
+        <span class="label"><span class="status-dot" style="background:#F59E0B;"></span> Pendientes</span>
+        <span class="value">{{ postulaciones_pendientes }}</span>
+    </div>
+    <div class="status-row">
+        <span class="label"><span class="status-dot" style="background:#10B981;"></span> Aceptadas</span>
+        <span class="value">{{ postulaciones_aceptadas }}</span>
+    </div>
+    <div class="status-row">
+        <span class="label"><span class="status-dot" style="background:#EF4444;"></span> Rechazadas</span>
+        <span class="value">{{ postulaciones_rechazadas }}</span>
+    </div>
+</div>
+{% else %}
+<div class="section-card">
+    <div class="section-header">
+        <div class="sh-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-list-ul"></i></div>
+        <h6>Estado de trabajos</h6>
+    </div>
+    <div class="status-row">
+        <span class="label"><span class="status-dot" style="background:#3B82F6;"></span> Disponibles</span>
+        <span class="value">{{ publicados_disponibles }}</span>
+    </div>
+    <div class="status-row">
+        <span class="label"><span class="status-dot" style="background:#F59E0B;"></span> En proceso</span>
+        <span class="value">{{ publicados_en_proceso }}</span>
+    </div>
+    <div class="status-row">
+        <span class="label"><span class="status-dot" style="background:#10B981;"></span> Finalizados</span>
+        <span class="value">{{ publicados_finalizados }}</span>
+    </div>
+</div>
+{% endif %}
+
+<!-- Reviews summary -->
+<div class="section-card">
+    <div class="section-header">
+        <div class="sh-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-chat-square-heart-fill"></i></div>
+        <h6>Calificaciones</h6>
+    </div>
+    <div style="display:flex; gap:16px; justify-content:center; text-align:center;">
+        <div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--text);">{{ reviews_recibidas }}</div>
+            <div style="font-size:0.7rem; color:var(--text-secondary); font-weight:600;">RECIBIDAS</div>
+        </div>
+        <div style="width:1px; background:var(--border);"></div>
+        <div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--text);">{{ reviews_realizadas }}</div>
+            <div style="font-size:0.7rem; color:var(--text-secondary); font-weight:600;">REALIZADAS</div>
+        </div>
+        <div style="width:1px; background:var(--border);"></div>
+        <div>
+            <div style="font-size:1.8rem; font-weight:800; color:var(--star-active);">
+                <i class="bi bi-star-fill" style="font-size:1rem;"></i> {{ user.calificacion_promedio }}
+            </div>
+            <div style="font-size:0.7rem; color:var(--text-secondary); font-weight:600;">PROMEDIO</div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="d-grid gap-2 mb-3">
+    <a href="{% url 'jobs:my_jobs' %}" class="btn btn-lg py-3" style="background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; font-weight:700; border:none; border-radius:14px;">
+        <i class="bi bi-briefcase-fill"></i> Ir a mis trabajos
+    </a>
+    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary btn-lg py-3" style="border-radius:14px;">
+        <i class="bi bi-person"></i> Volver al perfil
+    </a>
+</div>
+{% endblock %}

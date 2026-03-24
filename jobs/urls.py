@@ -1,0 +1,16 @@
+from django.urls import path
+from . import views
+
+app_name = 'jobs'
+
+urlpatterns = [
+    path('', views.job_list, name='job_list'),
+    path('job/new/', views.job_create, name='job_create'),
+    path('job/<int:pk>/', views.job_detail, name='job_detail'),
+    path('job/<int:pk>/edit/', views.job_edit, name='job_edit'),
+    path('job/<int:pk>/apply/', views.job_apply, name='job_apply'),
+    path('job/<int:pk>/applicants/', views.job_applicants, name='job_applicants'),
+    path('job/<int:pk>/accept/<int:app_id>/', views.accept_applicant, name='accept_applicant'),
+    path('job/<int:pk>/finish/', views.job_finish, name='job_finish'),
+    path('my-jobs/', views.my_jobs, name='my_jobs'),
+]
