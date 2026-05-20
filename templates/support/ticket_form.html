@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% block title %}Soporte — U-Work{% endblock %}
+{% block extra_css %}
+<style>
+    .tipo-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    .tipo-card {
+        border: 2px solid var(--card-border);
+        border-radius: 14px;
+        padding: 14px 12px;
+        cursor: pointer;
+        text-align: center;
+        transition: all 0.2s;
+        background: var(--card-bg);
+    }
+    .tipo-card:hover, .tipo-card.selected {
+        border-color: var(--primary-light);
+        background: rgba(79,70,229,0.08);
+    }
+    .tipo-card i { font-size: 1.6rem; display: block; margin-bottom: 6px; }
+    .tipo-card span { font-size: 0.8rem; font-weight: 600; color: var(--text); }
+    .tipo-card.t-bug     i { color: #EF4444; }
+    .tipo-card.t-usuario i { color: #F59E0B; }
+    .tipo-card.t-pago    i { color: #10B981; }
+    .tipo-card.t-otro    i { color: var(--primary-light); }
+    .reported-user-banner {
+        background: rgba(245,158,11,0.12);
+        border: 1px solid rgba(245,158,11,0.3);
+        border-radius: 12px;
+        padding: 12px 14px;
+        margin-bottom: 16px;
+        font-size: 0.88rem;
+        color: var(--text);
+        display: flex; align-items: center; gap: 10px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<div class="section-title"><i class="bi bi-headset" style="color:var(--primary-light);"></i> Soporte</div>
+
+<div class="card mb-3">
+    <div class="card-body">
+        <div style="font-weight:600; font-size:0.95rem; margin-bottom:4px; color:var(--text);">
+            <i class="bi bi-shield-check" style="color:#10B981;"></i> ¿Cómo podemos ayudarte?
+        </div>
+        <div style="font-size:0.83rem; color:var(--text-secondary); margin-bottom:18px;">
+            Reporta errores de la app o inconvenientes con otros usuarios. Tu reporte es confidencial.
+        </div>
+
+        {% if form.usuario_reportado.value %}
+        <div class="reported-user-banner">
+            <i class="bi bi-exclamation-triangle-fill" style="color:#F59E0B; font-size:1.2rem; flex-shrink:0;"></i>
+            <span>Estás reportando a un usuario. Describe con detalle lo ocurrido para que podamos investigar.</span>
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.usuario_reportado }}
+
+            <!-- Tipo selector visual -->
+            <div style="font-size:0.85rem; font-weight:600; color:var(--text-secondary); margin-bottom:10px;">Tipo de reporte</div>
+            <div class="tipo-grid" id="tipoGrid">
+                <div class="tipo-card t-bug" data-value="bug" onclick="selectTipo(this,'bug')">
+                    <i class="bi bi-bug-fill"></i>
+                    <span>Error en la app</span>
+                </div>
+                <div class="tipo-card t-usuario" data-value="usuario" onclick="selectTipo(this,'usuario')">
+                    <i class="bi bi-person-fill-exclamation"></i>
+                    <span>Reportar usuario</span>
+                </div>
+                <div class="tipo-card t-pago" data-value="pago" onclick="selectTipo(this,'pago')">
+                    <i class="bi bi-cash-coin"></i>
+                    <span>Problema con pago</span>
+                </div>
+                <div class="tipo-card t-otro" data-value="otro" onclick="selectTipo(this,'otro')">
+                    <i class="bi bi-chat-dots-fill"></i>
+                    <span>Otro</span>
+                </div>
+            </div>
+            <!-- Hidden select for form submission -->
+            <div style="display:none;">{{ form.tipo }}</div>
+
+            <div class="mb-3">
+                <label class="form-label">{{ form.descripcion.label }}</label>
+                {{ form.descripcion }}
+                {% if form.descripcion.errors %}
+                <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
+                {% endif %}
+            </div>
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <button type="submit" class="btn btn-primary w-100" style="padding:13px;">
+                <i class="bi bi-send-fill"></i> Enviar reporte
+            </button>
+        </form>
+    </div>
+</div>
+
+<div style="text-align:center; margin-top:8px;">
+    <a href="{% url 'support:my_tickets' %}" style="font-size:0.85rem; color:var(--primary-light); text-decoration:none;">
+        <i class="bi bi-clock-history"></i> Ver mis reportes anteriores
+    </a>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function selectTipo(el, value) {
+    document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('id_tipo').value = value;
+}
+// Pre-select current value
+(function(){
+    var current = document.getElementById('id_tipo').value;
+    if (current) {
+        var card = document.querySelector('.tipo-card[data-value="' + current + '"]');
+        if (card) card.classList.add('selected');
+    }
+})();
+</script>
+{% endblock %}

@@ -3,32 +3,22 @@
 {% block title %}Registro — U-Work{% endblock %}
 {% block extra_css %}
 <style>
-    body { background: #0F0E17 !important; padding-bottom: 0 !important; }
+    body { background: var(--bg) !important; padding-bottom: 0 !important; }
     .app-topbar { display: none !important; }
     .bottom-nav { display: none !important; }
     .desktop-sidebar { display: none !important; }
     .app-layout { margin-left: 0 !important; }
     .content-wrapper { max-width: 600px !important; padding: 0 16px 40px !important; }
 
-    /* Animated BG */
+    /* Background */
     .reg-bg {
-        position: fixed; inset: 0; z-index: 0; overflow: hidden;
-        background: linear-gradient(160deg, #0d2818 0%, #0F0E17 40%, #0a1628 100%);
-    }
-    .reg-bg .orb {
-        position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.4;
-        animation: orbFloat 12s ease-in-out infinite alternate;
-    }
-    .reg-bg .orb-1 { width: 400px; height: 400px; background: #10B981; top: -100px; right: -80px; }
-    .reg-bg .orb-2 { width: 300px; height: 300px; background: #059669; bottom: -80px; left: -60px; animation-delay: -5s; }
-    @keyframes orbFloat {
-        0% { transform: translate(0, 0) scale(1); }
-        100% { transform: translate(30px, -20px) scale(1.08); }
+        position: fixed; inset: 0; z-index: 0;
+        background: var(--bg);
     }
 
     /* Header */
     .reg-hero {
-        text-align: center; padding: 40px 0 28px; color: #fff;
+        text-align: center; padding: 40px 0 28px; color: var(--text);
         position: relative; z-index: 1;
         animation: heroFadeIn 0.6s ease-out;
     }
@@ -38,24 +28,19 @@
         background: linear-gradient(135deg, #10B981, #059669);
         display: inline-flex; align-items: center; justify-content: center;
         font-size: 2.2rem; color: #fff; margin-bottom: 16px;
-        box-shadow: 0 16px 48px rgba(16,185,129,0.35);
-        animation: iconBounce 2s ease-in-out infinite;
+        box-shadow: 0 8px 28px rgba(16,185,129,0.2);
     }
-    @keyframes iconBounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-6px); }
-    }
-    .reg-hero h2 { font-weight: 900; font-size: 1.7rem; margin: 0; letter-spacing: -0.5px; }
-    .reg-hero p { opacity: 0.5; font-size: 0.9rem; margin-top: 6px; }
+    .reg-hero h2 { font-weight: 900; font-size: 1.7rem; margin: 0; letter-spacing: -0.5px; color: var(--text); }
+    .reg-hero p { color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }
 
     /* Back button */
     .back-link {
         display: inline-flex; align-items: center; gap: 6px;
-        color: rgba(255,255,255,0.6); text-decoration: none;
+        color: var(--text-secondary); text-decoration: none;
         font-weight: 600; font-size: 0.85rem; padding: 10px 0;
         transition: color 0.2s; position: relative; z-index: 1;
     }
-    .back-link:hover { color: #fff; }
+    .back-link:hover { color: var(--text); }
 
     /* Progress steps */
     .progress-steps {
@@ -64,18 +49,17 @@
     }
     .progress-step {
         width: 48px; height: 5px; border-radius: 3px;
-        background: rgba(255,255,255,0.1);
+        background: var(--border);
         transition: all 0.4s ease;
     }
     .progress-step.active { background: #10B981; width: 64px; }
-    .progress-step.done { background: rgba(16,185,129,0.4); }
+    .progress-step.done { background: rgba(16,185,129,0.35); }
 
     /* Form sections */
     .form-section {
-        background: rgba(255,255,255,0.05);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 22px; padding: 24px 20px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 18px; padding: 24px 20px;
         margin-bottom: 16px; position: relative; z-index: 1;
         animation: sectionSlideUp 0.5s ease-out both;
     }
@@ -98,61 +82,46 @@
     }
 
     /* Inputs */
-    .form-label { color: rgba(255,255,255,0.5); font-weight: 600; font-size: 0.8rem; }
+    .form-label { color: var(--text-secondary); font-weight: 600; font-size: 0.8rem; }
     .form-control, .form-select {
-        background: rgba(255,255,255,0.06) !important;
-        border: 2px solid rgba(255,255,255,0.08) !important;
-        color: #fff !important; border-radius: 14px !important;
+        background: var(--input-bg) !important;
+        border: 2px solid var(--input-border) !important;
+        color: var(--text) !important; border-radius: 14px !important;
         padding: 14px 16px !important; font-size: 0.95rem !important;
         transition: all 0.25s !important;
     }
-    .form-control::placeholder { color: rgba(255,255,255,0.2) !important; }
+    .form-control::placeholder { color: var(--input-placeholder) !important; }
     .form-control:focus, .form-select:focus {
         border-color: #10B981 !important;
-        background: rgba(16,185,129,0.06) !important;
-        box-shadow: 0 0 0 4px rgba(16,185,129,0.1) !important;
+        background: rgba(16,185,129,0.04) !important;
+        box-shadow: 0 0 0 3px rgba(16,185,129,0.1) !important;
     }
 
     /* Upload area */
     .upload-area {
-        border: 2px dashed rgba(255,255,255,0.12); border-radius: 18px;
+        border: 2px dashed var(--border); border-radius: 18px;
         padding: 24px; text-align: center; cursor: pointer;
-        transition: all 0.3s; background: rgba(255,255,255,0.02);
+        transition: all 0.25s; background: var(--surface-alt);
     }
-    .upload-area:hover {
-        border-color: #10B981; background: rgba(16,185,129,0.05);
-        transform: scale(1.01);
-    }
-    .upload-area i { font-size: 2.2rem; color: rgba(255,255,255,0.2); }
-    .upload-area p { font-size: 0.8rem; color: rgba(255,255,255,0.4); margin: 10px 0 0; }
-    .upload-area .upload-hint {
-        font-size: 0.7rem; color: rgba(255,255,255,0.2); margin-top: 4px;
-    }
+    .upload-area:hover { border-color: #10B981; background: rgba(16,185,129,0.04); }
+    .upload-area i { font-size: 2.2rem; color: var(--text-secondary); }
+    .upload-area p { font-size: 0.8rem; color: var(--text-secondary); margin: 10px 0 0; }
+    .upload-area .upload-hint { font-size: 0.7rem; color: var(--input-placeholder); margin-top: 4px; }
 
     /* Submit button */
     .btn-register {
         background: linear-gradient(135deg, #10B981, #059669);
         border: none; border-radius: 16px; padding: 18px;
         font-size: 1.1rem; font-weight: 800; color: #fff;
-        width: 100%; cursor: pointer; position: relative; overflow: hidden;
-        transition: all 0.3s; z-index: 1;
-        box-shadow: 0 12px 32px rgba(16,185,129,0.3);
+        width: 100%; cursor: pointer;
+        transition: all 0.25s; z-index: 1; position: relative;
+        box-shadow: 0 6px 20px rgba(16,185,129,0.2);
     }
-    .btn-register:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 16px 40px rgba(16,185,129,0.4);
-    }
-    .btn-register .btn-shine {
-        position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        animation: btnShine 3s ease-in-out infinite;
-    }
-    @keyframes btnShine {
-        0%, 100% { left: -100%; } 50% { left: 100%; }
-    }
+    .btn-register:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(16,185,129,0.3); }
 
-    .text-danger { color: #FCA5A5 !important; }
-    .text-muted { color: rgba(255,255,255,0.35) !important; }
+    .text-danger { color: #EF4444 !important; }
+    [data-theme="dark"] .text-danger { color: #FCA5A5 !important; }
+    .text-muted { color: var(--text-secondary) !important; }
     a.fw-bold { color: #10B981 !important; }
 
     @media (min-width: 992px) {
@@ -162,10 +131,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="reg-bg">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-</div>
+<div class="reg-bg"></div>
 
 <a href="{% url 'accounts:role_select' %}" class="back-link"><i class="bi bi-arrow-left"></i> Volver</a>
 
@@ -259,7 +225,7 @@
         <i class="bi bi-rocket-takeoff-fill"></i> Crear mi cuenta
     </button>
 
-    <p class="text-center small" style="color:rgba(255,255,255,0.4); position:relative; z-index:1;">
+    <p class="text-center small" style="color:#7FB7C9; position:relative; z-index:1;">
         ¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}" class="fw-bold" style="text-decoration:none;">Inicia sesión</a>
     </p>
 </form>

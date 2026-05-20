@@ -19,6 +19,7 @@ class JobForm(forms.ModelForm):
             'duracion_estimada': forms.TextInput(attrs={'placeholder': 'Ej: 3 días, 1 semana, 2 horas'}),
             'fecha_limite': forms.DateInput(attrs={'type': 'date'}),
             'pago': forms.NumberInput(attrs={'min': '0', 'step': '100', 'placeholder': '0'}),
+            'imagen': forms.FileInput(),
         }
         labels = {
             'titulo': 'Título del trabajo',

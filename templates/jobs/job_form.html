@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load form_tags %}
 {% block title %}{{ titulo_pagina }} — U-Work{% endblock %}
-{% block content %}
+{% block extra_css %}
 <style>
     .form-section {
         background: var(--card-bg);
@@ -149,7 +149,21 @@
         font-size: 1.1rem;
         color: var(--money);
     }
+    @media (min-width: 992px) {
+        .content-wrapper { max-width: 1100px !important; }
+        .form-layout { display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start; }
+        .form-aside { position: sticky; top: 80px; }
+        .form-aside .tips-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
+        .form-aside .tips-card .tip-title { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); margin-bottom: 12px; }
+        .form-aside .tips-card .tip-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; }
+        .form-aside .tips-card .tip-item:last-child { margin-bottom: 0; }
+        .form-aside .tips-card .tip-icon { width: 24px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+    }
 </style>
+{% endblock %}
+{% block content %}
+<div class="form-layout">
+<div>
 
 <!-- Header -->
 <div style="text-align:center; margin-bottom: 20px;">
@@ -305,10 +319,20 @@
         <!-- Image upload -->
         <div class="form-field">
             <label><i class="bi bi-image"></i> {{ form.imagen.label }}</label>
+            <!-- Current image (edit mode) -->
+            {% if form.instance.imagen %}
+            <div id="imgPreviewWrap" style="margin-bottom:10px; border-radius:12px; overflow:hidden; border:1px solid var(--border);">
+                <img id="imgPreview" src="{{ form.instance.imagen.url }}" style="width:100%; max-height:200px; object-fit:cover; display:block;">
+            </div>
+            {% else %}
+            <div id="imgPreviewWrap" style="display:none; margin-bottom:10px; border-radius:12px; overflow:hidden; border:1px solid var(--border);">
+                <img id="imgPreview" src="" style="width:100%; max-height:200px; object-fit:cover; display:block;" alt="Vista previa">
+            </div>
+            {% endif %}
             <div class="upload-area">
                 {{ form.imagen }}
-                <div class="upload-icon"><i class="bi bi-cloud-arrow-up"></i></div>
-                <div class="upload-text">Toca para subir una imagen</div>
+                <div class="upload-icon"><i class="bi bi-cloud-arrow-up" id="uploadIcon"></i></div>
+                <div class="upload-text" id="uploadText">{% if form.instance.imagen %}Cambiar imagen{% else %}Toca para subir una imagen{% endif %}</div>
                 <div class="upload-hint">JPG, PNG — máximo 5 MB</div>
             </div>
             {% if form.imagen.errors %}<div class="text-danger small mt-1">{{ form.imagen.errors.0 }}</div>{% endif %}
@@ -325,4 +349,58 @@
         <i class="bi bi-shield-check"></i> Tu publicación será visible para todos los estudiantes
     </p>
 </form>
+</div>{# end form main column #}
+
+<aside class="form-aside">
+    <div class="tips-card">
+        <div class="tip-title"><i class="bi bi-lightbulb-fill" style="color:#F59E0B;"></i> Consejos</div>
+        <div class="tip-item">
+            <div class="tip-icon" style="background:var(--icon-blue-bg); color:var(--badge-blue-text);"><i class="bi bi-type-h1"></i></div>
+            <span>Usa un título claro y específico para atraer más candidatos.</span>
+        </div>
+        <div class="tip-item">
+            <div class="tip-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-currency-dollar"></i></div>
+            <span>Establece un pago justo y competitivo para el trabajo.</span>
+        </div>
+        <div class="tip-item">
+            <div class="tip-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-list-check"></i></div>
+            <span>Detalla los requisitos para recibir candidatos más calificados.</span>
+        </div>
+        <div class="tip-item">
+            <div class="tip-icon" style="background:var(--icon-purple-bg); color:#C4B5FD;"><i class="bi bi-lightning"></i></div>
+            <span>Marca como urgente si necesitas a alguien lo antes posible.</span>
+        </div>
+    </div>
+    <div class="tips-card">
+        <div class="tip-title"><i class="bi bi-shield-check" style="color:#10B981;"></i> Garantía</div>
+        <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">
+            Tu publicación será revisada por nuestra comunidad. Establece condiciones claras para una buena experiencia.
+        </div>
+    </div>
+</aside>
+</div>{# end form-layout #}
+{% endblock %}
+{% block extra_js %}
+<script>
+const imgInput = document.getElementById('id_imagen');
+if (imgInput) {
+    imgInput.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const preview = document.getElementById('imgPreview');
+                const wrap = document.getElementById('imgPreviewWrap');
+                const text = document.getElementById('uploadText');
+                const icon = document.getElementById('uploadIcon');
+                preview.src = e.target.result;
+                wrap.style.display = 'block';
+                text.textContent = this.files[0].name;
+                icon.className = 'bi bi-check-circle-fill';
+                icon.style.color = 'var(--money)';
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+}
+</script>
 {% endblock %}

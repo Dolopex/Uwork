@@ -56,10 +56,29 @@ class EmployerRegisterForm(UserCreationForm):
         return user
 
 
-class ProfileForm(forms.ModelForm):
+class StudentProfileForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'foto', 'telefono', 'direccion', 'habilidades']
+        fields = [
+            'first_name', 'last_name', 'email', 'foto', 'foto_carnet',
+            'telefono', 'cedula', 'fecha_nacimiento', 'direccion',
+            'universidad', 'carrera', 'semestre', 'habilidades',
+        ]
         widgets = {
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}),
             'habilidades': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Ej: Python, Diseño gráfico, Traducción'}),
+            'direccion': forms.TextInput(attrs={'placeholder': 'Ciudad, barrio o dirección'}),
+        }
+
+
+class EmployerProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = [
+            'first_name', 'last_name', 'email', 'foto',
+            'telefono', 'cedula', 'fecha_nacimiento', 'direccion',
+        ]
+        widgets = {
+            'fecha_nacimiento': forms.DateInput(attrs={'type': 'date'}),
+            'direccion': forms.TextInput(attrs={'placeholder': 'Ciudad, barrio o dirección'}),
         }

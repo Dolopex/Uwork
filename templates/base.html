@@ -6,6 +6,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>{% block title %}U-Work{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%23818CF8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='74' text-anchor='middle' font-family='Inter,sans-serif' font-weight='900' font-size='62' fill='white'%3EU%3C/text%3E%3C/svg%3E">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -61,42 +62,42 @@
             --sidebar-width: 260px;
         }
         [data-theme="dark"] {
-            --bg: #0F0E17;
-            --bg-secondary: #1a1930;
-            --card-bg: rgba(255,255,255,0.06);
-            --card-border: rgba(255,255,255,0.08);
-            --card-shadow: 0 4px 24px rgba(0,0,0,0.2);
-            --text: #E8E6F0;
-            --text-secondary: rgba(255,255,255,0.5);
-            --surface: rgba(255,255,255,0.04);
-            --surface-alt: rgba(255,255,255,0.06);
-            --border: rgba(255,255,255,0.06);
-            --border-light: rgba(255,255,255,0.06);
-            --nav-bg: rgba(15,14,23,0.85);
-            --nav-border: rgba(255,255,255,0.06);
-            --nav-text: rgba(255,255,255,0.4);
-            --nav-text-hover: rgba(255,255,255,0.8);
-            --input-bg: rgba(255,255,255,0.05);
-            --input-border: rgba(255,255,255,0.1);
-            --input-placeholder: rgba(255,255,255,0.3);
-            --select-option-bg: #1a1930;
-            --badge-indigo-bg: rgba(129,140,248,0.15); --badge-indigo-text: #A5B4FC;
-            --badge-blue-bg: rgba(59,130,246,0.15); --badge-blue-text: #93C5FD;
-            --badge-amber-bg: rgba(245,158,11,0.15); --badge-amber-text: #FCD34D;
-            --badge-red-bg: rgba(239,68,68,0.15); --badge-red-text: #F87171;
-            --badge-green-bg: rgba(16,185,129,0.15); --badge-green-text: #6EE7B7;
-            --badge-gray-bg: rgba(255,255,255,0.08); --badge-gray-text: rgba(255,255,255,0.5);
-            --icon-indigo-bg: rgba(129,140,248,0.15); --icon-blue-bg: rgba(59,130,246,0.15);
-            --icon-amber-bg: rgba(245,158,11,0.15); --icon-green-bg: rgba(16,185,129,0.15);
-            --icon-red-bg: rgba(239,68,68,0.15); --icon-purple-bg: rgba(129,140,248,0.15); --icon-purple-text: #C4B5FD;
-            --money: #34D399;
-            --star-active: #FCD34D;
-            --star-inactive: rgba(255,255,255,0.15);
-            --toast-bg: rgba(15,14,23,0.9);
-            --toast-text: #E8E6F0;
-            --scrollbar-thumb: rgba(255,255,255,0.1);
-            --scrollbar-hover: rgba(255,255,255,0.2);
-            --close-filter: invert(1) grayscale(100%) brightness(200%);
+            --bg: #101C2C;
+            --bg-secondary: #16243A;
+            --card-bg: #16243A;
+            --card-border: #223A5E;
+            --card-shadow: 0 2px 8px rgba(16,28,44,0.10);
+            --text: #E3F6FF;
+            --text-secondary: #7FB7C9;
+            --surface: #16243A;
+            --surface-alt: #1B2B44;
+            --border: #223A5E;
+            --border-light: #223A5E;
+            --nav-bg: #16243A;
+            --nav-border: #223A5E;
+            --nav-text: #7FB7C9;
+            --nav-text-hover: #E3F6FF;
+            --input-bg: #132033;
+            --input-border: #223A5E;
+            --input-placeholder: #4B6A88;
+            --select-option-bg: #16243A;
+            --badge-indigo-bg: #223A5E; --badge-indigo-text: #7FB7C9;
+            --badge-blue-bg: #1E40AF; --badge-blue-text: #93C5FD;
+            --badge-amber-bg: #FDE68A; --badge-amber-text: #B45309;
+            --badge-red-bg: #F87171; --badge-red-text: #7F1D1D;
+            --badge-green-bg: #10B981; --badge-green-text: #E3F6FF;
+            --badge-gray-bg: #223A5E; --badge-gray-text: #7FB7C9;
+            --icon-indigo-bg: #223A5E; --icon-blue-bg: #1E40AF;
+            --icon-amber-bg: #FDE68A; --icon-green-bg: #10B981;
+            --icon-red-bg: #F87171; --icon-purple-bg: #223A5E; --icon-purple-text: #7FB7C9;
+            --money: #10B981;
+            --star-active: #38BDF8;
+            --star-inactive: #223A5E;
+            --toast-bg: #16243A;
+            --toast-text: #E3F6FF;
+            --scrollbar-thumb: #223A5E;
+            --scrollbar-hover: #1E40AF;
+            --close-filter: none;
         }
         * { box-sizing: border-box; }
         body {
@@ -111,11 +112,9 @@
 
         /* ---- Animated Background (dark only) ---- */
         .app-bg-scene {
-            position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
-            background: linear-gradient(160deg, #1a1145 0%, #0F0E17 40%, #0d1f3c 100%);
-            display: none;
+            display: none !important;
         }
-        [data-theme="dark"] .app-bg-scene { display: block; }
+
         .app-bg-scene .orb {
             position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35;
             animation: appOrbDrift 14s ease-in-out infinite alternate;
@@ -399,6 +398,21 @@
         }
         .sidebar-theme-toggle:hover { background: var(--surface-alt); color: var(--text); }
 
+        .notif-badge {
+            position: absolute;
+            top: -3px; right: -3px;
+            background: #EF4444;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0 3px;
+            line-height: 1;
+        }
+        .notif-nav-wrap { position: relative; display: inline-flex; }
         /* Cards */
         .card {
             border: 1px solid var(--card-border);
@@ -408,8 +422,7 @@
             overflow: hidden;
         }
         [data-theme="dark"] .card {
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            /* No blur, fondo sólido minimalista */
         }
         .card-body { padding: 16px; }
 
@@ -583,7 +596,7 @@
     <!-- Desktop Sidebar -->
     <aside class="desktop-sidebar">
         <a class="sidebar-brand" href="{% url 'jobs:job_list' %}">
-            <div class="brand-icon"><i class="bi bi-briefcase-fill"></i></div>
+            <div class="brand-icon"><span style="font-weight:900;font-size:1.15rem;line-height:1;">U</span></div>
             <div>
                 <div class="brand-text">U-Work</div>
                 <div class="brand-sub">Plataforma de microtrabajo</div>
@@ -591,11 +604,22 @@
         </a>
         <nav class="sidebar-nav">
             <div class="nav-label">Navegación</div>
+            {% if user.es_estudiante %}
             <a href="{% url 'jobs:job_list' %}" class="{% if request.resolver_match.url_name == 'job_list' %}active{% endif %}">
                 <i class="bi bi-compass"></i> Explorar trabajos
             </a>
             <a href="{% url 'jobs:my_jobs' %}" class="{% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
-                <i class="bi bi-list-check"></i> Mis trabajos
+                <i class="bi bi-send-check"></i> Mis postulaciones
+            </a>
+            <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
+                <i class="bi bi-graph-up"></i> Balance
+            </a>
+            <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                <i class="bi bi-person-circle"></i> Mi perfil
+            </a>
+            {% else %}
+            <a href="{% url 'jobs:my_jobs' %}" class="{% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
+                <i class="bi bi-list-check"></i> Mis publicaciones
             </a>
             <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
                 <i class="bi bi-graph-up"></i> Balance
@@ -606,6 +630,15 @@
             <div style="flex:1"></div>
             <a href="{% url 'jobs:job_create' %}" class="publish-btn">
                 <i class="bi bi-plus-lg"></i> Publicar trabajo
+            </a>
+            {% endif %}
+            <div class="nav-label" style="margin-top:8px;">Otros</div>
+            <a href="{% url 'notifications:list' %}" class="{% if request.resolver_match.app_name == 'notifications' %}active{% endif %}" style="position:relative;">
+                <i class="bi bi-bell-fill"></i> Notificaciones
+                {% if notif_count %}<span class="notif-badge" style="right:auto; margin-left:auto;">{{ notif_count }}</span>{% endif %}
+            </a>
+            <a href="{% url 'support:create' %}" class="{% if request.resolver_match.app_name == 'support' %}active{% endif %}">
+                <i class="bi bi-headset"></i> Soporte
             </a>
         </nav>
         <div class="sidebar-footer">
@@ -636,7 +669,7 @@
     <!-- Top Bar (mobile/tablet) -->
     <header class="app-topbar">
         <a class="brand" href="{% url 'jobs:job_list' %}">
-            <i class="bi bi-briefcase-fill"></i> U-Work
+            <span style="width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#4F46E5,#818CF8);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:0.8rem;flex-shrink:0;">U</span> U-Work
         </a>
         <div class="top-actions">
             <button onclick="toggleTheme()" title="Cambiar tema" class="theme-toggle-btn">
@@ -645,11 +678,20 @@
             {% if user.is_authenticated %}
             <!-- Tablet nav links -->
             <div class="desktop-nav" style="display: none; gap: 16px; align-items: center;">
+                {% if user.es_estudiante %}
                 <a href="{% url 'jobs:job_list' %}" title="Explorar"><i class="bi bi-compass"></i></a>
+                <a href="{% url 'jobs:my_jobs' %}" title="Mis postulaciones"><i class="bi bi-send-check"></i></a>
+                {% else %}
+                <a href="{% url 'jobs:my_jobs' %}" title="Mis publicaciones"><i class="bi bi-list-check"></i></a>
                 <a href="{% url 'jobs:job_create' %}" title="Publicar"><i class="bi bi-plus-circle-fill"></i></a>
-                <a href="{% url 'jobs:my_jobs' %}" title="Mis trabajos"><i class="bi bi-list-check"></i></a>
+                {% endif %}
                 <a href="{% url 'accounts:balance' %}" title="Balance"><i class="bi bi-graph-up"></i></a>
                 <a href="{% url 'accounts:profile' %}" title="Perfil"><i class="bi bi-person-circle"></i></a>
+                <span class="notif-nav-wrap">
+                    <a href="{% url 'notifications:list' %}" title="Notificaciones"><i class="bi bi-bell-fill"></i></a>
+                    {% if notif_count %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
+                </span>
+                <a href="{% url 'support:create' %}" title="Soporte"><i class="bi bi-headset"></i></a>
                 <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" title="Cerrar sesión"><i class="bi bi-box-arrow-right"></i></button>
@@ -683,22 +725,55 @@
     <!-- Bottom Navigation (mobile) -->
     {% if user.is_authenticated %}
     <nav class="bottom-nav">
+        {% if user.es_estudiante %}
         <a href="{% url 'jobs:job_list' %}" class="{% if request.resolver_match.url_name == 'job_list' %}active{% endif %}">
             <i class="bi bi-compass"></i>
             <span>Explorar</span>
+        </a>
+        <a href="{% url 'jobs:my_jobs' %}" class="{% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
+            <i class="bi bi-send-check"></i>
+            <span>Postulaciones</span>
         </a>
         <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
             <i class="bi bi-graph-up"></i>
             <span>Balance</span>
         </a>
-        <a href="{% url 'jobs:job_create' %}" class="nav-publish">
-            <div class="pub-icon"><i class="bi bi-plus-lg"></i></div>
-            <span>Publicar</span>
+        <a href="{% url 'notifications:list' %}" class="{% if request.resolver_match.app_name == 'notifications' %}active{% endif %}" style="position:relative;">
+            <span class="notif-nav-wrap" style="position:relative; display:inline-flex; justify-content:center;">
+                <i class="bi bi-bell-fill"></i>
+                {% if notif_count %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
+            </span>
+            <span>Alertas</span>
         </a>
         <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
             <i class="bi bi-person"></i>
             <span>Perfil</span>
         </a>
+        {% else %}
+        <a href="{% url 'jobs:my_jobs' %}" class="{% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
+            <i class="bi bi-list-check"></i>
+            <span>Publicados</span>
+        </a>
+        <a href="{% url 'jobs:job_create' %}" class="nav-publish {% if request.resolver_match.url_name == 'job_create' %}active{% endif %}">
+            <div class="pub-icon"><i class="bi bi-plus-lg"></i></div>
+            <span>Publicar</span>
+        </a>
+        <a href="{% url 'notifications:list' %}" class="{% if request.resolver_match.app_name == 'notifications' %}active{% endif %}" style="position:relative;">
+            <span class="notif-nav-wrap" style="position:relative; display:inline-flex; justify-content:center;">
+                <i class="bi bi-bell-fill"></i>
+                {% if notif_count %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
+            </span>
+            <span>Alertas</span>
+        </a>
+        <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
+            <i class="bi bi-graph-up"></i>
+            <span>Balance</span>
+        </a>
+        <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+            <i class="bi bi-person"></i>
+            <span>Perfil</span>
+        </a>
+        {% endif %}
         <a href="#" onclick="this.closest('nav').querySelector('form').submit(); return false;">
             <i class="bi bi-box-arrow-right"></i>
             <span>Salir</span>

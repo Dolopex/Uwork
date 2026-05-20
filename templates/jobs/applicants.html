@@ -1,13 +1,19 @@
 {% extends 'base.html' %}
+{% load form_tags %}
 {% block title %}Postulantes — {{ job.titulo }} — U-Work{% endblock %}
+{% block extra_css %}
+<style>
+    @media (min-width: 992px) {
+        .content-wrapper { max-width: 1100px !important; }
+        .applicants-layout { display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start; }
+        .applicants-sidebar { position: sticky; top: 80px; }
+    }
+</style>
+{% endblock %}
 {% block content %}
 <div class="section-title"><i class="bi bi-people-fill" style="color: var(--primary);"></i> Postulantes</div>
-
-<div class="card mb-3">
-    <div class="card-body" style="padding:12px 16px;">
-        <span style="font-weight:700; font-size:0.9rem;">{{ job.titulo }}</span>
-    </div>
-</div>
+<div class="applicants-layout">
+<div class="applicants-main">
 
 {% for app in aplicaciones %}
 <div class="card mb-2">
@@ -47,14 +53,36 @@
 </div>
 {% empty %}
 <div class="card">
-    <div class="card-body text-center" style="padding:32px;">
-        <i class="bi bi-people" style="font-size:2rem; color:#D1D5DB;"></i>
-        <p class="text-muted mt-2 mb-0">Aún no hay postulantes</p>
+    <div class="card-body text-center" style="padding:40px;">
+        <i class="bi bi-people" style="font-size:2.5rem; color:var(--text-secondary); opacity:0.5;"></i>
+        <p class="mt-2 mb-0" style="color:var(--text-secondary);">Aún no hay postulantes</p>
     </div>
 </div>
 {% endfor %}
 
-<a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-outline-primary w-100 mt-3 py-2">
+<a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-outline-primary w-100 mt-3 py-2 d-lg-none">
     <i class="bi bi-arrow-left"></i> Volver al trabajo
 </a>
+</div>{# end applicants-main #}
+
+<aside class="applicants-sidebar">
+    <div class="card mb-3">
+        <div class="card-body">
+            <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:10px;"><i class="bi bi-briefcase-fill"></i> Trabajo</div>
+            <h6 style="font-weight:800; color:var(--text); margin-bottom:8px;">{{ job.titulo }}</h6>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+                {% if job.urgente %}<span class="badge" style="background:var(--badge-red-bg); color:var(--badge-red-text); font-size:0.7rem;"><i class="bi bi-lightning-charge-fill"></i> Urgente</span>{% endif %}
+                <span class="badge" style="background:var(--badge-indigo-bg); color:var(--badge-indigo-text); font-size:0.7rem;">{{ job.get_categoria_display }}</span>
+                <span class="badge" style="background:var(--badge-green-bg); color:var(--badge-green-text); font-size:0.7rem;">{{ job.get_modalidad_display }}</span>
+            </div>
+            <div style="font-size:1.6rem; font-weight:900; color:var(--money); margin-bottom:12px;">{{ job.pago|cop }}</div>
+            <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:4px;"><i class="bi bi-people"></i> {{ aplicaciones.count }} postulante{{ aplicaciones.count|pluralize:"s" }}</div>
+            {% if job.fecha_limite %}<div style="font-size:0.8rem; color:var(--text-secondary);"><i class="bi bi-calendar"></i> Límite: {{ job.fecha_limite|date:"d M Y" }}</div>{% endif %}
+        </div>
+    </div>
+    <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-outline-primary w-100 py-2" style="border-radius:12px;">
+        <i class="bi bi-arrow-left"></i> Volver al trabajo
+    </a>
+</aside>
+</div>{# end applicants-layout #}
 {% endblock %}

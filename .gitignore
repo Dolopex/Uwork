@@ -26,3 +26,6 @@ Thumbs.db
 
 # Environment variables
 .env
+
+# Docs (local only, not deployed)
+docs/

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load form_tags %}
 {% block title %}Mi perfil — U-Work{% endblock %}
-{% block content %}
+{% block extra_css %}
 <style>
     .profile-hero {
         background: linear-gradient(135deg, var(--primary), var(--primary-light));
@@ -165,7 +165,59 @@
         font-size: 0.75rem; font-weight: 600;
         margin: 2px;
     }
+    /* Custom image upload */
+    .img-upload-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 18px;
+        background: var(--surface-alt);
+        border: 2px dashed var(--border);
+        border-radius: 16px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s;
+        margin-top: 2px;
+    }
+    .img-upload-wrap:hover { border-color: var(--primary-light); }
+    .img-upload-preview {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary-light);
+    }
+    .img-upload-no-foto {
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background: var(--card-bg);
+        border: 2px dashed var(--border);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2rem; color: var(--text-secondary);
+    }
+    .img-upload-cta {
+        display: inline-flex; align-items: center; gap: 6px;
+        padding: 8px 20px;
+        border-radius: 20px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        color: #fff;
+        font-size: 0.82rem; font-weight: 700;
+        pointer-events: none;
+    }
+    .img-upload-hint { font-size: 0.72rem; color: var(--text-secondary); }
+    /* Info empty state */
+    .info-empty { text-align: center; padding: 28px 16px; }
+    @media (min-width: 992px) {
+        .content-wrapper { max-width: 1100px !important; }
+        .profile-layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
+        .profile-left { position: sticky; top: 80px; }
+        .profile-stats { grid-template-columns: repeat(3, 1fr); }
+    }
 </style>
+{% endblock %}
+{% block content %}
+<div class="profile-layout">
+<div class="profile-left">
 
 <!-- Hero -->
 <div class="profile-hero">
@@ -208,6 +260,18 @@
     </div>
 </div>
 
+<!-- Left sidebar quick actions (desktop only) -->
+<div class="d-none d-lg-grid gap-2 mt-3">
+    <a href="{% url 'accounts:balance' %}" class="btn py-2" style="background:linear-gradient(135deg,#10B981,#059669); color:#fff; font-weight:700; border:none; border-radius:12px;">
+        <i class="bi bi-graph-up-arrow"></i> Ver mi balance
+    </a>
+    <a href="{% url 'jobs:my_jobs' %}" class="btn btn-outline-primary py-2" style="border-radius:12px;">
+        <i class="bi bi-briefcase"></i> Mis trabajos
+    </a>
+</div>
+</div>{# end profile-left #}
+
+<div class="profile-right">
 <!-- Tabs -->
 <div class="profile-tabs">
     <button class="profile-tab active" onclick="switchTab(event, 'info')"><i class="bi bi-person"></i> Info</button>
@@ -264,6 +328,18 @@
                 </div>
             </div>
             {% endif %}
+            {% if not user.telefono and not user.direccion and not user.cedula and not user.fecha_nacimiento and not user.universidad %}
+            <div class="info-empty">
+                <div style="width:52px;height:52px;border-radius:16px;background:var(--surface-alt);display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--text-secondary);margin-bottom:12px;">
+                    <i class="bi bi-person-lines-fill"></i>
+                </div>
+                <p style="font-size:0.88rem;font-weight:700;color:var(--text);margin:0 0 4px;">Sin información personal</p>
+                <p style="font-size:0.78rem;color:var(--text-secondary);margin:0 0 14px;">Añade tu teléfono, ubicación y otros datos.</p>
+                <button class="btn btn-sm" style="background:var(--primary);color:#fff;border-radius:10px;font-weight:700;padding:8px 20px;" onclick="document.querySelectorAll('.profile-tab')[1].click()">
+                    <i class="bi bi-pencil-square"></i> Completar perfil
+                </button>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -282,8 +358,8 @@
     </div>
     {% endif %}
 
-    <!-- Quick actions -->
-    <div class="d-grid gap-2">
+    <!-- Quick actions (mobile only — desktop version is in left sidebar) -->
+    <div class="d-grid gap-2 d-lg-none">
         <a href="{% url 'accounts:balance' %}" class="btn btn-lg py-3" style="background:linear-gradient(135deg,#10B981,#059669); color:#fff; font-weight:700; border:none; border-radius:14px; box-shadow:0 4px 16px rgba(16,185,129,0.3);">
             <i class="bi bi-graph-up-arrow"></i> Ver mi balance
         </a>
@@ -303,11 +379,36 @@
                     <i class="bi bi-pencil-square"></i> Editar perfil
                 </div>
                 {% for field in form %}
+                {% if field.name == 'foto' or field.name == 'foto_carnet' %}
+                <div class="form-field">
+                    <label>{{ field.label }}</label>
+                    <label class="img-upload-wrap" for="{{ field.id_for_label }}">
+                        {% if field.name == 'foto' %}
+                            {% if user.foto %}
+                            <img src="{{ user.foto.url }}" class="img-upload-preview" id="fotoPreview" alt="Foto actual">
+                            {% else %}
+                            <div class="img-upload-no-foto" id="fotoPreview"><i class="bi bi-person-fill"></i></div>
+                            {% endif %}
+                        {% else %}
+                            {% if user.foto_carnet %}
+                            <img src="{{ user.foto_carnet.url }}" class="img-upload-preview" id="fotoCarnetPreview" alt="Carnet actual">
+                            {% else %}
+                            <div class="img-upload-no-foto" id="fotoCarnetPreview"><i class="bi bi-card-image"></i></div>
+                            {% endif %}
+                        {% endif %}
+                        <span class="img-upload-cta"><i class="bi bi-camera-fill"></i> Cambiar foto</span>
+                        <span class="img-upload-hint">JPG, PNG · Máx. 5 MB</span>
+                    </label>
+                    <div style="display:none;">{{ field }}</div>
+                    {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors.0 }}</div>{% endif %}
+                </div>
+                {% else %}
                 <div class="form-field">
                     <label>{{ field.label }}</label>
                     {{ field|add_class:"form-control" }}
                     {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors.0 }}</div>{% endif %}
                 </div>
+                {% endif %}
                 {% endfor %}
             </div>
         </div>
@@ -342,7 +443,7 @@
                     </span>
                 </div>
                 {% if review.comentario %}
-                <p class="mb-0" style="font-size:0.83rem; color:var(--text-secondary); line-height:1.5;">{{ review.comentario }}</p>
+                <p class="mb-0" style="font-size:0.83rem; color:var(--text); line-height:1.5;">{{ review.comentario }}</p>
                 {% endif %}
                 <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:6px;">
                     <i class="bi bi-briefcase"></i> {{ review.trabajo.titulo }}
@@ -358,6 +459,8 @@
     </div>
 </div>
 
+</div>{# end profile-right #}
+</div>{# end profile-layout #}
 {% block extra_js %}
 <script>
 function switchTab(e, tab) {
@@ -366,6 +469,28 @@ function switchTab(e, tab) {
     e.currentTarget.classList.add('active');
     document.getElementById('tab-' + tab).classList.add('active');
 }
+// Live preview when a new photo is selected
+function setupImgPreview(inputId, previewId) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    input.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const prev = document.getElementById(previewId);
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'img-upload-preview';
+                img.id = previewId;
+                img.alt = 'Vista previa';
+                prev.replaceWith(img);
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+}
+setupImgPreview('id_foto', 'fotoPreview');
+setupImgPreview('id_foto_carnet', 'fotoCarnetPreview');
 </script>
 {% endblock %}
 {% endblock %}

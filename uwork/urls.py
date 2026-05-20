@@ -24,6 +24,8 @@ urlpatterns = [
     path('', include('accounts.urls')),
     path('jobs/', include('jobs.urls')),
     path('reviews/', include('reviews.urls')),
+    path('notificaciones/', include('notifications.urls')),
+    path('soporte/', include('support.urls')),
 ]
 
 if settings.DEBUG:

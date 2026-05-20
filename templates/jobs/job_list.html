@@ -4,25 +4,77 @@
 {% block extra_css %}
 <style>
     @media (min-width: 992px) {
+        .content-wrapper { max-width: 1280px !important; }
+        .list-layout { display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start; }
+        .list-filters { position: sticky; top: 80px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 18px; padding: 18px; }
+        .list-filters .filter-title { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); margin-bottom: 14px; }
+        .list-filters .form-control,
+        .list-filters .form-select { margin-bottom: 10px; }
         .job-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
         .job-grid .card { margin-bottom: 0 !important; }
-        .filter-row { display: flex; gap: 12px; }
-        .filter-row .form-control,
-        .filter-row .form-select { flex: 1; }
-        .search-section { max-width: 100%; }
+        .mobile-search { display: none; }
     }
+    @media (max-width: 991.98px) {
+        .desktop-filters { display: none; }
+    }
+    /* Card thumbnail */
+    .card-thumb {
+        width: 100%;
+        height: 150px;
+        border-radius: 14px 14px 0 0;
+        overflow: hidden;
+        position: relative;
+        flex-shrink: 0;
+    }
+    .card-thumb img {
+        width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .card-thumb-placeholder {
+        width: 100%; height: 100%;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 6px;
+    }
+    .card-thumb-placeholder i {
+        font-size: 2.4rem;
+        opacity: 0.85;
+    }
+    .card-thumb-placeholder span {
+        font-size: 0.72rem; font-weight: 600; letter-spacing: 0.6px; text-transform: uppercase; opacity: 0.75;
+    }
+    /* Category colour mapping */
+    .ct-academico  { background: linear-gradient(135deg,#1E3A5F,#2D5F8A); color:#90CAF9; }
+    .ct-tecnologia { background: linear-gradient(135deg,#1A1F3C,#2A3A6E); color:#9FA8DA; }
+    .ct-diseno     { background: linear-gradient(135deg,#3B1A4A,#6A2E85); color:#CE93D8; }
+    .ct-redaccion  { background: linear-gradient(135deg,#1B3A2E,#2E6B50); color:#80CBC4; }
+    .ct-traduccion { background: linear-gradient(135deg,#3A2200,#7A4800); color:#FFCC80; }
+    .ct-otro       { background: linear-gradient(135deg,#1A2A2A,#2A4444); color:#80DEEA; }
+    .card { overflow: hidden; }
 </style>
 {% endblock %}
 {% block content %}
+{% if user.is_authenticated and not user.es_estudiante %}
+<div class="section-title"><i class="bi bi-compass" style="color: var(--primary-light);"></i> Explorar mercado</div>
+<div class="card mb-3" style="border-left: 4px solid var(--primary-light);">
+    <div class="card-body py-3 d-flex justify-content-between align-items-center gap-2">
+        <div style="color:var(--text-secondary); font-size:0.88rem;">
+            <i class="bi bi-info-circle"></i> Estás viendo el mercado como empleador. Para gestionar tus trabajos ve a <a href="{% url 'jobs:my_jobs' %}" style="color:var(--primary-light); font-weight:600;">Mis publicaciones</a>.
+        </div>
+        <a href="{% url 'jobs:job_create' %}" class="btn btn-primary btn-sm" style="white-space:nowrap; border-radius:10px; font-weight:700;">
+            <i class="bi bi-plus-lg"></i> Publicar
+        </a>
+    </div>
+</div>
+{% else %}
 <div class="section-title"><i class="bi bi-compass" style="color: var(--primary-light);"></i> Explorar trabajos</div>
+{% endif %}
 
-<!-- Search -->
-<form method="get" class="mb-3 search-section">
-    <div class="d-flex gap-2">
+<!-- Mobile search (visible only on mobile) -->
+<form method="get" class="mb-3 mobile-search d-lg-none">
+    <div class="d-flex gap-2 mb-2">
         <input type="text" name="q" class="form-control" placeholder="Buscar trabajos..." value="{{ q }}" style="flex:1;">
         <button class="btn btn-primary px-3" type="submit"><i class="bi bi-search"></i></button>
     </div>
-    <div class="mt-2 d-flex gap-2 flex-wrap">
+    <div class="d-flex gap-2 flex-wrap">
         <select name="categoria" class="form-select" onchange="this.form.submit()" style="flex:1; min-width:140px;">
             <option value="">Categoría</option>
             {% for value, label in categorias %}
@@ -53,10 +105,78 @@
     {% endif %}
 </form>
 
-<!-- Job cards -->
-<div class="job-grid">
+<div class="list-layout">
+    <!-- Desktop filter sidebar -->
+    <aside class="list-filters desktop-filters">
+        <div class="filter-title"><i class="bi bi-funnel-fill"></i> Filtros</div>
+        <form method="get" id="desktopFilterForm">
+            <input type="hidden" name="q" value="{{ q }}">
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text-secondary); margin-bottom:4px; display:block;">Buscar</label>
+            <div class="d-flex gap-1 mb-3">
+                <input type="text" name="q" class="form-control" placeholder="Buscar..." value="{{ q }}" style="font-size:0.85rem;">
+                <button class="btn btn-primary px-3" type="submit"><i class="bi bi-search"></i></button>
+            </div>
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text-secondary); margin-bottom:4px; display:block;">Categoría</label>
+            <select name="categoria" class="form-select mb-3" onchange="this.form.submit()" style="font-size:0.85rem;">
+                <option value="">Todas</option>
+                {% for value, label in categorias %}
+                <option value="{{ value }}" {% if value == categoria %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text-secondary); margin-bottom:4px; display:block;">Modalidad</label>
+            <select name="modalidad" class="form-select mb-3" onchange="this.form.submit()" style="font-size:0.85rem;">
+                <option value="">Todas</option>
+                {% for value, label in modalidades %}
+                <option value="{{ value }}" {% if value == modalidad %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+            {% if ciudades %}
+            <label style="font-size:0.78rem; font-weight:600; color:var(--text-secondary); margin-bottom:4px; display:block;">Ciudad</label>
+            <select name="ubicacion" class="form-select mb-3" onchange="this.form.submit()" style="font-size:0.85rem;">
+                <option value="">Todas</option>
+                {% for ciudad in ciudades %}
+                <option value="{{ ciudad }}" {% if ciudad == ubicacion %}selected{% endif %}>📍 {{ ciudad }}</option>
+                {% endfor %}
+            </select>
+            {% endif %}
+            {% if categoria or modalidad or ubicacion %}
+            <a href="{% url 'jobs:job_list' %}{% if q %}?q={{ q }}{% endif %}" class="btn btn-sm w-100" style="background:var(--badge-red-bg); color:var(--badge-red-text); border-radius:10px; font-size:0.78rem; font-weight:600;">
+                <i class="bi bi-x-circle"></i> Limpiar filtros
+            </a>
+            {% endif %}
+        </form>
+        <div style="margin-top:16px; padding-top:14px; border-top:1px solid var(--border); font-size:0.78rem; color:var(--text-secondary);">
+            <i class="bi bi-grid-3x3-gap"></i> {{ jobs|length }} resultado{{ jobs|length|pluralize:"s" }}
+        </div>
+    </aside>
+
+    <!-- Job cards -->
+    <main>
+        <div class="job-grid">
 {% for job in jobs %}
 <div class="card mb-3">
+    <!-- Thumbnail -->
+    <div class="card-thumb">
+        {% if job.imagen %}
+        <img src="{{ job.imagen.url }}" alt="{{ job.titulo }}">
+        {% else %}
+        <div class="card-thumb-placeholder ct-{{ job.categoria }}">
+            {% if job.categoria == 'academico' %}
+            <i class="bi bi-mortarboard-fill"></i><span>Académico</span>
+            {% elif job.categoria == 'tecnologia' %}
+            <i class="bi bi-cpu-fill"></i><span>Tecnología</span>
+            {% elif job.categoria == 'diseno' %}
+            <i class="bi bi-palette-fill"></i><span>Diseño</span>
+            {% elif job.categoria == 'redaccion' %}
+            <i class="bi bi-pencil-fill"></i><span>Redacción</span>
+            {% elif job.categoria == 'traduccion' %}
+            <i class="bi bi-translate"></i><span>Traducción</span>
+            {% else %}
+            <i class="bi bi-briefcase-fill"></i><span>Otro</span>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
     <div class="card-body">
         <div style="display:flex; justify-content:space-between; align-items:flex-start;">
             <div style="flex:1;">
@@ -74,7 +194,7 @@
                 {{ job.pago|cop }}
             </span>
         </div>
-        <p class="small mb-2" style="line-height:1.4; color:var(--text-secondary);">{{ job.descripcion|truncatechars:100 }}</p>
+        <p class="small mb-2" style="line-height:1.4; color:var(--text);">{{ job.descripcion|truncatechars:100 }}</p>
         <div style="display:flex; justify-content:space-between; align-items:center;">
             <a href="{% url 'accounts:user_detail' job.creador.pk %}" class="d-flex align-items-center gap-2 text-decoration-none" style="color: var(--text);">
                 {% if job.creador.foto %}
@@ -98,5 +218,7 @@
     </div>
 </div>
 {% endfor %}
-</div>
+        </div>{# end job-grid #}
+    </main>
+</div>{# end list-layout #}
 {% endblock %}

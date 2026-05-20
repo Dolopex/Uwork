@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Mis reportes — U-Work{% endblock %}
+{% block extra_css %}
+<style>
+    .ticket-item {
+        border-radius: 14px;
+        padding: 14px 16px;
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        margin-bottom: 10px;
+    }
+    .ticket-tipo {
+        font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+        letter-spacing: 0.6px; padding: 4px 10px; border-radius: 8px;
+    }
+    .t-bug     { background:rgba(239,68,68,0.12);  color:#EF4444; }
+    .t-usuario { background:rgba(245,158,11,0.12); color:#F59E0B; }
+    .t-pago    { background:rgba(16,185,129,0.12); color:#10B981; }
+    .t-otro    { background:rgba(79,70,229,0.12);  color:var(--primary-light); }
+    .estado-badge {
+        font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 8px;
+    }
+    .e-abierto     { background:rgba(59,130,246,0.12); color:#3B82F6; }
+    .e-en_revision { background:rgba(245,158,11,0.12); color:#F59E0B; }
+    .e-resuelto    { background:rgba(16,185,129,0.12); color:#10B981; }
+</style>
+{% endblock %}
+{% block content %}
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+    <div class="section-title" style="margin-bottom:0;"><i class="bi bi-clock-history" style="color:var(--primary-light);"></i> Mis reportes</div>
+    <a href="{% url 'support:create' %}" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Nuevo reporte
+    </a>
+</div>
+
+{% if tickets %}
+{% for ticket in tickets %}
+<div class="ticket-item">
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <span class="ticket-tipo t-{{ ticket.tipo }}">{{ ticket.get_tipo_display }}</span>
+            <span class="estado-badge e-{{ ticket.estado }}">{{ ticket.get_estado_display }}</span>
+        </div>
+        <span style="font-size:0.75rem; color:var(--text-secondary);">{{ ticket.created_at|date:"d M Y" }}</span>
+    </div>
+    <p style="font-size:0.88rem; color:var(--text); margin:0; line-height:1.5;">{{ ticket.descripcion|truncatechars:180 }}</p>
+    {% if ticket.usuario_reportado %}
+    <div style="margin-top:8px; font-size:0.8rem; color:var(--text-secondary);">
+        <i class="bi bi-person-fill"></i> Usuario reportado: <strong style="color:var(--text);">{{ ticket.usuario_reportado.get_full_name|default:ticket.usuario_reportado.username }}</strong>
+    </div>
+    {% endif %}
+</div>
+{% endfor %}
+{% else %}
+<div class="card">
+    <div class="card-body text-center" style="padding:48px 16px;">
+        <i class="bi bi-inbox" style="font-size:3rem; color:var(--text-secondary);"></i>
+        <p class="mt-3 mb-2" style="color:var(--text-secondary);">No has enviado ningún reporte</p>
+        <a href="{% url 'support:create' %}" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-lg"></i> Crear reporte
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

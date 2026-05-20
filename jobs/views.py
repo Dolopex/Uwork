@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from django.urls import reverse
 from .models import Job, Application
 from .forms import JobForm, ApplicationForm
+from notifications.models import Notification
 
 
 def job_list(request):
@@ -45,16 +47,24 @@ def job_list(request):
 def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk)
     user_applied = False
+    user_application_pending = False
     if request.user.is_authenticated:
-        user_applied = job.postulaciones.filter(usuario=request.user).exists()
+        application = job.postulaciones.filter(usuario=request.user).first()
+        if application:
+            user_applied = True
+            user_application_pending = application.estado == Application.Estado.PENDIENTE
     return render(request, 'jobs/job_detail.html', {
         'job': job,
         'user_applied': user_applied,
+        'user_application_pending': user_application_pending,
     })
 
 
 @login_required
 def job_create(request):
+    if request.user.es_estudiante:
+        messages.error(request, 'Los estudiantes no pueden publicar trabajos.')
+        return redirect('jobs:job_list')
     if request.method == 'POST':
         form = JobForm(request.POST, request.FILES)
         if form.is_valid():
@@ -84,6 +94,9 @@ def job_edit(request, pk):
 
 @login_required
 def job_apply(request, pk):
+    if not request.user.es_estudiante:
+        messages.error(request, 'Solo los estudiantes pueden postularse a trabajos.')
+        return redirect('jobs:job_detail', pk=pk)
     job = get_object_or_404(Job, pk=pk, estado=Job.Estado.DISPONIBLE)
     if job.creador == request.user:
         messages.error(request, 'No puedes postularte a tu propio trabajo.')
@@ -98,6 +111,13 @@ def job_apply(request, pk):
             application.usuario = request.user
             application.trabajo = job
             application.save()
+            # Notify employer
+            Notification.objects.create(
+                usuario=job.creador,
+                tipo=Notification.Tipo.POSTULACION,
+                mensaje=f'{request.user.get_full_name() or request.user.username} se postuló a "{job.titulo}".',
+                link=reverse('jobs:job_applicants', args=[job.pk]),
+            )
             messages.success(request, '¡Postulación enviada!')
             return redirect('jobs:job_detail', pk=pk)
     else:
@@ -122,7 +142,26 @@ def accept_applicant(request, pk, app_id):
     job.estado = Job.Estado.EN_PROCESO
     job.save()
     # Rechazar las demás postulaciones
-    job.postulaciones.exclude(pk=app_id).update(estado=Application.Estado.RECHAZADA)
+    rejected_qs = job.postulaciones.exclude(pk=app_id)
+    rejected_users = list(rejected_qs.values_list('usuario', flat=True))
+    rejected_qs.update(estado=Application.Estado.RECHAZADA)
+    # Notify accepted student
+    Notification.objects.create(
+        usuario=application.usuario,
+        tipo=Notification.Tipo.ACEPTADO,
+        mensaje=f'¡Felicitaciones! Fuiste aceptado para "{job.titulo}".',
+        link=reverse('jobs:job_detail', args=[job.pk]),
+    )
+    # Notify rejected students
+    from django.contrib.auth import get_user_model
+    User = get_user_model()
+    for uid in rejected_users:
+        Notification.objects.create(
+            usuario_id=uid,
+            tipo=Notification.Tipo.RECHAZADO,
+            mensaje=f'Tu postulación a "{job.titulo}" no fue seleccionada.',
+            link=reverse('jobs:job_detail', args=[job.pk]),
+        )
     messages.success(request, f'{application.usuario} ha sido asignado al trabajo.')
     return redirect('jobs:job_detail', pk=pk)
 
@@ -132,17 +171,66 @@ def job_finish(request, pk):
     job = get_object_or_404(Job, pk=pk, creador=request.user, estado=Job.Estado.EN_PROCESO)
     job.estado = Job.Estado.FINALIZADO
     job.save()
+    # Notify assigned student
+    if job.asignado:
+        Notification.objects.create(
+            usuario=job.asignado,
+            tipo=Notification.Tipo.FINALIZADO,
+            mensaje=f'El trabajo "{job.titulo}" ha sido marcado como finalizado.',
+            link=reverse('jobs:job_detail', args=[job.pk]),
+        )
     messages.success(request, 'Trabajo marcado como finalizado.')
     return redirect('jobs:job_detail', pk=pk)
 
 
 @login_required
+def job_delete(request, pk):
+    job = get_object_or_404(Job, pk=pk, creador=request.user)
+    if job.estado == Job.Estado.EN_PROCESO:
+        messages.error(request, 'No puedes eliminar un trabajo que está en proceso.')
+        return redirect('jobs:job_detail', pk=pk)
+    if request.method == 'POST':
+        titulo = job.titulo
+        job.delete()
+        messages.success(request, f'"{titulo}" fue eliminado.')
+        return redirect('jobs:my_jobs')
+    return redirect('jobs:job_detail', pk=pk)
+
+
+@login_required
+def cancel_application(request, pk):
+    job = get_object_or_404(Job, pk=pk)
+    application = get_object_or_404(Application, trabajo=job, usuario=request.user)
+    if application.estado != Application.Estado.PENDIENTE:
+        messages.error(request, 'Solo puedes cancelar postulaciones pendientes.')
+        return redirect('jobs:job_detail', pk=pk)
+    if request.method == 'POST':
+        application.delete()
+        messages.success(request, 'Postulación cancelada.')
+        return redirect('jobs:job_list')
+    return redirect('jobs:job_detail', pk=pk)
+
+
+@login_required
 def my_jobs(request):
-    creados = Job.objects.filter(creador=request.user)
-    asignados = Job.objects.filter(asignado=request.user)
-    postulados = Job.objects.filter(postulaciones__usuario=request.user).distinct()
-    return render(request, 'jobs/my_jobs.html', {
-        'creados': creados,
-        'asignados': asignados,
-        'postulados': postulados,
-    })
+    user = request.user
+    if user.es_estudiante:
+        asignados = Job.objects.filter(asignado=user).order_by('-created_at')
+        postulados = Job.objects.filter(postulaciones__usuario=user).distinct().order_by('-created_at')
+        return render(request, 'jobs/my_jobs.html', {
+            'asignados': asignados,
+            'postulados': postulados,
+            'is_student': True,
+        })
+    else:
+        base_qs = Job.objects.filter(creador=user)
+        disponibles = base_qs.filter(estado=Job.Estado.DISPONIBLE).order_by('-created_at')
+        en_proceso = base_qs.filter(estado=Job.Estado.EN_PROCESO).order_by('-created_at')
+        finalizados = base_qs.filter(estado=Job.Estado.FINALIZADO).order_by('-created_at')
+        return render(request, 'jobs/my_jobs.html', {
+            'disponibles': disponibles,
+            'en_proceso_jobs': en_proceso,
+            'finalizados_jobs': finalizados,
+            'total_creados': base_qs.count(),
+            'is_student': False,
+        })

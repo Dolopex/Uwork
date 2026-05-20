@@ -3,7 +3,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum, Count, Q, Avg
-from .forms import StudentRegisterForm, EmployerRegisterForm, ProfileForm
+from .forms import StudentRegisterForm, EmployerRegisterForm, StudentProfileForm, EmployerProfileForm
 from .models import User
 
 
@@ -42,14 +42,15 @@ def register_employer(request):
 
 @login_required
 def profile(request):
+    FormClass = StudentProfileForm if request.user.es_estudiante else EmployerProfileForm
     if request.method == 'POST':
-        form = ProfileForm(request.POST, request.FILES, instance=request.user)
+        form = FormClass(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Perfil actualizado correctamente.')
             return redirect('accounts:profile')
     else:
-        form = ProfileForm(instance=request.user)
+        form = FormClass(instance=request.user)
     return render(request, 'accounts/profile.html', {'form': form})
 
 
@@ -114,13 +115,26 @@ def balance(request):
     import datetime
     now = timezone.now()
     meses = []
+    # Build proper calendar month boundaries
     for i in range(5, -1, -1):
-        d = now - datetime.timedelta(days=30 * i)
-        month_start = d.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        if i > 0:
-            next_d = now - datetime.timedelta(days=30 * (i - 1))
-            month_end = next_d.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-        else:
+        # month_start: first day of (current_month - i)
+        year  = now.year
+        month = now.month - i
+        while month <= 0:
+            month += 12
+            year  -= 1
+        month_start = now.replace(year=year, month=month, day=1,
+                                  hour=0, minute=0, second=0, microsecond=0)
+        # month_end: first day of next month
+        next_month = month + 1
+        next_year  = year
+        if next_month > 12:
+            next_month = 1
+            next_year += 1
+        month_end = now.replace(year=next_year, month=next_month, day=1,
+                                hour=0, minute=0, second=0, microsecond=0)
+        # For the current month cap at now
+        if i == 0:
             month_end = now
 
         if user.es_estudiante:

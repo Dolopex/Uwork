@@ -21,8 +21,11 @@ Plataforma de microtrabajos universitarios construida con Django. Conecta estudi
 
 | Componente | Tecnología |
 |---|---|
-| Backend | Django 5.2 / Python |
-| Base de datos | SQLite |
+| Backend | Django 5.2 / Python 3.11 |
+| Base de datos (producción) | Neon PostgreSQL (serverless) |
+| Base de datos (desarrollo) | SQLite (fallback automático) |
+| Deployment | Vercel (serverless) |
+| Static files | WhiteNoise |
 | Frontend | Bootstrap 5.3.3, Bootstrap Icons 1.11.3, Inter font |
 | Imágenes | Pillow |
 | Idioma | Español (es) |
@@ -185,7 +188,7 @@ Restricción: una reseña por combinación autor-receptor-trabajo.
 
 ```bash
 # 1. Clonar el repositorio
-git clone <url-del-repositorio>
+git clone https://github.com/Dolopex/Uwork.git
 cd U-Work
 
 # 2. Crear entorno virtual
@@ -200,20 +203,49 @@ source venv/bin/activate
 # 4. Instalar dependencias
 pip install -r requirements.txt
 
-# 5. Aplicar migraciones
+# 5. Configurar variables de entorno
+cp .env.example .env   # (o crear .env manualmente)
+# Editar .env con tu DATABASE_URL de Neon y SECRET_KEY
+
+# 6. Aplicar migraciones
 python manage.py migrate
 
-# 6. Crear superusuario (opcional)
+# 7. Crear superusuario (opcional)
 python manage.py createsuperuser
 
-# 7. Cargar datos de prueba (opcional)
-python manage.py loaddata datos_prueba
+# 8. Cargar datos de prueba (opcional)
+python manage.py seed_data
 
-# 8. Iniciar servidor
+# 9. Iniciar servidor
 python manage.py runserver
 ```
 
 La aplicación estará disponible en `http://127.0.0.1:8000/`.
+
+### Variables de entorno
+
+Crea un archivo `.env` en la raíz del proyecto:
+
+```env
+DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
+SECRET_KEY=tu-secret-key-aqui
+DEBUG=True
+ALLOWED_HOSTS=localhost,127.0.0.1
+```
+
+Si no se define `DATABASE_URL`, la app usa SQLite automáticamente (útil para desarrollo local).
+
+---
+
+## Despliegue en Vercel
+
+1. Importar el repositorio en [vercel.com](https://vercel.com)
+2. Agregar las variables de entorno en la configuración del proyecto:
+   - `DATABASE_URL` → cadena de conexión de Neon
+   - `SECRET_KEY` → clave secreta de Django
+   - `DEBUG` → `False`
+   - `ALLOWED_HOSTS` → tu dominio de Vercel
+3. Vercel ejecutará `build_files.sh` automáticamente para colectar estáticos y migrar
 
 ---
 
