@@ -150,7 +150,8 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             color: var(--text);
-            padding: 14px 16px;
+            padding: 0 16px;
+            height: 56px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -161,28 +162,59 @@
         }
         .app-topbar .brand {
             font-weight: 800;
-            font-size: 1.3rem;
+            font-size: 1.15rem;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
             text-decoration: none;
             color: var(--text);
+            letter-spacing: -0.3px;
         }
-        .app-topbar .brand i { font-size: 1.4rem; }
-        .app-topbar .top-actions { display: flex; gap: 12px; align-items: center; }
+        .app-topbar .top-actions {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+        }
         .app-topbar .top-actions a,
         .app-topbar .top-actions button {
             color: var(--nav-text);
             background: none;
             border: none;
-            font-size: 1.2rem;
-            padding: 4px;
+            font-size: 1.25rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
             cursor: pointer;
             text-decoration: none;
-            transition: color 0.2s;
+            transition: color 0.18s, background 0.18s;
+            position: relative;
         }
         .app-topbar .top-actions a:hover,
-        .app-topbar .top-actions button:hover { color: var(--nav-text-hover); }
+        .app-topbar .top-actions button:hover {
+            color: var(--nav-text-hover);
+            background: var(--bg-secondary);
+        }
+        .topbar-notif-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #EF4444;
+            color: #fff;
+            font-size: 0.6rem;
+            font-weight: 700;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 3px;
+            line-height: 1;
+            border: 2px solid var(--nav-bg);
+        }
 
         /* Bottom Navigation (mobile) */
         .bottom-nav {
@@ -196,8 +228,8 @@
             border-top: 1px solid var(--nav-border);
             display: flex;
             justify-content: space-around;
-            align-items: center;
-            height: var(--nav-height);
+            align-items: stretch;
+            height: calc(var(--nav-height) + var(--safe-bottom));
             padding-bottom: var(--safe-bottom);
             z-index: 1000;
         }
@@ -208,30 +240,56 @@
             justify-content: center;
             text-decoration: none;
             color: var(--nav-text);
-            font-size: 0.68rem;
+            font-size: 0.66rem;
             font-weight: 500;
-            padding: 6px 0;
             flex: 1;
-            transition: color 0.2s;
-            gap: 2px;
+            transition: color 0.18s;
+            gap: 3px;
+            padding: 8px 4px 6px;
+            position: relative;
         }
-        .bottom-nav a i { font-size: 1.45rem; }
-        .bottom-nav a.active { color: var(--primary-light); }
-        .bottom-nav a:hover { color: var(--nav-text-hover); }
+        .bottom-nav a i { font-size: 1.4rem; line-height: 1; }
+        .bottom-nav a span { line-height: 1; }
+        /* Active pill indicator */
+        .bottom-nav a.active { color: var(--primary); }
+        .bottom-nav a.active::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 28px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 0 0 4px 4px;
+        }
+        .bottom-nav a:hover { color: var(--primary-light); }
+        /* FAB publish button */
         .bottom-nav a.nav-publish {
-            margin-top: -22px;
+            margin-top: -18px;
+            justify-content: flex-end;
+            padding-bottom: 10px;
         }
+        .bottom-nav a.nav-publish::before { display: none; }
         .bottom-nav a.nav-publish .pub-icon {
-            width: 52px;
-            height: 52px;
+            width: 50px;
+            height: 50px;
             background: linear-gradient(135deg, var(--primary), var(--primary-light));
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             box-shadow: 0 4px 20px rgba(79,70,229,0.45);
+            transition: transform 0.18s, box-shadow 0.18s;
+        }
+        .bottom-nav a.nav-publish:active .pub-icon {
+            transform: scale(0.94);
+            box-shadow: 0 2px 10px rgba(79,70,229,0.3);
+        }
+        .bottom-nav a.nav-publish.active .pub-icon {
+            box-shadow: 0 4px 24px rgba(79,70,229,0.6);
         }
 
         /* Desktop Sidebar */
@@ -674,15 +732,13 @@
     <!-- Top Bar (mobile/tablet) -->
     <header class="app-topbar">
         <a class="brand" href="{% url 'jobs:job_list' %}">
-            <span style="width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#4F46E5,#818CF8);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:0.8rem;flex-shrink:0;">U</span> U-Work
+            <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#4F46E5,#818CF8);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:0.85rem;flex-shrink:0;">U</span>
+            U-Work
         </a>
         <div class="top-actions">
-            <button onclick="toggleTheme()" title="Cambiar tema" class="theme-toggle-btn">
-                <i class="bi bi-moon-fill"></i>
-            </button>
             {% if user.is_authenticated %}
             <!-- Tablet nav links -->
-            <div class="desktop-nav" style="display: none; gap: 16px; align-items: center;">
+            <div class="desktop-nav" style="display: none; gap: 4px; align-items: center;">
                 {% if user.es_estudiante %}
                 <a href="{% url 'jobs:job_list' %}" title="Explorar"><i class="bi bi-compass"></i></a>
                 <a href="{% url 'jobs:my_jobs' %}" title="Mis postulaciones"><i class="bi bi-send-check"></i></a>
@@ -692,19 +748,28 @@
                 {% endif %}
                 <a href="{% url 'accounts:balance' %}" title="Balance"><i class="bi bi-graph-up"></i></a>
                 <a href="{% url 'accounts:profile' %}" title="Perfil"><i class="bi bi-person-circle"></i></a>
-                <span class="notif-nav-wrap">
-                    <a href="{% url 'notifications:list' %}" title="Notificaciones"><i class="bi bi-bell-fill"></i></a>
-                    {% if notif_count %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
-                </span>
                 <a href="{% url 'support:create' %}" title="Soporte"><i class="bi bi-headset"></i></a>
                 <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
                     {% csrf_token %}
                     <button type="submit" title="Cerrar sesión"><i class="bi bi-box-arrow-right"></i></button>
                 </form>
             </div>
+            <!-- Notification bell (mobile) -->
+            <a href="{% url 'notifications:list' %}" title="Notificaciones" class="d-flex d-lg-none" style="position:relative;">
+                <i class="bi bi-bell{% if notif_count %}-fill{% endif %}"></i>
+                {% if notif_count %}<span class="topbar-notif-badge">{{ notif_count }}</span>{% endif %}
+            </a>
+            <!-- Logout (mobile) -->
+            <form method="post" action="{% url 'accounts:logout' %}" class="d-flex d-lg-none">
+                {% csrf_token %}
+                <button type="submit" title="Cerrar sesión"><i class="bi bi-box-arrow-right"></i></button>
+            </form>
             {% else %}
             <a href="{% url 'accounts:login' %}"><i class="bi bi-box-arrow-in-right"></i></a>
             {% endif %}
+            <button onclick="toggleTheme()" title="Cambiar tema" class="theme-toggle-btn">
+                <i class="bi bi-moon-fill"></i>
+            </button>
         </div>
     </header>
 
@@ -743,13 +808,6 @@
             <i class="bi bi-graph-up"></i>
             <span>Balance</span>
         </a>
-        <a href="{% url 'notifications:list' %}" class="{% if request.resolver_match.app_name == 'notifications' %}active{% endif %}" style="position:relative;">
-            <span class="notif-nav-wrap" style="position:relative; display:inline-flex; justify-content:center;">
-                <i class="bi bi-bell-fill"></i>
-                {% if notif_count %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
-            </span>
-            <span>Alertas</span>
-        </a>
         <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
             <i class="bi bi-person"></i>
             <span>Perfil</span>
@@ -763,13 +821,6 @@
             <div class="pub-icon"><i class="bi bi-plus-lg"></i></div>
             <span>Publicar</span>
         </a>
-        <a href="{% url 'notifications:list' %}" class="{% if request.resolver_match.app_name == 'notifications' %}active{% endif %}" style="position:relative;">
-            <span class="notif-nav-wrap" style="position:relative; display:inline-flex; justify-content:center;">
-                <i class="bi bi-bell-fill"></i>
-                {% if notif_count %}<span class="notif-badge">{{ notif_count }}</span>{% endif %}
-            </span>
-            <span>Alertas</span>
-        </a>
         <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
             <i class="bi bi-graph-up"></i>
             <span>Balance</span>
@@ -779,11 +830,6 @@
             <span>Perfil</span>
         </a>
         {% endif %}
-        <a href="#" onclick="this.closest('nav').querySelector('form').submit(); return false;">
-            <i class="bi bi-box-arrow-right"></i>
-            <span>Salir</span>
-        </a>
-        <form method="post" action="{% url 'accounts:logout' %}" style="display:none;">{% csrf_token %}</form>
     </nav>
     {% endif %}
 
