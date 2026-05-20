@@ -1,27 +1,13 @@
 {
+  "version": 2,
   "builds": [
     {
-      "src": "uwork/wsgi.py",
+      "src": "api/index.py",
       "use": "@vercel/python",
-      "config": {
-        "maxLambdaSize": "15mb",
-        "runtime": "python3.11"
-      }
-    },
-    {
-      "src": "build_files.sh",
-      "use": "@vercel/static-build",
-      "config": { "distDir": "staticfiles" }
+      "config": { "maxLambdaSize": "30mb" }
     }
   ],
   "routes": [
-    {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "uwork/wsgi.py"
-    }
+    { "src": "/(.*)", "dest": "api/index.py" }
   ]
 }

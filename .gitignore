@@ -29,3 +29,4 @@ Thumbs.db
 
 # Docs (local only, not deployed)
 docs/
+.vercel
