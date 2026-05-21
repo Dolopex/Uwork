@@ -1,6 +1,7 @@
 # U-Work
 
 Plataforma de microtrabajos universitarios construida con Django. Conecta estudiantes que buscan ingresos flexibles con empleadores que necesitan talento joven para tareas puntuales.
+---
 **LINK**: https://u-work.vercel.app
 ---
 
