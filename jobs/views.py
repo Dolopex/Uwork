@@ -184,6 +184,31 @@ def job_finish(request, pk):
 
 
 @login_required
+def job_change_status(request, pk):
+    if request.method != 'POST':
+        return redirect('jobs:job_detail', pk=pk)
+    job = get_object_or_404(Job, pk=pk, creador=request.user)
+    new_status = request.POST.get('estado')
+    valid = {c[0] for c in Job.Estado.choices}
+    if new_status not in valid:
+        messages.error(request, 'Estado no válido.')
+        return redirect('jobs:job_detail', pk=pk)
+    job.estado = new_status
+    job.save()
+    # Notify assigned student when finished
+    if new_status == Job.Estado.FINALIZADO and job.asignado:
+        Notification.objects.create(
+            usuario=job.asignado,
+            tipo=Notification.Tipo.FINALIZADO,
+            mensaje=f'El trabajo "{job.titulo}" ha sido marcado como finalizado.',
+            link=reverse('jobs:job_detail', args=[job.pk]),
+        )
+    labels = {'disponible': 'Disponible', 'en_proceso': 'En proceso', 'finalizado': 'Finalizado'}
+    messages.success(request, f'Estado cambiado a: {labels.get(new_status, new_status)}.')
+    return redirect('jobs:job_detail', pk=pk)
+
+
+@login_required
 def job_delete(request, pk):
     job = get_object_or_404(Job, pk=pk, creador=request.user)
     if job.estado == Job.Estado.EN_PROCESO:
