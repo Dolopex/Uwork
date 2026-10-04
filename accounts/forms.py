@@ -1,10 +1,16 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import User
+from .validators import institutional_email
 
 
 class StudentRegisterForm(UserCreationForm):
-    email = forms.EmailField(required=True)
+    # R10 — el estudiante solo puede registrarse con correo institucional.
+    email = forms.EmailField(
+        required=True,
+        validators=[institutional_email],
+        help_text='Debe ser un correo institucional de la universidad.',
+    )
 
     class Meta:
         model = User

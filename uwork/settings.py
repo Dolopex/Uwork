@@ -130,6 +130,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Custom user model
 AUTH_USER_MODEL = 'accounts.User'
 
+# R10 — Whitelist de correos institucionales (solo estudiantes).
+# Para habilitar otra IES, agrega su dominio aquí; no requiere tocar código.
+INSTITUTIONAL_DOMAINS = [
+    d.strip().lower() for d in os.environ.get(
+        'INSTITUTIONAL_DOMAINS', 'campusuninunez.edu.co'
+    ).split(',') if d.strip()
+]
+
 # Auth redirects
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'jobs:job_list'

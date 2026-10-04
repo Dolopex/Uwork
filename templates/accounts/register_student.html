@@ -186,8 +186,10 @@
             {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
         </div>
         <div class="mt-2">
-            <label class="form-label">Correo electrónico</label>
+            <label class="form-label">Correo electrónico institucional</label>
             {{ form.email|add_class:"form-control" }}
+            <div class="form-text" style="font-size:0.72rem;">{{ form.email.help_text }}</div>
+            {% if form.email.errors %}<div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>{% endif %}
         </div>
         <div class="row g-2 mt-1">
             <div class="col-6">
