@@ -28,6 +28,7 @@ urlpatterns = [
     path('reviews/', include('reviews.urls')),
     path('notificaciones/', include('notifications.urls')),
     path('soporte/', include('support.urls')),
+    path('', include('legal.urls')),
 ]
 
 if settings.DEBUG:

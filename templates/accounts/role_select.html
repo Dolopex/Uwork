@@ -326,5 +326,13 @@
         }
         updateRoleThemeBtn();
     </script>
+    <!-- Legal (R14, R15): visibles antes del primer uso -->
+    <div style="text-align:center; padding: 0 16px 28px;">
+        <a href="{% url 'legal:terminos' %}"
+           style="font-size:0.72rem; color:var(--rs-text-muted); text-decoration:none;">Términos y Condiciones</a>
+        <span style="margin:0 8px; opacity:0.5;">·</span>
+        <a href="{% url 'legal:privacidad' %}"
+           style="font-size:0.72rem; color:var(--rs-text-muted); text-decoration:none;">Política de Privacidad</a>
+    </div>
 </body>
 </html>

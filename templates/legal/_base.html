@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% comment %}
+Estilo compartido por los documentos legales públicos (R14, R15).
+Los bloques de contenido se llenan en legal/terminos.html y
+legal/privacidad.html.
+{% endcomment %}
+{% block extra_css %}
+<style>
+    .legal-wrap {
+        max-width: 780px;
+        margin: 0 auto;
+    }
+    .legal-header {
+        background: linear-gradient(135deg, var(--primary), var(--primary-light));
+        border-radius: 20px;
+        padding: 28px 24px;
+        color: #fff;
+        margin-bottom: 18px;
+    }
+    .legal-header h1 {
+        font-size: 1.4rem;
+        font-weight: 800;
+        margin: 0 0 6px;
+    }
+    .legal-header p {
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.85);
+        margin: 0;
+    }
+    .legal-toc {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border, var(--border));
+        border-radius: 14px;
+        padding: 16px 18px;
+        margin-bottom: 18px;
+    }
+    .legal-toc-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+    }
+    .legal-toc ol {
+        margin: 0;
+        padding-left: 20px;
+        font-size: 0.83rem;
+        line-height: 1.9;
+    }
+    .legal-toc a {
+        color: var(--primary-light);
+        text-decoration: none;
+    }
+    .legal-toc a:hover { text-decoration: underline; }
+    .legal-body {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border, var(--border));
+        border-radius: 16px;
+        padding: 26px 22px;
+        font-size: 0.88rem;
+        line-height: 1.75;
+        color: var(--text);
+    }
+    .legal-body h2 {
+        font-size: 1.02rem;
+        font-weight: 800;
+        color: var(--text);
+        margin: 28px 0 10px;
+        padding-top: 18px;
+        border-top: 1px solid var(--border);
+        scroll-margin-top: 90px;
+    }
+    .legal-body h2:first-child {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+    }
+    .legal-body h3 {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--text);
+        margin: 18px 0 6px;
+    }
+    .legal-body p { margin: 0 0 12px; }
+    .legal-body ul, .legal-body ol {
+        margin: 0 0 12px;
+        padding-left: 22px;
+    }
+    .legal-body li { margin-bottom: 5px; }
+    .legal-body strong { font-weight: 700; }
+
+    /* Marcador de texto que falta y solo un abogado debe redactar. */
+    .pendiente {
+        display: block;
+        background: rgba(217, 119, 6, 0.10);
+        border: 1px dashed rgba(217, 119, 6, 0.55);
+        border-radius: 10px;
+        padding: 11px 14px;
+        margin: 10px 0;
+        font-size: 0.83rem;
+        color: #92400E;
+    }
+    [data-theme="dark"] .pendiente { color: #FCD34D; }
+    .pendiente::before {
+        content: "PENDIENTE";
+        display: block;
+        font-size: 0.62rem;
+        font-weight: 800;
+        letter-spacing: 0.8px;
+        margin-bottom: 3px;
+        opacity: 0.75;
+    }
+
+    .legal-alert {
+        background: rgba(217, 119, 6, 0.10);
+        border: 1px solid rgba(217, 119, 6, 0.4);
+        border-radius: 14px;
+        padding: 14px 16px;
+        font-size: 0.82rem;
+        color: var(--text);
+        margin-bottom: 18px;
+    }
+    .legal-alert strong { color: #B45309; }
+    [data-theme="dark"] .legal-alert strong { color: #FCD34D; }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 10px 0 16px;
+        font-size: 0.82rem;
+    }
+    .data-table th, .data-table td {
+        border: 1px solid var(--border);
+        padding: 8px 11px;
+        text-align: left;
+        vertical-align: top;
+    }
+    .data-table th {
+        background: var(--surface-alt, rgba(0, 0, 0, 0.03));
+        font-weight: 700;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-wrap">
+    <div class="legal-header">
+        <h1>{% block legal_title %}{% endblock %}</h1>
+        <p>{% block legal_subtitle %}{% endblock %}</p>
+    </div>
+
+    <div class="legal-alert">
+        <strong>Documento en revisión.</strong>
+        Esta estructura fue generada a partir del documento de pendientes del
+        proyecto. Los bloques marcados como <strong>PENDIENTE</strong> deben ser
+        redactados y aprobados por el área jurídica de la institución antes de
+        su publicación definitiva.
+    </div>
+
+    {% block legal_toc %}{% endblock %}
+
+    <div class="legal-body">
+        {% block legal_body %}{% endblock %}
+    </div>
+
+    <p style="text-align:center; font-size:0.75rem; color:var(--text-secondary); margin-top:18px;">
+        <a href="{% url 'accounts:role_select' %}" style="color:var(--primary-light);">
+            <i class="bi bi-arrow-left"></i> Volver al inicio
+        </a>
+    </p>
+</div>
+{% endblock %}

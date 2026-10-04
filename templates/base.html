@@ -644,6 +644,22 @@
             .desktop-sidebar { display: none !important; }
         }
     </style>
+    .legal-footer {
+        text-align: center;
+        padding: 18px 16px 26px;
+        font-size: 0.72rem;
+        color: var(--text-secondary);
+    }
+    .legal-footer a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: color 0.2s;
+    }
+    .legal-footer a:hover {
+        color: var(--primary-light);
+        text-decoration: underline;
+    }
+    .legal-sep { margin: 0 8px; opacity: 0.5; }
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -791,6 +807,13 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+
+    <!-- Legal (R14, R15) -->
+    <footer class="legal-footer">
+        <a href="{% url 'legal:terminos' %}">Términos y Condiciones</a>
+        <span class="legal-sep">·</span>
+        <a href="{% url 'legal:privacidad' %}">Política de Privacidad</a>
+    </footer>
 
     <!-- Bottom Navigation (mobile) -->
     {% if user.is_authenticated %}

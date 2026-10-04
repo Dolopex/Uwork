@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'reviews',
     'notifications',
     'support',
+    'legal',
 ]
 
 MIDDLEWARE = [

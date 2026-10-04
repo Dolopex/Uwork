@@ -1,0 +1,273 @@
+{% extends 'legal/_base.html' %}
+{% block title %}Términos y Condiciones — U-Work{% endblock %}
+
+{% block legal_title %}Términos y Condiciones{% endblock %}
+{% block legal_subtitle %}Condiciones de uso de la plataforma U-Work{% endblock %}
+
+{% block legal_toc %}
+<div class="legal-toc">
+    <div class="legal-toc-title">Contenido</div>
+    <ol>
+        <li><a href="#aceptacion">Aceptación de los términos</a></li>
+        <li><a href="#objeto">Objeto de la plataforma</a></li>
+        <li><a href="#registro">Registro y verificación de identidad</a></li>
+        <li><a href="#roles">Roles y responsabilidades</a></li>
+        <li><a href="#contenido">Contenido prohibido</a></li>
+        <li><a href="#moderacion">Moderación del contenido</a></li>
+        <li><a href="#pagos">Pagos y transacciones</a></li>
+        <li><a href="#sanciones">Sanciones y retiro de cuentas</a></li>
+        <li><a href="#derechos">Derechos del usuario</a></li>
+        <li><a href="#soporte">Disponibilidad y soporte</a></li>
+        <li><a href="#propiedad">Propiedad intelectual</a></li>
+        <li><a href="#responsabilidad">Limitación de responsabilidad</a></li>
+        <li><a href="#menores">Usuarios menores de edad</a></li>
+        <li><a href="#cambios">Modificaciones</a></li>
+        <li><a href="#legislacion">Legislación aplicable</a></li>
+    </ol>
+</div>
+{% endblock %}
+
+{% block legal_body %}
+
+<h2 id="aceptacion">1. Aceptación de los términos</h2>
+<p>
+    El acceso y uso de la plataforma U-Work implica la aceptación íntegra de
+    estos Términos y Condiciones y de la
+    <a href="{% url 'legal:privacidad' %}">Política de Privacidad</a>. Si no está
+    de acuerdo con alguno de ellos, debe refrainerse de registrarse y de usar la
+    plataforma.
+</p>
+<span class="pendiente">
+    Completar con la identificación formal del titular de la plataforma
+    (institución educativa), su NIT, el domicilio o ciudad de operación, y el
+    procedimiento de aceptación individual de estos términos.
+</span>
+
+<h2 id="objeto">2. Objeto de la plataforma</h2>
+<p>
+    U-Work es una plataforma institucional que conecta estudiantes y empleadores
+    para la publicación y contratación de trabajos. Permite publicar ofertas,
+    enviar postulaciones, valorar los trabajos realizados y gestionar la
+    información de cada usuario según su rol.
+</p>
+<p>
+    U-Work es un proyecto académico. La institución no ofrece un servicio de
+    intermediación financiera ni garantiza la ejecución de los acuerdos
+    comerciales que acuerden los usuarios entre sí.
+</p>
+<span class="pendiente">
+    Definir si la plataforma intermedia o no la relación contractual laboral
+    entre los usuarios, y precisar el alcance de la responsabilidad de la
+    institución.
+</span>
+
+<h2 id="registro">3. Registro y verificación de identidad</h2>
+<p>
+    El registro se realiza en dos modalidades, con un modelo gradual de
+    verificación de identidad.
+</p>
+<h3>3.1. Estudiantes</h3>
+<ul>
+    <li>El registro exige un correo electrónico de dominio institucional
+        verificado. Inicialmente se acepta el dominio
+        <code>@campusuninunez.edu.co</code>.</li>
+    <li>La cuenta permanece inactiva hasta que el estudiante confirma su
+        correo mediante un enlace de verificación.</li>
+</ul>
+<h3>3.2. Empleadores</h3>
+<ul>
+    <li>El registro se realiza con un correo electrónico personal y una
+        contraseña.</li>
+    <li>La verificación por correo también es obligatoria antes de activar la
+        cuenta.</li>
+</ul>
+<span class="pendiente">
+    Precisar la documentación adicional que podrá requerirse a los empleadores
+    para demostrar su existencia legal, y el procedimiento de verificación
+    progresiva de identidad previsto para cada rol.
+</span>
+
+<h2 id="roles">4. Roles y responsabilidades</h2>
+<p>Cada usuario actúa en uno de los dos roles de la plataforma:</p>
+<ul>
+    <li><strong>Estudiante:</strong> publica su perfil académico, se postula a
+        ofertas y puede realizar trabajos.</li>
+    <li><strong>Empleador:</strong> publica ofertas de trabajo, revisa
+        postulaciones y contrata servicios.</li>
+</ul>
+<p>
+    El usuario es responsable de la veracidad de la información que registra y
+    de mantenerla actualizada en su panel de perfil.
+</p>
+<span class="pendiente">
+    Describir las obligaciones específicas de cada rol, incluidas las
+    condiciones para publicar ofertas y para registrar la finalización de un
+    trabajo.
+</span>
+
+<h2 id="contenido">5. Contenido prohibido</h2>
+<p>Queda prohibido publicar en la plataforma contenido que:</p>
+<ul>
+    <li>Constituya una oferta de trabajo ilegal: armas, sustancias, contenido
+        sexual o cualquier actividad ilícita.</li>
+    <li>Promueva la discriminación por cualquier motivo.</li>
+    <li>Implemente la suplantación de identidad.</li>
+    <li>Publique datos personales de terceros sin su consentimiento.</li>
+    <li>Constituya una estafa o fraude.</li>
+    <li>Promueva el trabajo infantil.</li>
+    <li>Incite a la violencia.</li>
+</ul>
+<p>
+    El incumplimiento de esta sección habilita a la plataforma para retirar el
+    contenido y aplicar las sanciones previstas en la sección
+    <a href="#sanciones">Sanciones</a>.
+</p>
+
+<h2 id="moderacion">6. Moderación del contenido</h2>
+<p>
+    La moderación se realiza de forma manual desde el panel de administración de
+    la plataforma, a cargo de los administradores de la institución.
+</p>
+<ol>
+    <li>Cuando un usuario publica un trabajo o un comentario, el contenido queda
+        en estado <em>pendiente de revisión</em>.</li>
+    <li>El contenido no se hace público hasta que un moderador lo aprueba.</li>
+    <li>El moderador puede aprobar el contenido, rechazarlo con una
+        justificación, o escalar el caso.</li>
+</ol>
+<p>
+    Cada publicación dispone de un botón para reportarla. Los reportes son
+    revisados por los administradores, que registran la sanción aplicada cuando
+    corresponde.
+</p>
+<span class="pendiente">
+    Fijar el tiempo máximo de respuesta a los reportes y los plazos de
+    aplicación de las sanciones. Documentar el canal de apelación para usuarios
+    sancionados.
+</span>
+
+<h2 id="pagos">7. Pagos y transacciones</h2>
+<p>
+    La plataforma registra el valor de los trabajos y su estado (disponible, en
+    proceso o finalizado), y muestra a cada usuario un balance con los trabajos
+    publicados, asignados y finalizados.
+</p>
+<p>
+    <strong>U-Work no procesa pagos ni retiene fondos.</strong> Los acuerdos
+    económicos entre empleadores y estudiantes se resuelven directamente entre
+    las partes, por fuera de la plataforma.
+</p>
+<span class="pendiente">
+    Confirmar si la plataforma tendrá o no un módulo de pagos en el futuro, y
+    regular los efectos del incumplimiento de pago entre las partes.
+</span>
+
+<h2 id="sanciones">8. Sanciones y retiro de cuentas</h2>
+<p>
+    La plataforma puede aplicar a un usuario, según la gravedad de la infracción,
+    las siguientes medidas:
+</p>
+<ul>
+    <li>Retiro del contenido.</li>
+    <li>Baneo temporal.</li>
+    <li>Baneo permanente.</li>
+    <li>Retiro definitivo de la cuenta.</li>
+</ul>
+<p>
+    Toda sanción se registra en una bitácora de auditoría que consigna quién la
+    aplicó, a quién, cuándo y por qué.
+</p>
+<span class="pendiente">
+    Definir las sanciones tipificadas, la duración de los baneos temporales, el
+    procedimiento de notificación al sancionado y el canal de apelación.
+</span>
+
+<h2 id="derechos">9. Derechos del usuario</h2>
+<p>Todo usuario tiene derecho a:</p>
+<ul>
+    <li>Consultar y actualizar los datos registrados en su panel de perfil.</li>
+    <li>Ejercer el derecho de supresión: eliminar su cuenta y todos sus datos
+        personales en cualquier momento, desde la sección
+        <em>Seguridad</em> de su panel de perfil.</li>
+    <li>Solicitar información sobre el uso de sus datos personales, conforme a
+        la Ley 1581 de 2012.</li>
+</ul>
+<p>
+    El detalle del tratamiento de los datos personales y de los mecanismos para
+    ejercer estos derechos se encuentra en la
+    <a href="{% url 'legal:privacidad' %}">Política de Privacidad</a>.
+</p>
+
+<h2 id="soporte">10. Disponibilidad y soporte</h2>
+<p>
+    La plataforma cuenta con un módulo de soporte desde el cual cualquier
+    usuario puede registrar un reporte sobre un error técnico, un problema de
+    pago o el reporte de otro usuario. Los tickets se responden desde el panel
+    de administración.
+</p>
+<span class="pendiente">
+    Definir los niveles de servicio, los horarios de atención y los canales de
+    contacto institucional con el usuario.
+</span>
+
+<h2 id="propiedad">11. Propiedad intelectual</h2>
+<p>
+    El nombre, la identidad visual y los elementos de la plataforma U-Work
+    pertenecen a la institución titular del proyecto. Cada usuario conserva la
+    titularidad de la información que publica y se compromete a no publicar
+    contenido de terceros sin autorización.
+</p>
+<span class="pendiente">
+    Precisar la titularidad de los perfiles y de los contenidos publicados, y
+    establecer el procedimiento para solicitudes de retiro de material protegido
+    por derechos de autor.
+</span>
+
+<h2 id="responsabilidad">12. Limitación de responsabilidad</h2>
+<p>
+    La plataforma se ofrece tal cual. La institución no se hace responsable por
+    la veracidad de los perfiles, por el cumplimiento de los acuerdos
+    comerciales entre usuarios, ni por los daños derivados de la interacción
+    entre ellos.
+</p>
+<span class="pendiente">
+    Redactar la cláusula de limitación y exención de responsabilidad con el
+    alcance que determine el área jurídica, incluidos los eventuales límites de
+    indemnización.
+</span>
+
+<h2 id="menores">13. Usuarios menores de edad</h2>
+<p>
+    La plataforma está dirigida a la comunidad universitaria. El registro exige
+    ser mayor de edad.
+</p>
+<span class="pendiente">
+    Confirmar la política de la institución sobre el tratamiento de datos de
+    menores de edad, en caso de que llegara a admitirse su registro.
+</span>
+
+<h2 id="cambios">14. Modificaciones de los términos</h2>
+<p>
+    La plataforma puede actualizar estos Términos y Condiciones. Cualquier
+    cambio se publicará en esta misma página indicando la fecha de la última
+    actualización. El uso continuado de la plataforma implica la aceptación de la
+    versión vigente.
+</p>
+<span class="pendiente">
+    Definir el procedimiento de notificación de los cambios y el plazo de
+    vigencia previo para que el usuario pueda oponerse.
+</span>
+
+<h2 id="legislacion">15. Legislación aplicable</h2>
+<p>
+    Estos Términos se rigen por la legislación colombiana, en particular la Ley
+    1581 de 2012 sobre protección de datos personales y su Decreto
+    reglamentario 1377 de 2013, y demás normas que los modifiquen,
+    complementen o adicionen.
+</p>
+<span class="pendiente">
+    Completar con la cláusula de solución de controversias: jurisdicción
+    competente, mecanismo de conciliación previa y calidad del proceso.
+</span>
+
+{% endblock %}
