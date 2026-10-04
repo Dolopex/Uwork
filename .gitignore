@@ -30,3 +30,11 @@ Thumbs.db
 # Docs (local only, not deployed)
 docs/
 .vercel
+
+# graphify (knowledge graph) — output is machine-local, see software_pendientes.txt
+graphify-out/
+
+# Temporary helper scripts from agent runs
+_graphify_*.py
+_step*.py
+_write_*.py

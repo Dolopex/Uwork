@@ -1,0 +1,355 @@
+================================================================================
+U-WORK — SOFTWARE PENDIENTES DE IMPLEMENTACIÓN
+Generado a partir de la Tesis (Douglas_Proyecto.docx, versión corregida por tutor)
+Fecha de corte: según estado declarado al cierre del informe
+================================================================================
+
+
+================================================================================
+1. RESULTADOS ESPERADOS PENDIENTES (Tabla 8 del Capítulo 7)
+================================================================================
+
+Total de resultados declarados: 16 (R1 a R16)
+Cumplidos: 9 (R1, R3, R4, R5, R6, R7, R8, R9)
+Parciales: 1 (R2)
+En curso: 1 (R12)
+Pendientes: 5 (R10, R11, R13, R14, R15, R16)
+
+PENDIENTES EXPLÍCITOS:
+
+R10 — Whitelist de correos institucionales
+       Indicador: Validación por dominio
+       Meta:      Operativo
+       Estado:    Pendiente
+       Detalle:   El sistema debe restringir el registro a correos con dominio
+                  institucional verificado. Inicialmente @campusuninunez.edu.co.
+
+R11 — Verificación de email
+       Indicador: Link de confirmación
+       Meta:      Operativo
+       Estado:    Pendiente
+       Detalle:   Al registrarse, enviar email con token único. El usuario debe
+                hacer clic antes de activar la cuenta.
+
+R13 — Test de usabilidad
+       Indicador: SUS con N usuarios
+       Meta:      ≥5 usuarios + SUS ≥68
+       Estado:    Pendiente
+       Detalle:   Aplicar el cuestionario SUS (System Usability Scale) a mínimo
+                5 usuarios reales y reportar el puntaje promedio.
+
+R14 — Términos y Condiciones
+       Indicador: Página pública
+       Meta:      Publicado
+       Estado:    Pendiente
+       Detalle:   Documento legal visible para todos los usuarios antes del
+                primer uso.
+
+R15 — Política de Privacidad
+       Indicador: Página pública
+       Meta:      Publicado
+       Estado:    Pendiente
+       Detalle:   Documento que cumpla con el principio de necesidad del
+                tratamiento (Ley 1581 de 2012, art. 4 y 6).
+
+R16 — Mecanismo "Eliminar mi cuenta"
+       Indicador: Vista en panel de usuario
+       Meta:      Operativo
+       Estado:    Pendiente
+       Detalle:   CRÍTICO para el cumplimiento del artículo 17 de la Ley 1581
+                de 2012 (derecho de supresión). Solo el administrador puede
+                hacerlo actualmente. Esta limitación debe resolverse antes del
+                lanzamiento público.
+
+EN CURSO:
+
+R12 — Reporte de pruebas funcionales
+       Indicador: Lista de chequeo firmada
+       Meta:      >80 % pasados
+       Estado:    En curso
+
+PARCIALES:
+
+R2  — Módulo de autenticación
+       Indicador: Vistas funcionales
+       Meta:      3/4 vistas (faltaría 1 vista por implementar)
+       Estado:    Parcial
+
+
+================================================================================
+2. CONTROLES DE SEGURIDAD PENDIENTES (§6.5.3 de la Tesis)
+================================================================================
+
+Lista explícita declarada por el tutor:
+
+[ ]  Verificación por email con link de confirmación
+       (relacionado con R11)
+[ ]  Validación MIME y de tamaño real en uploads
+[ ]  Migrar almacenamiento de archivos a Vercel Blob, Cloudinary o S3
+       Justificación: Vercel serverless NO persiste archivos en disco local.
+[ ]  Vistas de "Olvidé mi contraseña" y cambio de contraseña
+[ ]  Mecanismo de force-logout para usuarios baneados
+       Acción concreta: agregar campo `is_banned` al modelo User
+[ ]  Auditoría automatizada de dependencias
+       Herramientas sugeridas: pip-audit o safety en CI
+[ ]  Headers de seguridad
+       Específicamente: CSP, HSTS, X-Content-Type-Options, Referrer-Policy
+[ ]  Rate-limiting en endpoints sensibles
+       Específicamente: login, registro, publicación
+
+
+================================================================================
+3. CONTROLES DE SEGURIDAD YA IMPLEMENTADOS (§6.5.2)
+================================================================================
+
+Para contraste, esto ya está hecho — referencia rápida:
+
+[X]  HTTPS forzado en toda la aplicación (Vercel, cert. Let's Encrypt)
+[X]  Conexión SSL a la base de datos Neon (sslmode=require)
+[X]  Django ORM con consultas parametrizadas (anti SQL injection)
+[X]  Templates Django con autoescape (anti XSS)
+[X]  Middleware CSRF activado por defecto
+[X]  WhiteNoise para servir archivos estáticos
+[X]  Hasheo de contraseñas con PBKDF2 (default de Django)
+[X]  4 validadores de contraseña en backend
+       (longitud mínima, contraseña común, numérica, similitud con username)
+
+
+================================================================================
+4. MODERACIÓN DE CONTENIDO — PENDIENTES (§6.5.4)
+================================================================================
+
+Modalidad declarada: moderación manual desde panel de administración
+(los autores del proyecto como administradores iniciales)
+
+IMPLEMENTADO:
+[X]  Flujo de moderación básico:
+       1. Usuario publica trabajo o comentario
+       2. Contenido queda en estado "pendiente de revisión"
+       3. NO se hace público hasta aprobación del moderador
+       4. Moderador aprueba, rechaza con justificación, o escala
+
+[X]  Categorías de contenido prohibido (declaradas en el documento):
+       - Ofertas de trabajo ilegales (armas, sustancias, contenido sexual)
+       - Discriminación
+       - Suplantación de identidad
+       - Publicación de datos personales de terceros
+       - Estafas o fraude
+       - Trabajo infantil
+       - Contenido que incite violencia
+
+PENDIENTES:
+[ ]  Sistema de reportes por usuarios
+       Acción: botón "Reportar publicación" en cada publicación
+[ ]  SLA de respuesta a reportes
+       Definir tiempo máximo de respuesta (e.g., 24-48h)
+[ ]  Mecanismo de baneo temporal
+[ ]  Mecanismo de baneo permanente
+[ ]  Registro de auditoría para sanciones
+       Bitácora: quién baneó, a quién, cuándo, por qué
+[ ]  Canal de apelación para usuarios sancionados
+       Cómo un usuario puede solicitar revisión de su sanción
+
+
+================================================================================
+5. VERIFICACIÓN DE IDENTIDAD — MODELO GRADUAL (§6.5.1)
+================================================================================
+
+FASE ACTUAL (implementada parcialmente):
+
+ESTUDIANTES:
+[X]  (Parcial) Correo electrónico institucional
+       Whitelist de dominios (inicialmente @campusuninunez.edu.co) — PENDIENTE (R10)
+[ ]  Verificación por email con link de confirmación — PENDIENTE (R11)
+
+EMPLEADORES (usuarios externos):
+[X]  Registro con email personal + contraseña
+[ ]  Verificación por email — PENDIENTE (R11)
+
+FASE FUTURA — A MEDIANO PLAZO (declaradas como pendientes):
+
+ESTUDIANTES:
+[ ]  Single Sign-On (SSO) institucional, si la IES lo permite
+[ ]  Subida de carné institucional o certificado de matrícula
+       como validación adicional
+
+EMPLEADORES:
+[ ]  Verificación telefónica por SMS OTP (one-time password)
+       Específicamente para empleadores que realicen transacciones monetarias
+
+
+================================================================================
+6. PROTECCIÓN DE DATOS PERSONALES — LIMITACIONES DECLARADAS (§6.2)
+================================================================================
+
+Marco legal aplicable:
+- Ley 1581 de 2012 (Congreso de la República de Colombia)
+- Decreto 1377 de 2013 (Presidencia de la República de Colombia)
+
+Datos que SÍ se recolectan:
+
+ESTUDIANTES:
+  nombre de usuario, nombres y apellidos, correo electrónico institucional,
+  cédula, teléfono, fecha de nacimiento, dirección, universidad, carrera,
+  semestre, foto de perfil, foto de carné institucional, habilidades
+
+EMPLEADORES (usuarios externos):
+  nombre de usuario, nombres y apellidos, correo electrónico, cédula,
+  teléfono, fecha de nacimiento, dirección, foto de perfil
+
+Datos que NO se recolectan (cumpliendo principio de necesidad):
+  Origen racial, orientación política, convicciones religiosas,
+  datos de salud, orientación sexual, entre otros datos sensibles
+
+LIMITACIONES DECLARADAS — bloque (a)(b)(c):
+
+(a) No hay mecanismo accesible de "Eliminar mi cuenta" desde la interfaz
+    - Estado: solo el administrador puede eliminar cuentas manualmente
+    - CRÍTICO: bloquea cumplimiento del art. 17 de la Ley 1581/2012
+    - Acción: implementar R16 antes del lanzamiento público
+
+(b) La base de datos reside en AWS US East 1 (Virginia, EE.UU.)
+    - Servicio: Neon (PostgreSQL serverless)
+    - Implicación: considerar jurisdicción de datos si la IES lo exige
+
+(c) No hay política propia de backups
+    - Estado actual: depende del point-in-time recovery de Neon
+    - Retención: limitada en el plan gratuito
+    - Acción: definir estrategia de respaldos antes de producción con usuarios
+
+
+================================================================================
+7. ACCESIBILIDAD — DECLARACIÓN ACTUAL (§6.6)
+================================================================================
+
+Nivel declarado: WCAG 2.1 PARCIAL
+
+Implementado:
+[X]  Atributo lang="es" en HTML
+[X]  Textos alternativos en imágenes (alt)
+[X]  Etiquetas <label> en formularios principales
+
+Pendientes (para llegar a WCAG 2.1 AA):
+[ ]  Contraste de color suficiente (mínimo 4.5:1 para texto normal)
+[ ]  Navegación completa por teclado (Tab order lógico)
+[ ]  Roles ARIA en componentes interactivos
+[ ]  Skip-to-content links
+[ ]  Focus visible en todos los elementos interactivos
+[ ]  Mensajes de error accesibles (aria-describedby, role="alert")
+[ ]  Soporte para lectores de pantalla (NVDA, JAWS, VoiceOver)
+[ ]  Subítulos en contenido multimedia (si aplica)
+[ ]  Formularios: identificación de errores y sugerencias de corrección
+[ ]  Pruebas automatizadas con axe-core o Lighthouse Accessibility
+
+
+================================================================================
+8. CRONOGRAMA — TAREAS PENDIENTES (Tabla 9, §9.1)
+================================================================================
+
+Las siguientes tareas del cronograma están Pendientes o En curso
+al cierre del informe:
+
+EN CURSO:
+[Sem 14-16] Pruebas funcionales internas
+            Estado: En curso
+            Entregable: Reporte de pruebas
+
+[Sem 17-18] Documentación final e informe
+            Estado: En curso
+            Entregable: Informe final
+
+PENDIENTES:
+[Sem 16-17] Test de usabilidad SUS
+            Estado: Pendiente
+            Entregable: Reporte SUS
+            (Vinculado a R13)
+
+[Sem 16-17] Términos y Condiciones + Política de Privacidad
+            Estado: Pendiente
+            Entregable: Documentos públicos
+            (Vinculado a R14, R15)
+
+[Sem 16-17] Verificación email y whitelist institucional
+            Estado: Pendiente
+            Entregable: Auth actualizado
+            (Vinculado a R10, R11)
+
+
+================================================================================
+9. RESUMEN — QUÉ HACER ANTES DEL LANZAMIENTO PÚBLICO
+================================================================================
+
+BLOQUE 1 — CRÍTICO (legal/bloqueante):
+
+  1. R16 — Implementar "Eliminar mi cuenta" desde la UI
+            (Ley 1581 art. 17 — DERECHO DE SUPRESIÓN)
+  2. R10 — Whitelist de correos institucionales
+  3. R11 — Verificación por email
+  4. R14 — Publicar Términos y Condiciones
+  5. R15 — Publicar Política de Privacidad
+  6. R13 — Test SUS con N≥5 usuarios
+
+BLOQUE 2 — IMPORTANTE (seguridad y robustez):
+
+  7. Implementar los 8 controles de seguridad pendientes (§6.5.3)
+  8. Implementar sistema de reportes y baneo (§6.5.4)
+  9. Resolver la vista faltante del módulo de autenticación (R2 parcial)
+ 10. R12 — Cerrar reporte de pruebas funcionales (actualmente en curso)
+
+BLOQUE 3 — MEJORA (post-lanzamiento):
+
+ 11. Migración de archivos a Vercel Blob / Cloudinary / S3
+ 12. SMS OTP para empleadores con transacciones monetarias
+ 13. SSO institucional para estudiantes
+ 14. Subida de carné institucional como validación
+ 15. Accesibilidad WCAG 2.1 AA completo
+ 16. Estrategia propia de backups
+
+BLOQUE 4 — EVALUACIÓN POSTERIOR (fuera del alcance actual):
+
+ 17. Evaluación longitudinal del impacto en deserción
+     (La tesis declara explícitamente que esto NO se mide en este proyecto)
+ 18. Estudio con diseño cuasi-experimental sobre permanencia
+
+
+================================================================================
+10. TRAZABILIDAD — QUÉ DICE LA TESIS SOBRE CADA FALTANTE
+================================================================================
+
+Cada ítem anterior tiene anclaje explícito en la Tesis. Resumen:
+
+Documento / Sección                  | Ítems que define
+--------------------------------------|----------------------------------
+Tabla 8 (Cap. 7 — Resultados esperados)| R10, R11, R13, R14, R15, R16
+§6.5.3 — Controles pendientes          | 8 controles de seguridad
+§6.5.4 — Moderación pendientes         | Reportes, baneo, apelación
+§6.5.1 — Verificación gradual          | SSO, carné, SMS OTP
+§6.2 — Limitaciones declaradas         | (a) Eliminar cuenta, (b) AWS, (c) backups
+§6.6 — Accesibilidad                   | WCAG 2.1 AA pendientes
+Tabla 9 (Cap. 9.1 — Cronograma)        | Tareas Pendientes/En curso
+§8.2 — Limitación sobre impacto        | Indicadores NO reportados
+
+
+================================================================================
+11. NOTAS FINALES
+================================================================================
+
+- La versión del tutor (Douglas_Proyecto.docx) usa el término "se proyecta",
+  "se compromete", "queda sujeto a", "deberá". Estas son DECLARACIONES
+  PROSPECTIVAS, no funcionalidades ya construidas.
+
+- Toda mención en la tesis de "se contempla", "se proyecta" o "a mediano
+  plazo" implica PENDIENTE a la fecha de cierre del informe.
+
+- El capítulo 8 (Impacto) declara que los indicadores cuantitativos NO son
+  reportados. Esto es coherente con que el proyecto no tiene usuarios activos.
+
+- Para entrega final, la tesis debería acompañar una nueva versión del
+  archivo de pendientes donde:
+    (a) se marquen como "Cumplido" los ítems ya resueltos, y
+    (b) se actualice la columna "Estado" de la Tabla 8 con la realidad
+        del momento de la nueva entrega.
+
+================================================================================
+FIN DEL DOCUMENTO
+================================================================================
