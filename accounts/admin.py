@@ -5,10 +5,11 @@ from .models import User
 
 @admin.register(User)
 class UserAdmin(BaseUserAdmin):
-    list_display = ['username', 'email', 'first_name', 'last_name', 'rol', 'calificacion_promedio', 'is_staff']
-    list_filter = ['rol', 'is_staff']
+    list_display = ['username', 'email', 'first_name', 'last_name', 'rol', 'is_email_verified', 'calificacion_promedio', 'is_staff']
+    list_filter = ['rol', 'is_staff', 'is_email_verified']
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Perfil U-Work', {'fields': ('rol', 'foto', 'cedula', 'telefono', 'direccion', 'fecha_nacimiento', 'habilidades', 'calificacion_promedio')}),
         ('Datos de Estudiante', {'fields': ('universidad', 'carrera', 'semestre', 'foto_carnet')}),
+        ('Verificación de email (R11)', {'fields': ('is_email_verified', 'email_verification_token', 'email_verification_sent_at')}),
         ('Seguridad', {'fields': ('pregunta_seguridad', 'respuesta_seguridad')}),
     )

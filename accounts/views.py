@@ -5,6 +5,7 @@ from django.contrib import messages
 from django.db.models import Sum, Count, Q, Avg
 from .forms import StudentRegisterForm, EmployerRegisterForm, StudentProfileForm, EmployerProfileForm
 from .models import User
+from .services import enviar_email_verificacion
 
 
 def role_select(request):
@@ -14,30 +15,94 @@ def role_select(request):
     return render(request, 'accounts/role_select.html')
 
 
+def _registrar_y_verificar(request, form, template):
+    """Guarda la cuenta, envía el correo de verificación y no inicia sesión.
+
+    R11 — la cuenta queda inactiva hasta que el usuario haga clic en el
+    enlace de confirmación, así que no se llama a login() aquí.
+    """
+    if request.method == 'POST' and form.is_valid():
+        user = form.save()
+        enviar_email_verificacion(user)
+        request.session['pending_verification_email'] = user.email
+        messages.success(
+            request,
+            '¡Cuenta creada! Revisa tu correo ({}) para activarla.'.format(
+                user.email),
+        )
+        return redirect('accounts:check_email')
+    return render(request, template, {'form': form})
+
+
 def register_student(request):
-    if request.method == 'POST':
-        form = StudentRegisterForm(request.POST, request.FILES)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, '¡Bienvenido a U-Work, estudiante!')
-            return redirect('jobs:job_list')
-    else:
-        form = StudentRegisterForm()
-    return render(request, 'accounts/register_student.html', {'form': form})
+    form = StudentRegisterForm(request.POST or None, request.FILES or None)
+    return _registrar_y_verificar(
+        request, form, 'accounts/register_student.html')
 
 
 def register_employer(request):
+    form = EmployerRegisterForm(request.POST or None, request.FILES or None)
+    return _registrar_y_verificar(
+        request, form, 'accounts/register_employer.html')
+
+
+# ── R11 — Verificación de email ────────────────────────────────
+
+def check_email(request):
+    """Pantalla intermedia: 'revisa tu correo' tras registrarse."""
+    email = request.session.pop('pending_verification_email', '')
+    return render(request, 'accounts/check_email.html', {'email': email})
+
+
+def verify_email(request, token):
+    """Confirma la cuenta al hacer clic en el enlace del correo."""
+    try:
+        user = User.objects.get(email_verification_token=token)
+    except (User.DoesNotExist, ValueError, TypeError):
+        return render(request, 'accounts/verify_email.html',
+                      {'estado': 'invalido'})
+
+    if user.is_email_verified:
+        return render(request, 'accounts/verify_email.html',
+                      {'estado': 'ya_verificado'})
+
+    if user.token_verificacion_expirado:
+        return render(request, 'accounts/verify_email.html',
+                      {'estado': 'expirado', 'email': user.email})
+
+    user.verificar_email()
+    return render(request, 'accounts/verify_email.html',
+                  {'estado': 'exito', 'email': user.email})
+
+
+def resend_verification(request):
+    """Reenvía el correo de verificación (accessible sin iniciar sesión)."""
+    email = ''
     if request.method == 'POST':
-        form = EmployerRegisterForm(request.POST, request.FILES)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            messages.success(request, '¡Bienvenido a U-Work!')
-            return redirect('jobs:job_list')
-    else:
-        form = EmployerRegisterForm()
-    return render(request, 'accounts/register_employer.html', {'form': form})
+        email = (request.POST.get('email') or '').strip()
+        user = User.objects.filter(email__iexact=email).first()
+        # Mismo mensaje exista o no el correo: no revelamos qué emails
+        # están registrados.
+        if user and not user.is_email_verified:
+            enviar_email_verificacion(user)
+        messages.success(
+            request,
+            'Si ese correo tiene una cuenta pendiente de verificación, '
+            'te enviamos un nuevo enlace.',
+        )
+        return redirect('accounts:login')
+
+    return render(request, 'accounts/resend_verification.html',
+                  {'email': email})
+
+
+@login_required
+def reenviar_verificacion_mixta(request):
+    """Reenvía la verificación al usuario ya autenticado pero no verificado."""
+    if not request.user.is_email_verified:
+        enviar_email_verificacion(request.user)
+        messages.success(request, 'Te enviamos un nuevo enlace de verificación.')
+    return redirect('accounts:check_email')
 
 
 @login_required

@@ -138,7 +138,17 @@ INSTITUTIONAL_DOMAINS = [
     ).split(',') if d.strip()
 ]
 
+# R11 — Verificación de email.
+# Sin RESEND_API_KEY el correo de verificación se imprime en la consola
+# (útil en desarrollo). Con la key, se envía el email real vía Resend.
+SITE_URL = os.environ.get('SITE_URL', 'http://localhost:8000')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'no-reply@uwork.app')
+RESEND_API_KEY = os.environ.get('RESEND_API_KEY', '')
+
 # Auth redirects
 LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'jobs:job_list'
 LOGOUT_REDIRECT_URL = 'accounts:role_select'
+
+# R11 — el backend exige correo verificado para poder iniciar sesión.
+AUTHENTICATION_BACKENDS = ['accounts.backends.EmailVerifiedBackend']

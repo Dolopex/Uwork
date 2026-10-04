@@ -257,6 +257,9 @@ class Command(BaseCommand):
         for data in EMPLOYERS:
             u, created = User.objects.get_or_create(username=data['username'], defaults={
                 **{k: v for k, v in data.items() if k != 'username'},
+                # R11 — los datos de prueba nacen verificados para poder
+                # entrar a la demo sin pasar por el correo.
+                'is_email_verified': True,
             })
             if created:
                 u.set_password('demo1234')
@@ -268,6 +271,7 @@ class Command(BaseCommand):
         for data in STUDENTS:
             u, created = User.objects.get_or_create(username=data['username'], defaults={
                 **{k: v for k, v in data.items() if k not in ('username',)},
+                'is_email_verified': True,
             })
             if created:
                 u.set_password('demo1234')

@@ -1,0 +1,58 @@
+{% extends 'accounts/_verify_base.html' %}
+{% block title %}Verificación de correo — U-Work{% endblock %}
+{% block content %}
+
+{% if estado == 'exito' %}
+    <div class="v-icon ok"><i class="bi bi-check-lg"></i></div>
+    <h1>¡Correo verificado!</h1>
+    <p>
+        Tu cuenta{% if email %} ({{ email }}){% endif %} ya está activa.
+        Puedes iniciar sesión con normalidad.
+    </p>
+    <div class="v-actions">
+        <a href="{% url 'accounts:login' %}" class="btn-v btn-v-primary">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+        </a>
+    </div>
+
+{% elif estado == 'ya_verificado' %}
+    <div class="v-icon info"><i class="bi bi-check2-circle"></i></div>
+    <h1>Ya estaba verificado</h1>
+    <p>Esta cuenta ya fue confirmada anteriormente. Solo initiates sesión.</p>
+    <div class="v-actions">
+        <a href="{% url 'accounts:login' %}" class="btn-v btn-v-primary">
+            <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
+        </a>
+    </div>
+
+{% elif estado == 'expirado' %}
+    <div class="v-icon warn"><i class="bi bi-hourglass-split"></i></div>
+    <h1>El enlace venció</h1>
+    <p>
+        El enlace de confirmación ya no es válido (vence a las 48 horas).
+        Pídenos uno nuevo y te lo enviamos al instante.
+    </p>
+    <div class="v-actions">
+        <a href="{% url 'accounts:resend_verification' %}{% if email %}?email={{ email }}{% endif %}"
+           class="btn-v btn-v-primary">
+            <i class="bi bi-arrow-repeat"></i> Enviarme un enlace nuevo
+        </a>
+        <a href="{% url 'accounts:login' %}" class="btn-v btn-v-ghost">Volver al inicio de sesión</a>
+    </div>
+
+{% else %}
+    <div class="v-icon err"><i class="bi bi-x-lg"></i></div>
+    <h1>Enlace no válido</h1>
+    <p>
+        Este enlace de verificación no corresponde a ninguna cuenta.
+        Puede estar incompleto o haber sido ya utilizado.
+    </p>
+    <div class="v-actions">
+        <a href="{% url 'accounts:resend_verification' %}" class="btn-v btn-v-primary">
+            <i class="bi bi-send"></i> Reenviar verificación
+        </a>
+        <a href="{% url 'accounts:login' %}" class="btn-v btn-v-ghost">Volver al inicio de sesión</a>
+    </div>
+
+{% endif %}
+{% endblock %}

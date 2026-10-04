@@ -1,0 +1,26 @@
+{% extends 'accounts/_verify_base.html' %}
+{% block title %}Reenviar verificación — U-Work{% endblock %}
+{% block content %}
+<div class="v-icon info"><i class="bi bi-send"></i></div>
+<h1>Reenviar verificación</h1>
+<p>Escribe el correo con el que te registraste y te enviamos un enlace nuevo.</p>
+
+<form method="post" style="margin-top:22px;">
+    {% csrf_token %}
+    <label for="id_email">Correo electrónico</label>
+    <input type="email" name="email" id="id_email" required
+           autocomplete="email" placeholder="tu@correo.com"
+           value="{{ email }}">
+    <div class="v-actions">
+        <button type="submit" class="btn-v btn-v-primary">
+            <i class="bi bi-send"></i> Enviar enlace
+        </button>
+        <a href="{% url 'accounts:login' %}" class="btn-v btn-v-ghost">Volver</a>
+    </div>
+</form>
+
+<p class="v-note">
+    <i class="bi bi-shield-lock"></i>
+    Por seguridad no revelamos si un correo tiene cuenta registrada.
+</p>
+{% endblock %}

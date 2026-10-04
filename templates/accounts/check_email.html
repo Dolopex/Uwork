@@ -1,0 +1,25 @@
+{% extends 'accounts/_verify_base.html' %}
+{% block title %}Revisa tu correo — U-Work{% endblock %}
+{% block content %}
+<div class="v-icon info"><i class="bi bi-envelope-check"></i></div>
+<h1>Revisa tu correo</h1>
+<p>
+    Te enviamos un enlace de confirmación{% if email %} a <strong>{{ email }}</strong>{% endif %}.
+    Haz clic en él para activar tu cuenta y poder iniciar sesión.
+</p>
+
+<div class="v-actions">
+    <a href="{% url 'accounts:resend_verification' %}" class="btn-v btn-v-primary">
+        <i class="bi bi-send"></i> Reenviar enlace de verificación
+    </a>
+    <a href="{% url 'accounts:login' %}" class="btn-v btn-v-ghost">
+        Ya verifiqué, ir a iniciar sesión
+    </a>
+</div>
+
+<p class="v-note">
+    <i class="bi bi-info-circle"></i>
+    ¿No llega el correo? Revisa la carpeta de spam o la promotions.
+    El enlace vence después de 48 horas.
+</p>
+{% endblock %}

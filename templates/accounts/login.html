@@ -335,6 +335,18 @@
 
                     <form method="post" id="loginForm">
                         {% csrf_token %}
+                        {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags|default:'info' }} py-2 px-3" style="font-size:0.8rem; border-radius:12px;">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger py-2 px-3" style="font-size:0.8rem; border-radius:12px;">
+                            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
                         <div class="input-group-custom">
                             <i class="bi bi-person-fill input-icon"></i>
                             <input type="text" name="username" placeholder="Tu usuario" value="{{ form.username.value|default:'' }}" autocomplete="username" required>
@@ -350,6 +362,13 @@
                             Iniciar sesión <i class="bi bi-arrow-right"></i>
                         </button>
                     </form>
+
+                    {% if pending_email %}
+                    <div class="divider">o</div>
+                    <a href="{% url 'accounts:resend_verification' %}?email={{ pending_email }}" class="btn-create">
+                        <i class="bi bi-send"></i> Reenviar verificación de correo
+                    </a>
+                    {% endif %}
 
                     <div class="divider">o</div>
 
