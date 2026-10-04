@@ -159,3 +159,169 @@ class R11VerificacionEmailTests(TestCase):
 
         self.assertEqual(len(inexistente.content), len(existente.content))
         self.assertContains(inexistente, 'Si ese correo tiene una cuenta')
+
+    def test_una_sesion_forzada_no_evita_el_bloqueo(self):
+        """El gate no solo actúa en authenticate(): también al leer la sesión.
+
+        ModelBackend.get_user() consulta user_can_authenticate(), así que
+        una cuenta sin verificar no recupera sesión aunque exista la cookie.
+        """
+        usuario = User.objects.create_user(username='sinsesion',
+                                           email='sinsesion@empresa.com',
+                                           password='Aa12345678xyz!')
+        self.client.force_login(usuario)
+
+        # accounts:profile es @login_required; jobs:job_list es público y
+        # no serviría para comprobar el gate.
+        respuesta = self.client.get(reverse('accounts:profile'))
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertIn(reverse('accounts:login'), respuesta.url)
+
+
+class R16EliminarCuentaTests(TestCase):
+    """R16 — derecho de supresión (Ley 1581 de 2012, art. 17)."""
+
+    PASSWORD = 'Aa12345678xyz!'
+
+    def setUp(self):
+        from jobs.models import Application, Job
+        from notifications.models import Notification
+        from reviews.models import Review
+        from support.models import SupportTicket
+
+        # R11 exige is_email_verified para que la sesión exista, también
+        # cuando se fuerza el login: get_user() consulta user_can_authenticate.
+        self.estudiante = User.objects.create_user(
+            username='est', email='est@campusuninunez.edu.co',
+            password=self.PASSWORD, rol=User.Rol.ESTUDIANTE,
+            is_email_verified=True)
+        self.empleador = User.objects.create_user(
+            username='emp', email='emp@empresa.com',
+            password=self.PASSWORD, rol=User.Rol.EMPLEADOR,
+            is_email_verified=True)
+
+        self.trabajo = Job.objects.create(
+            titulo='Prueba', descripcion='x', creador=self.empleador,
+            fecha_limite='2030-01-01', pago=1000)
+        self.postulacion = Application.objects.create(
+            usuario=self.estudiante, trabajo=self.trabajo)
+        self.review = Review.objects.create(
+            autor=self.empleador, receptor=self.estudiante,
+            trabajo=self.trabajo, puntuacion=5)
+        self.notificacion = Notification.objects.create(
+            usuario=self.empleador, mensaje='notificacion del que borra')
+        self.notificacion_ajena = Notification.objects.create(
+            usuario=self.estudiante, mensaje='notificacion de otro usuario')
+        self.ticket = SupportTicket.objects.create(
+            reporter=self.empleador, tipo='bug', descripcion='x del que borra')
+
+        self.Job = Job
+        self.Application = Application
+        self.Review = Review
+        self.Notification = Notification
+        self.SupportTicket = SupportTicket
+
+        self.url = reverse('accounts:delete_account')
+
+    def test_la_vista_exige_iniciar_sesion(self):
+        respuesta = self.client.get(self.url)
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertIn(reverse('accounts:login'), respuesta.url)
+
+    def test_muestra_el_resumen_de_datos_a_borrar(self):
+        self.client.force_login(self.empleador)
+        respuesta = self.client.get(self.url)
+        self.assertContains(respuesta, 'Se eliminará lo siguiente')
+        self.assertContains(respuesta, 'Trabajos que publicaste')
+        self.assertContains(respuesta, 'Ley 1581 de 2012')
+
+    def test_no_borra_si_la_contrasena_no_coincide(self):
+        self.client.force_login(self.empleador)
+        respuesta = self.client.post(self.url, {'password': 'incorrecta'})
+
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertTrue(User.objects.filter(pk=self.empleador.pk).exists())
+        self.assertContains(respuesta, 'La contraseña no coincide')
+
+    def test_elimina_la_cuenta_tras_confirmar(self):
+        self.client.force_login(self.empleador)
+        respuesta = self.client.post(self.url, {'password': self.PASSWORD},
+                                     follow=True)
+
+        self.assertFalse(User.objects.filter(pk=self.empleador.pk).exists())
+        self.assertRedirects(
+            respuesta, reverse('accounts:role_select'),
+            target_status_code=200)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_elimina_en_cascada_los_registros_relacionados(self):
+        self.client.force_login(self.empleador)
+        self.client.post(self.url, {'password': self.PASSWORD})
+
+        self.assertFalse(self.Job.objects.filter(pk=self.trabajo.pk).exists())
+        self.assertFalse(
+            self.Application.objects.filter(pk=self.postulacion.pk).exists())
+        self.assertFalse(
+            self.Review.objects.filter(pk=self.review.pk).exists())
+        self.assertFalse(
+            self.Notification.objects.filter(
+                pk=self.notificacion.pk).exists())
+        self.assertFalse(
+            self.SupportTicket.objects.filter(pk=self.ticket.pk).exists())
+
+    def test_conserva_los_datos_de_otros_usuarios(self):
+        """La cascada no debe tocar lo que pertenece a terceros."""
+        ticket_ajeno = self.SupportTicket.objects.create(
+            reporter=self.estudiante, tipo='bug', descripcion='de otro usuario')
+
+        self.client.force_login(self.empleador)
+        self.client.post(self.url, {'password': self.PASSWORD})
+
+        self.assertTrue(User.objects.filter(pk=self.estudiante.pk).exists())
+        self.assertTrue(
+            self.Notification.objects.filter(
+                pk=self.notificacion_ajena.pk).exists())
+        self.assertTrue(
+            self.SupportTicket.objects.filter(pk=ticket_ajeno.pk).exists())
+
+
+class R16BorradoDeArchivosTests(TestCase):
+    """El borrado de la cuenta también elimina los archivos de MEDIA_ROOT."""
+
+    def setUp(self):
+        import tempfile
+        from django.core.files.uploadedfile import SimpleUploadedFile
+        from django.test import override_settings
+
+        self.media = tempfile.mkdtemp()
+        self.override = override_settings(MEDIA_ROOT=self.media)
+        self.override.enable()
+        self.addCleanup(self.override.disable)
+
+        self.contrasena = 'Aa12345678xyz!'
+        self.usuario = User.objects.create_user(
+            username='confoto', email='confoto@empresa.com',
+            password=self.contrasena)
+        self.usuario.foto.save(
+            'perfil.png', SimpleUploadedFile('perfil.png', b'falso-png'),
+            save=True)
+
+    def test_elimina_el_archivo_de_foto_del_disco(self):
+        import os
+
+        from .deletion import eliminar_archivos_de_usuario
+
+        ruta = self.usuario.foto.path
+        self.assertTrue(os.path.isfile(ruta))
+
+        eliminados = eliminar_archivos_de_usuario(self.usuario)
+
+        self.assertEqual(eliminados, 1)
+        self.assertFalse(os.path.isfile(ruta))
+
+    def test_no_puede_borrar_fuera_de_media_root(self):
+        """Un nombre con '..' no debe sacar el borrado de MEDIA_ROOT."""
+        from .deletion import _ruta_absoluta
+
+        self.assertIsNone(_ruta_absoluta('../../secreto.txt'))

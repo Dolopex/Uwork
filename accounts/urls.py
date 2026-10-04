@@ -19,6 +19,9 @@ urlpatterns = [
     path('verificar/revisar-correo/', views.check_email, name='check_email'),
     path('verificar/email/<uuid:token>/', views.verify_email, name='verify_email'),
     path('verificar/reenviar/', views.resend_verification, name='resend_verification'),
-    path('verificar/reenviar/mi-cuenta/', views.reenviar_verificacion_mixta,
+    path('verificar/reenviar/mi-cuenta/', views.reenviar_mi_verificacion,
          name='resend_verification_mine'),
+
+    # R16 — Eliminar mi cuenta (Ley 1581 de 2012, art. 17)
+    path('eliminar-cuenta/', views.delete_account, name='delete_account'),
 ]

@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Sum, Count, Q, Avg
 from .forms import StudentRegisterForm, EmployerRegisterForm, StudentProfileForm, EmployerProfileForm
 from .models import User
 from .services import enviar_email_verificacion
+from .deletion import eliminar_archivos_de_usuario
 
 
 def role_select(request):
@@ -97,7 +98,7 @@ def resend_verification(request):
 
 
 @login_required
-def reenviar_verificacion_mixta(request):
+def reenviar_mi_verificacion(request):
     """Reenvía la verificación al usuario ya autenticado pero no verificado."""
     if not request.user.is_email_verified:
         enviar_email_verificacion(request.user)
@@ -122,6 +123,73 @@ def profile(request):
 def user_detail(request, pk):
     user = get_object_or_404(User, pk=pk)
     return render(request, 'accounts/user_detail.html', {'profile_user': user})
+
+
+# ── R16 — Eliminar mi cuenta (Ley 1581 de 2012, art. 17) ─────────
+
+def _resumen_datos_borrables(usuario):
+    """Cuenta qué se va a eliminar, para mostrarlo antes de confirmar."""
+    from jobs.models import Application, Job
+    from notifications.models import Notification
+    from reviews.models import Review
+    from support.models import SupportTicket
+
+    return {
+        'empleador': {
+            'trabajos': Job.objects.filter(creador=usuario).count(),
+            'postulaciones': Application.objects.filter(usuario=usuario).count(),
+        },
+        'estudiante': {
+            'trabajos_asignados': Job.objects.filter(asignado=usuario).count(),
+            'postulaciones': Application.objects.filter(usuario=usuario).count(),
+        },
+        'calificaciones_hechas': Review.objects.filter(autor=usuario).count(),
+        'calificaciones_recibidas': Review.objects.filter(receptor=usuario).count(),
+        'notificaciones': Notification.objects.filter(usuario=usuario).count(),
+        'tickets': SupportTicket.objects.filter(reporter=usuario).count(),
+        'tickets_sobre_el': SupportTicket.objects.filter(
+            usuario_reportado=usuario).count(),
+    }
+
+
+@login_required
+def delete_account(request):
+    """Supresión de la cuenta a petición del titular.
+
+    Exige confirmar la contraseña: evita que alguien con una sesión abierta
+    en un dispositivo compartido borre la cuenta por accidente.
+    """
+    usuario = request.user
+
+    if request.method == 'POST':
+        if not usuario.check_password(request.POST.get('password', '')):
+            messages.error(
+                request,
+                'La contraseña no coincide. Tu cuenta no fue eliminada.',
+            )
+            return render(request, 'accounts/delete_account.html', {
+                'resumen': _resumen_datos_borrables(usuario),
+                'error_password': True,
+            })
+
+        # Django borra en cascada los registros relacionados (los modelos
+        # usan CASCADE); los archivos de MEDIA_ROOT se borran aparte.
+        # logout() va antes del delete() para que la sesión no quede
+        # apuntando a un id de usuario que ya no existe.
+        nombre = usuario.username
+        eliminar_archivos_de_usuario(usuario)
+        logout(request)
+        usuario.delete()
+
+        messages.success(
+            request,
+            'Tu cuenta "{}" fue eliminada permanentemente.'.format(nombre),
+        )
+        return redirect('accounts:role_select')
+
+    return render(request, 'accounts/delete_account.html', {
+        'resumen': _resumen_datos_borrables(usuario),
+    })
 
 
 @login_required
