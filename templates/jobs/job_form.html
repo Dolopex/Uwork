@@ -200,20 +200,20 @@
         <div class="form-field mb-3">
             <label for="id_titulo"><i class="bi bi-type-h1"></i> {{ form.titulo.label }}</label>
             {{ form.titulo|add_class:"form-control" }}
-            {% if form.titulo.errors %}<div class="text-danger small mt-1">{{ form.titulo.errors.0 }}</div>{% endif %}
+            {% if form.titulo.errors %}<div class="text-danger small mt-1" role="alert">{{ form.titulo.errors.0 }}</div>{% endif %}
         </div>
 
         <div class="form-field mb-3">
             <label for="id_descripcion"><i class="bi bi-text-paragraph"></i> {{ form.descripcion.label }}</label>
             {{ form.descripcion|add_class:"form-control" }}
-            {% if form.descripcion.errors %}<div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>{% endif %}
+            {% if form.descripcion.errors %}<div class="text-danger small mt-1" role="alert">{{ form.descripcion.errors.0 }}</div>{% endif %}
         </div>
 
         <div class="form-field">
             <label for="id_requisitos"><i class="bi bi-list-check"></i> {{ form.requisitos.label }}</label>
             {{ form.requisitos|add_class:"form-control" }}
             <div class="form-text" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">Opcional — detalla qué necesitas del candidato</div>
-            {% if form.requisitos.errors %}<div class="text-danger small mt-1">{{ form.requisitos.errors.0 }}</div>{% endif %}
+            {% if form.requisitos.errors %}<div class="text-danger small mt-1" role="alert">{{ form.requisitos.errors.0 }}</div>{% endif %}
         </div>
     </div>
 
@@ -233,12 +233,12 @@
             <div class="form-field">
                 <label for="id_categoria"><i class="bi bi-bookmark"></i> {{ form.categoria.label }}</label>
                 {{ form.categoria|add_class:"form-select" }}
-                {% if form.categoria.errors %}<div class="text-danger small mt-1">{{ form.categoria.errors.0 }}</div>{% endif %}
+                {% if form.categoria.errors %}<div class="text-danger small mt-1" role="alert">{{ form.categoria.errors.0 }}</div>{% endif %}
             </div>
             <div class="form-field">
                 <label for="id_modalidad"><i class="bi bi-geo-alt"></i> {{ form.modalidad.label }}</label>
                 {{ form.modalidad|add_class:"form-select" }}
-                {% if form.modalidad.errors %}<div class="text-danger small mt-1">{{ form.modalidad.errors.0 }}</div>{% endif %}
+                {% if form.modalidad.errors %}<div class="text-danger small mt-1" role="alert">{{ form.modalidad.errors.0 }}</div>{% endif %}
             </div>
         </div>
 
@@ -246,14 +246,14 @@
             <label for="id_ubicacion"><i class="bi bi-pin-map"></i> {{ form.ubicacion.label }}</label>
             {{ form.ubicacion|add_class:"form-control" }}
             <div class="form-text" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">Opcional — relevante si es presencial o híbrido</div>
-            {% if form.ubicacion.errors %}<div class="text-danger small mt-1">{{ form.ubicacion.errors.0 }}</div>{% endif %}
+            {% if form.ubicacion.errors %}<div class="text-danger small mt-1" role="alert">{{ form.ubicacion.errors.0 }}</div>{% endif %}
         </div>
 
         <div class="form-field">
             <label for="id_habilidades_requeridas"><i class="bi bi-lightning"></i> {{ form.habilidades_requeridas.label }}</label>
             {{ form.habilidades_requeridas|add_class:"form-control" }}
             <div class="form-text" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">Separadas por comas</div>
-            {% if form.habilidades_requeridas.errors %}<div class="text-danger small mt-1">{{ form.habilidades_requeridas.errors.0 }}</div>{% endif %}
+            {% if form.habilidades_requeridas.errors %}<div class="text-danger small mt-1" role="alert">{{ form.habilidades_requeridas.errors.0 }}</div>{% endif %}
         </div>
     </div>
 
@@ -276,19 +276,19 @@
                     <span class="currency-prefix">$</span>
                     {{ form.pago|add_class:"form-control" }}
                 </div>
-                {% if form.pago.errors %}<div class="text-danger small mt-1">{{ form.pago.errors.0 }}</div>{% endif %}
+                {% if form.pago.errors %}<div class="text-danger small mt-1" role="alert">{{ form.pago.errors.0 }}</div>{% endif %}
             </div>
             <div class="form-field">
                 <label for="id_duracion_estimada"><i class="bi bi-hourglass-split"></i> {{ form.duracion_estimada.label }}</label>
                 {{ form.duracion_estimada|add_class:"form-control" }}
-                {% if form.duracion_estimada.errors %}<div class="text-danger small mt-1">{{ form.duracion_estimada.errors.0 }}</div>{% endif %}
+                {% if form.duracion_estimada.errors %}<div class="text-danger small mt-1" role="alert">{{ form.duracion_estimada.errors.0 }}</div>{% endif %}
             </div>
         </div>
 
         <div class="form-field">
             <label for="id_fecha_limite"><i class="bi bi-calendar-event"></i> {{ form.fecha_limite.label }}</label>
             {{ form.fecha_limite|add_class:"form-control" }}
-            {% if form.fecha_limite.errors %}<div class="text-danger small mt-1">{{ form.fecha_limite.errors.0 }}</div>{% endif %}
+            {% if form.fecha_limite.errors %}<div class="text-danger small mt-1" role="alert">{{ form.fecha_limite.errors.0 }}</div>{% endif %}
         </div>
     </div>
 
@@ -335,7 +335,7 @@
                 <div class="upload-text" id="uploadText">{% if form.instance.imagen %}Cambiar imagen{% else %}Toca para subir una imagen{% endif %}</div>
                 <div class="upload-hint">JPG, PNG — máximo 5 MB</div>
             </div>
-            {% if form.imagen.errors %}<div class="text-danger small mt-1">{{ form.imagen.errors.0 }}</div>{% endif %}
+            {% if form.imagen.errors %}<div class="text-danger small mt-1" role="alert">{{ form.imagen.errors.0 }}</div>{% endif %}
         </div>
     </div>
 

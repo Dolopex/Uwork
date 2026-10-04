@@ -89,7 +89,7 @@
                 <label class="form-label">{{ form.descripcion.label }}</label>
                 {{ form.descripcion }}
                 {% if form.descripcion.errors %}
-                <div class="text-danger small mt-1">{{ form.descripcion.errors.0 }}</div>
+                <div class="text-danger small mt-1" role="alert">{{ form.descripcion.errors.0 }}</div>
                 {% endif %}
             </div>
             {% if form.non_field_errors %}

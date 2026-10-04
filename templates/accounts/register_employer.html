@@ -150,6 +150,22 @@
 <form method="post" enctype="multipart/form-data" id="regForm">
     {% csrf_token %}
 
+    {% comment %}Resumen de errores: WCAG 3.3.1 (ver register_student.html){% endcomment %}
+    {% if form.errors %}
+    <div class="alert alert-danger" role="alert" tabindex="-1" id="error-summary"
+         style="border-radius:12px; font-size:0.82rem;">
+        <strong><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+        Revisa estos {{ form.errors|length }} campo(s):</strong>
+        <ul style="margin:8px 0 0; padding-left:20px;">
+            {% for field in form %}
+                {% if field.errors %}
+                <li><a href="#{{ field.id_for_label }}" style="color:inherit;">{{ field.label }}: {{ field.errors.0 }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
     <!-- 1. Datos personales -->
     <div class="form-section">
         <div class="form-section-title"><span class="step-num">1</span> Datos personales</div>
@@ -166,11 +182,12 @@
         <div class="mt-2">
             <label class="form-label">Usuario</label>
             {{ form.username|add_class:"form-control" }}
-            {% if form.username.errors %}<div class="text-danger small mt-1">{{ form.username.errors.0 }}</div>{% endif %}
+            {% if form.username.errors %}<div class="text-danger small mt-1" role="alert">{{ form.username.errors.0 }}</div>{% endif %}
         </div>
         <div class="mt-2">
             <label class="form-label">Correo electrónico</label>
-            {{ form.email|add_class:"form-control" }}
+            {{ form.email|accessible:"form-control" }}
+            {% field_error form.email %}
         </div>
         <div class="row g-2 mt-1">
             <div class="col-6">
@@ -211,12 +228,12 @@
         <div class="mb-2">
             <label class="form-label">Contraseña</label>
             {{ form.password1|add_class:"form-control" }}
-            {% if form.password1.errors %}<div class="text-danger small mt-1">{{ form.password1.errors.0 }}</div>{% endif %}
+            {% if form.password1.errors %}<div class="text-danger small mt-1" role="alert">{{ form.password1.errors.0 }}</div>{% endif %}
         </div>
         <div>
             <label class="form-label">Confirmar contraseña</label>
             {{ form.password2|add_class:"form-control" }}
-            {% if form.password2.errors %}<div class="text-danger small mt-1">{{ form.password2.errors.0 }}</div>{% endif %}
+            {% if form.password2.errors %}<div class="text-danger small mt-1" role="alert">{{ form.password2.errors.0 }}</div>{% endif %}
         </div>
     </div>
 

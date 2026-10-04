@@ -288,19 +288,51 @@ Implementado:
 [X]  Atributo lang="es" en HTML
 [X]  Textos alternativos en imágenes (alt)
 [X]  Etiquetas <label> en formularios principales
+[X]  Contraste de color suficiente (mínimo 4.5:1 para texto normal)
+       Se recalcularon 12 pares de tokens en tema claro y oscuro con un
+       medidor propio. Antes fallaban: placeholder de input (2.54:1),
+       borde de input (1.47:1), verde de éxito, estrella inactiva y tres
+       badges del tema oscuro. Ahora todos alcanzan el mínimo; el borde de
+       control llega a 3.01:1 según WCAG 1.4.11.
+[X]  Focus visible en todos los elementos interactivos
+       Anillo :focus-visible con outline (se respeta en el modo de alto
+       contraste de Windows). Offset hacia dentro en los controles de icono.
+[X]  Skip-to-content links
+       Enlace "Saltar al contenido principal", oculto hasta recibir foco.
+[X]  Roles ARIA en componentes interactivos
+       aria-label en las navegaciones, nombre accesible en todos los
+       botones de icono, aria-hidden en iconos decorativos y en el fondo
+       animado.
+[X]  Mensajes de error accesibles (aria-describedby, role="alert")
+       21 mensajes en línea marcados con role="alert". El filtro
+       |accessible añade aria-invalid y aria-describedby al campo.
+[X]  Formularios: identificación de errores y sugerencias de corrección
+       Resumen de errores enfocable (role="alert" + tabindex="-1") con
+       enlace a cada campo inválido, en los dos formularios de registro.
+[X]  Respeta la preferencia de movimiento reducido
+       Bloque prefers-reduced-motion: reduce que anula animaciones y
+       transiciones.
+[X]  Zoom del usuario permitido
+       Se eliminó user-scalable=no y maximum-scale=1.0 del viewport en las
+       4 plantillas afectadas. WCAG 1.4.4 lo prohíbe.
+[X]  Pruebas automatizadas de accesibilidad
+       accounts/tests_accessibility.py: 24 tests que recalculan el
+       contraste de los tokens, y verifican foco, skip-link, roles ARIA,
+       errores de formulario y viewport. Fallan si una refactorización
+       rompe cualquiera de estos puntos.
 
 Pendientes (para llegar a WCAG 2.1 AA):
-[ ]  Contraste de color suficiente (mínimo 4.5:1 para texto normal)
 [ ]  Navegación completa por teclado (Tab order lógico)
-[ ]  Roles ARIA en componentes interactivos
-[ ]  Skip-to-content links
-[ ]  Focus visible en todos los elementos interactivos
-[ ]  Mensajes de error accesibles (aria-describedby, role="alert")
+       El foco ya es visible y el skip-link funciona, pero falta auditar el
+       orden de tabulación en cada pantalla y atrapar el foco dentro de los
+       modales.
 [ ]  Soporte para lectores de pantalla (NVDA, JAWS, VoiceOver)
-[ ]  Subítulos en contenido multimedia (si aplica)
-[ ]  Formularios: identificación de errores y sugerencias de corrección
-[ ]  Pruebas automatizadas con axe-core o Lighthouse Accessibility
-
+       La semántica ARIA ya está; falta verificación manual con las tres
+       herramientas.
+[ ]  Subtítulos en contenido multimedia (si aplica)
+[ ]  Pruebas con axe-core o Lighthouse sobre el navegador
+       Los tests propios cubren el HTML estático, pero no el DOM
+       renderizado ni el contraste real de los degradados.
 
 ================================================================================
 8. CRONOGRAMA — TAREAS PENDIENTES (Tabla 9, §9.1)

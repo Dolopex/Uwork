@@ -401,13 +401,13 @@
                         <span class="img-upload-hint">JPG, PNG · Máx. 5 MB</span>
                     </label>
                     <div style="display:none;">{{ field }}</div>
-                    {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors.0 }}</div>{% endif %}
+                    {% if field.errors %}<div class="text-danger small mt-1" role="alert">{{ field.errors.0 }}</div>{% endif %}
                 </div>
                 {% else %}
                 <div class="form-field">
                     <label>{{ field.label }}</label>
                     {{ field|add_class:"form-control" }}
-                    {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors.0 }}</div>{% endif %}
+                    {% if field.errors %}<div class="text-danger small mt-1" role="alert">{{ field.errors.0 }}</div>{% endif %}
                 </div>
                 {% endif %}
                 {% endfor %}
