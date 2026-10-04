@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% block title %}Bitácora de sanciones — U-Work{% endblock %}
+{% block content %}
+<div style="max-width:1000px; margin:0 auto;">
+
+    <div class="d-flex justify-content-between align-items-center mb-3" style="flex-wrap:wrap; gap:10px;">
+        <div>
+            <h4 style="font-weight:800; color:var(--text); margin:0 0 4px;">
+                <i class="bi bi-journal-text"></i> Bitácora de sanciones
+            </h4>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+                Registro de auditoría: quién sancionó, a quién, cuándo y por qué. No se edita.
+            </p>
+        </div>
+        <a href="{% url 'moderation:panel_reportes' %}" class="btn btn-sm"
+           style="border:1.5px solid var(--border); border-radius:10px; font-weight:700; color:var(--text); padding:8px 14px;">
+            <i class="bi bi-arrow-left"></i> Reportes
+        </a>
+    </div>
+
+    {% if not sanciones %}
+    <div class="card"><div class="card-body text-center" style="padding:44px 16px;">
+        <p style="font-size:0.88rem; font-weight:700; color:var(--text); margin:0 0 4px;">Sin sanciones registradas</p>
+        <p style="font-size:0.78rem; color:var(--text-secondary); margin:0;">La bitácora está vacía.</p>
+    </div></div>
+    {% endif %}
+
+    <div class="table-responsive">
+        <table class="table" style="font-size:0.83rem;">
+            <thead>
+                <tr>
+                    <th>#</th><th>Usuario</th><th>Tipo</th><th>Motivo</th>
+                    <th>Aplicada por</th><th>Fecha</th><th>Estado</th><th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in sanciones %}
+                <tr>
+                    <td>{{ s.pk }}</td>
+                    <td><a href="{% url 'accounts:user_detail' s.usuario.pk %}"
+                           style="color:var(--primary-light); text-decoration:none;">{{ s.usuario }}</a></td>
+                    <td>{{ s.get_tipo_display }}</td>
+                    <td style="max-width:220px;">{{ s.motivo|truncatechars:70 }}</td>
+                    <td>{{ s.aplicada_por|default:"—" }}</td>
+                    <td>{{ s.created_at|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        {% if s.vigente %}
+                        <span class="badge" style="background:rgba(220,38,38,0.15); color:#DC2626;">Vigente</span>
+                        {% else %}
+                        <span class="badge" style="background:rgba(5,150,105,0.15); color:#059669;">Levantada</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if s.vigente %}
+                        <form method="post" action="{% url 'moderation:levantar_sancion' s.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-secondary"
+                                    style="border-radius:8px; font-weight:700;">Levantar</button>
+                        </form>
+                        {% else %}
+                        <span style="font-size:0.72rem; color:var(--text-secondary);">
+                            {{ s.levantada_at|date:"d/m/Y" }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

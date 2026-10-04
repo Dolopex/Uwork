@@ -55,6 +55,11 @@ class R11VerificacionEmailTests(TestCase):
     """R11 — la cuenta solo se activa tras confirmar el correo."""
 
     def setUp(self):
+        # La caché no se revierte entre tests, así que el rate-limit de
+        # /register/ (compartido por IP) contaminaría otros tests.
+        from django.core.cache import cache
+        cache.clear()
+
         self.url_registro = reverse('accounts:register_employer')
         self.datos = dict(
             username='nuevo', first_name='Nuevo', last_name='User',

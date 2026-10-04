@@ -1,4 +1,5 @@
 from django import forms
+from accounts.upload_validators import validar_imagen
 from .models import Job, Application
 
 
@@ -35,6 +36,11 @@ class JobForm(forms.ModelForm):
             'urgente': 'Marcar como urgente',
             'imagen': 'Imagen o referencia',
         }
+
+    # §6.5.3 — validación MIME y de tamaño real en uploads
+    def clean_imagen(self):
+        validar_imagen(self.cleaned_data.get('imagen'))
+        return self.cleaned_data.get('imagen')
 
 
 class ApplicationForm(forms.ModelForm):

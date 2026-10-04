@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'notifications',
     'support',
     'legal',
+    'moderation',
 ]
 
 MIDDLEWARE = [
@@ -48,6 +49,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # §6.5.3 — cierre de sesión forzada para usuarios baneados
+    'accounts.middleware.BannedUserMiddleware',
+    # §6.5.3 — rate-limiting en endpoints sensibles
+    'accounts.middleware.RateLimitMiddleware',
 ]
 
 ROOT_URLCONF = 'uwork.urls'
@@ -153,3 +158,65 @@ LOGOUT_REDIRECT_URL = 'accounts:role_select'
 
 # R11 — el backend exige correo verificado para poder iniciar sesión.
 AUTHENTICATION_BACKENDS = ['accounts.backends.EmailVerifiedBackend']
+
+# ── §6.5.3 — Headers de seguridad ───────────────────────────────
+SECURE_CONTENT_TYPE_NOSNIFF = True          # X-Content-Type-Options
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+X_FRAME_OPTIONS = 'DENY'
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000           # 1 año
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+
+# Content-Security-Policy.
+# 'unsafe-inline' en style-src es necesario porque las plantillas del proyecto
+# usan bloques <style> y atributos style=; en script-src no se permite, por lo
+# que no puede ejecutarse JavaScript inyectado como etiqueta <script>.
+CSP_DEFAULT_SRC = ["'self'"]
+CSP_SCRIPT_SRC = ["'self'", 'https://cdn.jsdelivr.net']
+CSP_STYLE_SRC = ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net',
+                 'https://fonts.googleapis.com']
+CSP_FONT_SRC = ["'self'", 'https://cdn.jsdelivr.net',
+                'https://fonts.gstatic.com', 'data:']
+CSP_IMG_SRC = ["'self'", 'data:', 'blob:']
+CSP_CONNECT_SRC = ["'self'"]
+CSP_FRAME_ANCESTORS = ["'none'"]
+CSP_OBJECT_SRC = ["'none'"]
+CSP_BASE_URI = ["'self'"]
+CSP_FORM_ACTION = ["'self'"]
+
+# ── §6.5.4 — SLA de respuesta a reportes de contenido ───────────
+# El documento pide "definir tiempo máximo de respuesta (e.g. 24-48h)".
+MODERATION_SLA_HOURS = int(os.environ.get('MODERATION_SLA_HOURS', '48'))
+
+# ── §6.5.3 — Rate-limiting en endpoints sensibles ───────────────
+# Ventana y máximo por prefijo de ruta. Los límites son por IP.
+RATE_LIMITS = {
+    '/login/': {'limit': 8, 'window': 300},
+    '/register/': {'limit': 5, 'window': 3600},
+    '/jobs/new/': {'limit': 10, 'window': 3600},
+    '/jobs/job/': {'limit': 60, 'window': 300},
+    '/verificar/reenviar/': {'limit': 5, 'window': 3600},
+    '/soporte/': {'limit': 10, 'window': 3600},
+}
+RATE_LIMIT_ENABLED = True
+
+# ── §6.5.3 — Validación de archivos subidos ─────────────────────
+UPLOAD_MAX_SIZE_MB = 5
+UPLOAD_ALLOWED_MIME = [
+    'image/jpeg', 'image/png', 'image/webp',
+]
+UPLOAD_ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp']
+
+# ── §6.5.3 — Almacenamiento de archivos ─────────────────────────
+# En Vercel el disco local no persiste. Si se define STORAGE_BACKEND se usa
+# django-storages (requiere instalarlo y configurar las credenciales).
+STORAGE_BACKEND = os.environ.get('STORAGE_BACKEND', '')
+if STORAGE_BACKEND:
+    DEFAULT_FILE_STORAGE = STORAGE_BACKEND
+else:
+    STORAGE_MIGRATION_PENDING = True

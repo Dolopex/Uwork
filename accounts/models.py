@@ -33,6 +33,13 @@ class User(AbstractUser):
     pregunta_seguridad = models.CharField(max_length=255, blank=True)
     respuesta_seguridad = models.CharField(max_length=255, blank=True)
 
+    # Sanción (§6.5.4 — baneo temporal, permanente y bitácora de auditoría)
+    is_banned = models.BooleanField(
+        default=False, verbose_name='Cuenta sancionada')
+    baneo_hasta = models.DateTimeField(
+        null=True, blank=True, verbose_name='Suspensión hasta')
+    motivo_baneo = models.TextField(blank=True, verbose_name='Motivo de la sanción')
+
     # Verificación de email (R11)
     is_email_verified = models.BooleanField(
         default=False, verbose_name='Correo verificado')
@@ -79,3 +86,31 @@ class User(AbstractUser):
         self.is_email_verified = True
         self.email_verification_sent_at = None
         self.save(update_fields=['is_email_verified', 'email_verification_sent_at'])
+
+    # ── Sanción (§6.5.4) ─────────────────────────────────────────
+    @property
+    def baneo_vigente(self):
+        """True si la sanción sigue activa.
+
+        Un baneo sin fecha de vencimiento es permanente; uno con fecha
+        deja de estar vigente cuando esa fecha pasa.
+        """
+        if not self.is_banned:
+            return False
+        if self.baneo_hasta is None:
+            return True
+        return timezone.now() < self.baneo_hasta
+
+    def aplicar_baneo(self, motivo, hasta=None):
+        """Sanciona la cuenta. Sin `hasta` el baneo es permanente."""
+        self.is_banned = True
+        self.baneo_hasta = hasta
+        self.motivo_baneo = motivo
+        self.save(update_fields=['is_banned', 'baneo_hasta', 'motivo_baneo'])
+
+    def levantar_baneo(self):
+        """Retira la sanción y deja la cuenta utilizable."""
+        self.is_banned = False
+        self.baneo_hasta = None
+        self.motivo_baneo = ''
+        self.save(update_fields=['is_banned', 'baneo_hasta', 'motivo_baneo'])

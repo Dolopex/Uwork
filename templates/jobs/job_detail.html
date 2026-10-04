@@ -274,6 +274,15 @@
         </div>
         {% endif %}
     {% endif %}
+
+    {# §6.5.4 — botón "Reportar publicación" en cada publicación #}
+    {% if user.is_authenticated and user != job.creador %}
+    <button type="button" class="btn btn-sm w-100 mt-2"
+            style="background:transparent; color:var(--text-secondary); border:1px solid var(--border); border-radius:12px; font-size:0.78rem; font-weight:600; padding:9px;"
+            data-bs-toggle="modal" data-bs-target="#reportarModal">
+        <i class="bi bi-flag"></i> Reportar publicación
+    </button>
+    {% endif %}
 </div>
 {% else %}
 <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg w-100 py-3 mb-3" style="border-radius:14px;">Inicia sesión para postularte</a>
@@ -326,6 +335,60 @@
 
 </div>{# end detail-aside #}
 </div>{# end detail-layout #}
+
+{# §6.5.4 — modal de reporte de publicación #}
+{% if user.is_authenticated and user != job.creador %}
+<div class="modal fade" id="reportarModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px; background:var(--card-bg); color:var(--text);">
+            <form method="post" action="{% url 'moderation:reportar_trabajo' job.pk %}">
+                {% csrf_token %}
+                <div class="modal-header" style="border-color:var(--border);">
+                    <h5 class="modal-title" style="font-weight:800; font-size:1rem;">
+                        <i class="bi bi-flag"></i> Reportar publicación
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:14px;">
+                        ¿Por qué reportas «{{ job.titulo|truncatechars:40 }}»?
+                        Un moderador lo revisará. La publicación no se retira hasta
+                        que se resuelva.
+                    </p>
+                    <label class="form-label" for="id_motivo"
+                           style="font-weight:600; font-size:0.78rem; color:var(--text-secondary);">Motivo</label>
+                    <select name="motivo" id="id_motivo" required
+                            style="width:100%; padding:11px 13px; font-size:0.86rem; border-radius:12px;
+                                   border:1px solid var(--input-border); background:var(--input-bg); color:var(--text); margin-bottom:12px;">
+                        <option value="ilegal">Oferta ilegal (armas, sustancias, contenido sexual)</option>
+                        <option value="discriminacion">Discriminación</option>
+                        <option value="suplantacion">Suplantación de identidad</option>
+                        <option value="datos_terceros">Publicación de datos de terceros</option>
+                        <option value="estafa">Estafa o fraude</option>
+                        <option value="trabajo_infantil">Trabajo infantil</option>
+                        <option value="violencia">Incite a la violencia</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                    <label class="form-label" for="id_descripcion"
+                           style="font-weight:600; font-size:0.78rem; color:var(--text-secondary);">Detalle (opcional)</label>
+                    <textarea name="descripcion" id="id_descripcion" rows="3"
+                              placeholder="Explica qué ocurre en esta publicación"
+                              style="width:100%; padding:11px 13px; font-size:0.86rem; border-radius:12px;
+                                     border:1px solid var(--input-border); background:var(--input-bg); color:var(--text);"></textarea>
+                </div>
+                <div class="modal-footer" style="border-color:var(--border);">
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                            data-bs-dismiss="modal" style="border-radius:10px; font-weight:600;">Cancelar</button>
+                    <button type="submit" class="btn btn-sm"
+                            style="background:#DC2626; color:#fff; border:none; border-radius:10px; font-weight:700; padding:9px 18px;">
+                        <i class="bi bi-send"></i> Enviar reporte
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
 {% endblock %}
 
 {% block extra_js %}
