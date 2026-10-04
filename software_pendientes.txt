@@ -9,71 +9,92 @@ Fecha de corte: según estado declarado al cierre del informe
 1. RESULTADOS ESPERADOS PENDIENTES (Tabla 8 del Capítulo 7)
 ================================================================================
 
+ACTUALIZADO tras la implementacion de BLOQUE 1 y BLOQUE 2.
+
 Total de resultados declarados: 16 (R1 a R16)
-Cumplidos: 9 (R1, R3, R4, R5, R6, R7, R8, R9)
-Parciales: 1 (R2)
+Cumplidos: 14 (R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R14, R15, R16)
 En curso: 1 (R12)
-Pendientes: 5 (R10, R11, R13, R14, R15, R16)
+Pendientes: 1 (R13)
 
-PENDIENTES EXPLÍCITOS:
 
-R10 — Whitelist de correos institucionales
-       Indicador: Validación por dominio
-       Meta:      Operativo
-       Estado:    Pendiente
-       Detalle:   El sistema debe restringir el registro a correos con dominio
-                  institucional verificado. Inicialmente @campusuninunez.edu.co.
+IMPLEMENTADOS:
 
-R11 — Verificación de email
-       Indicador: Link de confirmación
-       Meta:      Operativo
-       Estado:    Pendiente
-       Detalle:   Al registrarse, enviar email con token único. El usuario debe
-                hacer clic antes de activar la cuenta.
+R10 - Whitelist de correos institucionales          [CUMPLIDO]
+       Indicador: Validacion por dominio
+       Ubicacion: accounts/validators.py, accounts/forms.py,
+                  uwork/settings.py (INSTITUTIONAL_DOMAINS)
+       Nota:     Solo aplica a estudiantes; los empleadores conservan el
+                  email personal. Los dominios se configuran por variable
+                  de entorno sin tocar codigo.
 
-R13 — Test de usabilidad
-       Indicador: SUS con N usuarios
-       Meta:      ≥5 usuarios + SUS ≥68
-       Estado:    Pendiente
-       Detalle:   Aplicar el cuestionario SUS (System Usability Scale) a mínimo
-                5 usuarios reales y reportar el puntaje promedio.
+R11 - Verificacion de email                         [CUMPLIDO]
+       Indicador: Link de confirmacion
+       Ubicacion: accounts/services.py, accounts/backends.py,
+                  accounts/auth_views.py, accounts/views.py,
+                  templates/accounts/{check_email,verify_email,
+                  resend_verification}.html
+       Nota:     Email por API de Resend si hay RESEND_API_KEY; en
+                  desarrollo se imprime el enlace en consola. Token UUID
+                  con vencimiento de 48 h. El login queda bloqueado hasta
+                  confirmar (EmailVerifiedBackend), incluida la sesion:
+                  get_user() consulta user_can_authenticate().
 
-R14 — Términos y Condiciones
-       Indicador: Página pública
-       Meta:      Publicado
-       Estado:    Pendiente
-       Detalle:   Documento legal visible para todos los usuarios antes del
-                primer uso.
+R14 - Terminos y Condiciones                        [CUMPLIDO - ESTRUCTURA]
+       Indicador: Pagina publica
+       Ubicacion: /terminos-y-condiciones/, templates/legal/terminos.html
+       Nota:     15 secciones. Los bloques que exigen redaccion juridica
+                  estan marcados como PENDIENTE y requieren aprobacion
+                  legal antes de publicar.
 
-R15 — Política de Privacidad
-       Indicador: Página pública
-       Meta:      Publicado
-       Estado:    Pendiente
-       Detalle:   Documento que cumpla con el principio de necesidad del
-                tratamiento (Ley 1581 de 2012, art. 4 y 6).
+R15 - Politica de Privacidad                        [CUMPLIDO - ESTRUCTURA]
+       Indicador: Pagina publica
+       Ubicacion: /politica-de-privacidad/, templates/legal/privacidad.html
+       Nota:     Cumple el principio de necesidad (art. 4 y 6). Incluye el
+                  inventario de datos de la seccion 6.2, los derechos del
+                  titular (art. 15) y las dos limitaciones declaradas:
+                  residencia en AWS US East 1 y ausencia de backups
+                  propios. Mismos bloques PENDIENTE de aprobacion legal
+                  que R14.
 
-R16 — Mecanismo "Eliminar mi cuenta"
+R16 - Mecanismo "Eliminar mi cuenta"                [CUMPLIDO]
        Indicador: Vista en panel de usuario
-       Meta:      Operativo
-       Estado:    Pendiente
-       Detalle:   CRÍTICO para el cumplimiento del artículo 17 de la Ley 1581
-                de 2012 (derecho de supresión). Solo el administrador puede
-                hacerlo actualmente. Esta limitación debe resolverse antes del
-                lanzamiento público.
+       Ubicacion: /eliminar-cuenta/, accounts/views.py,
+                  accounts/deletion.py,
+                  templates/accounts/delete_account.html
+       Nota:     Cumplimiento del art. 17 de la Ley 1581/2012. Exige
+                  contrasena, borra en cascada y tambien los archivos de
+                  MEDIA_ROOT, e invalida la sesion.
+
+R2  - Modulo de autenticacion                       [CUMPLIDO]
+       Indicador: Vistas funcionales
+       Nota:     La vista que faltaba era la de recuperacion de
+                  contrasena, anadida junto con el cambio de contrasena.
+                  El modulo queda 4/4.
+
 
 EN CURSO:
 
-R12 — Reporte de pruebas funcionales
+R12 - Reporte de pruebas funcionales
        Indicador: Lista de chequeo firmada
        Meta:      >80 % pasados
        Estado:    En curso
+       Avance:    La lista de chequeo esta creada en REPORTE_PRUEBAS.md
+                  (56 casos en 5 bloques). Falta ejecutarla manualmente
+                  sobre la aplicacion en funcionamiento y firmarla. Los
+                  casos E11 y E12 ya pasan de forma automatizada.
 
-PARCIALES:
 
-R2  — Módulo de autenticación
-       Indicador: Vistas funcionales
-       Meta:      3/4 vistas (faltaría 1 vista por implementar)
-       Estado:    Parcial
+PENDIENTES:
+
+R13 - Test de usabilidad
+       Indicador: SUS con N usuarios
+       Meta:      >=5 usuarios + SUS >=68
+       Estado:    Pendiente
+       Detalle:   Aplicar el cuestionario SUS (System Usability Scale) a minimo
+                 5 usuarios reales y reportar el puntaje promedio.
+       Nota:     No es una tarea de codigo: requiere personas reales usando
+                 la aplicacion. Es el unico requisito de BLOQUE 1 y 2 que
+                 queda abierto.
 
 
 ================================================================================
@@ -82,20 +103,38 @@ R2  — Módulo de autenticación
 
 Lista explícita declarada por el tutor:
 
-[ ]  Verificación por email con link de confirmación
-       (relacionado con R11)
-[ ]  Validación MIME y de tamaño real en uploads
-[ ]  Migrar almacenamiento de archivos a Vercel Blob, Cloudinary o S3
-       Justificación: Vercel serverless NO persiste archivos en disco local.
-[ ]  Vistas de "Olvidé mi contraseña" y cambio de contraseña
-[ ]  Mecanismo de force-logout para usuarios baneados
-       Acción concreta: agregar campo `is_banned` al modelo User
-[ ]  Auditoría automatizada de dependencias
-       Herramientas sugeridas: pip-audit o safety en CI
-[ ]  Headers de seguridad
-       Específicamente: CSP, HSTS, X-Content-Type-Options, Referrer-Policy
-[ ]  Rate-limiting en endpoints sensibles
-       Específicamente: login, registro, publicación
+[X]  Verificación por email con link de confirmación          → R11
+[ ]  Validación MIME y de tamaño real en uploads             → IMPLEMENTADO
+       accounts/upload_validators.py: comprueba tamaño real, extensión y
+       firma binaria (JPEG/PNG/WebP). Rechaza un .php renombrado a .png.
+[ ]  Migrar almacenamiento de archivos a Vercel Blob/Cloudinary/S3
+       PREPARADO, NO ACTIVO. settings.STORAGE_BACKEND permite activarlo
+       con django-storages, pero falta contratar un proveedor y definir
+       sus credenciales. Sigue siendo obligatorio antes de producción:
+       Vercel serverless NO persiste archivos en disco local.
+[X]  Vistas de "Olvidé mi contraseña" y cambio de contraseña
+       /password_reset/, /reset/<uidb64>/<token>/, /password_change/
+[X]  Mecanismo de force-logout para usuarios baneados
+       Campo `is_banned` agregado al modelo User, más `baneo_hasta` y
+       `motivo_baneo`. accounts/middleware.py cierra la sesión al
+       siguiente request; el baneo temporal se levanta solo al vencer.
+[X]  Auditoría automatizada de dependencias
+       .github/workflows/ci.yml: pip-audit sobre requirements.txt +
+       gitleaks para secretos
+[X]  Headers de seguridad
+       X-Content-Type-Options, X-Frame-Options DENY, Referrer-Policy,
+       CSP, HSTS (solo en producción)
+[X]  Rate-limiting en endpoints sensibles
+       Login, registro, publicación, detalle de trabajo, reenvío de
+       verificación y soporte. Límite por IP con respuesta 429.
+
+DEUDA TÉCNICA CONOCIDA:
+  - La CSP usa 'unsafe-inline' en style-src porque las plantillas tienen
+    CSS en bloques <style> y atributos style=. Cerrarlo exige mover ese
+    CSS a archivos estáticos. En script-src NO se permite inline.
+  - El rate-limiting usa la caché local: en varias instancias de Vercel
+    el contador no se comparte. Para producción con tráfico alto
+    conviene un backend compartido (Redis).
 
 
 ================================================================================
@@ -139,16 +178,37 @@ IMPLEMENTADO:
        - Contenido que incite violencia
 
 PENDIENTES:
-[ ]  Sistema de reportes por usuarios
-       Acción: botón "Reportar publicación" en cada publicación
-[ ]  SLA de respuesta a reportes
-       Definir tiempo máximo de respuesta (e.g., 24-48h)
-[ ]  Mecanismo de baneo temporal
-[ ]  Mecanismo de baneo permanente
-[ ]  Registro de auditoría para sanciones
-       Bitácora: quién baneó, a quién, cuándo, por qué
-[ ]  Canal de apelación para usuarios sancionados
-       Cómo un usuario puede solicitar revisión de su sanción
+[X]  Sistema de reportes por usuarios
+       Botón "Reportar publicación" en cada trabajo. App moderation/,
+       modelo Reporte. No se puede reportar la propia publicación ni
+       duplicar un reporte abierto.
+[X]  SLA de respuesta a reportes
+       Definido en 48 h (settings.MODERATION_SLA_HOURS, configurable por
+       variable de entorno). El panel de moderación lista primero los
+       reportes con SLA vencido.
+[X]  Mecanismo de baneo temporal
+       Sancion.tipo=TEMPORAL con campo `hasta`. El acceso se bloquea
+       hasta esa fecha.
+[X]  Mecanismo de baneo permanente
+       Sancion.tipo=PERMANENTE, sin fecha de vencimiento.
+[X]  Registro de auditoría para sanciones
+       Bitácora: quién baneó, a quién, cuándo, por qué, desde qué reporte
+       y cuándo se levantó. El admin no permite editar ni borrar filas:
+       levantar un baneo genera un nuevo registro, no borra el original.
+[X]  Canal de apelación para usuarios sancionados
+       Modelo Apelacion: el sancionado solicita revisión y el staff
+       responde. Aceptar la apelación levanta el baneo automáticamente.
+
+RUTAS DE LA MODERACIÓN (solo para staff):
+  /moderacion/panel/      cola de reportes, vencidos primero
+  /moderacion/bitacora/   bitácora de sanciones
+  /moderacion/apelaciones/ apelaciones
+
+PRÓXIMOS PASOS SUGERIDOS:
+  - Moderar desde la interfaz sigue siendo manual: no hay notificación
+    push al staff cuando entra un reporte vencido.
+  - No hay categorización de la gravedad de la infracción más allá de
+    temporal/permanente.
 
 
 ================================================================================
@@ -281,20 +341,26 @@ PENDIENTES:
 
 BLOQUE 1 — CRÍTICO (legal/bloqueante):
 
-  1. R16 — Implementar "Eliminar mi cuenta" desde la UI
+  1. R16 — Implementar "Eliminar mi cuenta" desde la UI     [CUMPLIDO]
             (Ley 1581 art. 17 — DERECHO DE SUPRESIÓN)
-  2. R10 — Whitelist de correos institucionales
-  3. R11 — Verificación por email
-  4. R14 — Publicar Términos y Condiciones
-  5. R15 — Publicar Política de Privacidad
-  6. R13 — Test SUS con N≥5 usuarios
+  2. R10 — Whitelist de correos institucionales              [CUMPLIDO]
+  3. R11 — Verificación por email                           [CUMPLIDO]
+  4. R14 — Publicar Términos y Condiciones                  [ESTRUCTURA LISTA]
+            ⚠ Requiere aprobación jurídica: hay bloques PENDIENTE.
+  5. R15 — Publicar Política de Privacidad                   [ESTRUCTURA LISTA]
+            ⚠ Requiere aprobación jurídica: hay bloques PENDIENTE.
+  6. R13 — Test SUS con N≥5 usuarios                         [PENDIENTE]
+            ⚠ Requiere 5 personas reales usando la aplicación.
 
 BLOQUE 2 — IMPORTANTE (seguridad y robustez):
 
-  7. Implementar los 8 controles de seguridad pendientes (§6.5.3)
-  8. Implementar sistema de reportes y baneo (§6.5.4)
-  9. Resolver la vista faltante del módulo de autenticación (R2 parcial)
- 10. R12 — Cerrar reporte de pruebas funcionales (actualmente en curso)
+  7. Implementar los 8 controles de seguridad (§6.5.3)     [7 de 8]
+            ⚠ Falta activar el almacenamiento en S3/Vercel Blob:
+              requiere contratar un proveedor.
+  8. Implementar sistema de reportes y baneo (§6.5.4)      [CUMPLIDO]
+  9. Resolver la vista faltante de autenticación (R2)       [CUMPLIDO]
+ 10. R12 — Cerrar reporte de pruebas funcionales            [EN CURSO]
+            ⚠ La lista de chequeo existe; falta ejecutarla y firmarla.
 
 BLOQUE 3 — MEJORA (post-lanzamiento):
 
