@@ -103,3 +103,40 @@ def _imprimir_en_consola(destinatario, asunto, enlace):
     print('Asunto: {}'.format(asunto))
     print('Enlace: {}'.format(enlace))
     print(separador + '\n')
+
+
+def enviar_email(destinatario, asunto, cuerpo):
+    """Envía un correo transaccional a un usuario.
+
+    Usa la API de Resend cuando hay `RESEND_API_KEY` configurada; si no,
+    imprime el mensaje en la consola (desarrollo). Nunca lanza excepción:
+    un fallo de red no debe tumbar la operación que originó el aviso.
+
+    Devuelve True si el mensaje salió por un canal real.
+    """
+    if not destinatario:
+        return False
+
+    remitente = settings.DEFAULT_FROM_EMAIL
+
+    if settings.RESEND_API_KEY:
+        if _enviar_via_resend(settings.RESEND_API_KEY, remitente,
+                              destinatario, asunto, cuerpo):
+            return True
+        logger.warning(
+            'Falló el envío por Resend a %s; se imprime en consola.',
+            destinatario)
+
+    _imprimir_mensaje_en_consola(destinatario, asunto, cuerpo)
+    return False
+
+
+def _imprimir_mensaje_en_consola(destinatario, asunto, cuerpo):
+    separador = '=' * 68
+    print('\n' + separador)
+    print('EMAIL (consola — sin RESEND_API_KEY configurada)')
+    print('Para:   {}'.format(destinatario))
+    print('Asunto: {}'.format(asunto))
+    print('-' * 68)
+    print(cuerpo)
+    print(separador + '\n')

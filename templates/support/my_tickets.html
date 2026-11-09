@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
-{% block title %}Mis reportes — U-Work{% endblock %}
+{% block title %}Mis reportes · U-Work{% endblock %}
 {% block extra_css %}
 <style>
     .ticket-item {
-        border-radius: 14px;
+        border-radius: var(--radius-lg);
         padding: 14px 16px;
         background: var(--card-bg);
         border: 1px solid var(--card-border);
@@ -11,18 +11,18 @@
     }
     .ticket-tipo {
         font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-        letter-spacing: 0.6px; padding: 4px 10px; border-radius: 8px;
+        letter-spacing: 0.6px; padding: 4px 10px; border-radius: var(--radius-sm);
     }
-    .t-bug     { background:rgba(239,68,68,0.12);  color:#EF4444; }
-    .t-usuario { background:rgba(245,158,11,0.12); color:#F59E0B; }
-    .t-pago    { background:rgba(16,185,129,0.12); color:#10B981; }
+    .t-bug     { background:rgba(239,68,68,0.12);  color:var(--state-danger); }
+    .t-usuario { background:rgba(245,158,11,0.12); color:var(--star-active); }
+    .t-pago    { background:rgba(16,185,129,0.12); color:var(--state-success); }
     .t-otro    { background:rgba(79,70,229,0.12);  color:var(--primary-light); }
     .estado-badge {
-        font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 8px;
+        font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: var(--radius-sm);
     }
-    .e-abierto     { background:rgba(59,130,246,0.12); color:#3B82F6; }
-    .e-en_revision { background:rgba(245,158,11,0.12); color:#F59E0B; }
-    .e-resuelto    { background:rgba(16,185,129,0.12); color:#10B981; }
+    .e-abierto     { background:rgba(59,130,246,0.12); color:var(--state-info); }
+    .e-en_revision { background:rgba(245,158,11,0.12); color:var(--star-active); }
+    .e-resuelto    { background:rgba(16,185,129,0.12); color:var(--state-success); }
 </style>
 {% endblock %}
 {% block content %}
@@ -47,6 +47,18 @@
     {% if ticket.usuario_reportado %}
     <div style="margin-top:8px; font-size:0.8rem; color:var(--text-secondary);">
         <i class="bi bi-person-fill"></i> Usuario reportado: <strong style="color:var(--text);">{{ ticket.usuario_reportado.get_full_name|default:ticket.usuario_reportado.username }}</strong>
+    </div>
+    {% endif %}
+    {% if ticket.respuesta %}
+    <div style="margin-top:10px; padding:11px 13px; background:rgba(16,185,129,0.08); border-radius: var(--radius-sm); font-size:0.83rem; color:var(--text);">
+        <strong style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">
+            Respuesta de soporte</strong>
+        {{ ticket.respuesta }}
+        {% if ticket.resuelto_at %}
+        <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:6px;">
+            Resuelto el {{ ticket.resuelto_at|date:"d M Y H:i" }}
+        </div>
+        {% endif %}
     </div>
     {% endif %}
 </div>

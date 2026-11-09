@@ -2,120 +2,31 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <title>{% block title %}U-Work{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%23818CF8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='74' text-anchor='middle' font-family='Inter,sans-serif' font-weight='900' font-size='62' fill='white'%3EU%3C/text%3E%3C/svg%3E">
     <link rel="manifest" href="/static/manifest.json">
-    <meta name="theme-color" content="#4F46E5">
+    <meta name="theme-color" content="#F0F2F5">
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101C2C">
     <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
     <meta name="apple-mobile-web-app-title" content="U-Work">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <script>
-        (function(){var t=localStorage.getItem('uwork-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();
-    </script>
+    {% include 'partials/theme_head.html' %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
-        :root {
-            --primary: #4F46E5;
-            --primary-light: #818CF8;
-            --primary-dark: #3730A3;
-            --accent: #F59E0B;
-            --success: #0C875E;
-            /* Light theme (default) */
-            --bg: #F0F2F5;
-            --bg-secondary: #E5E7EB;
-            --card-bg: #ffffff;
-            --card-border: #E5E7EB;
-            --card-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            --text: #1F2937;
-            --text-secondary: #69707E;
-            --surface: #F9FAFB;
-            --surface-alt: #F3F4F6;
-            --border: #E5E7EB;
-            --border-light: #F3F4F6;
-            --nav-bg: rgba(255,255,255,0.95);
-            --nav-border: #E5E7EB;
-            --nav-text: #6B7280;
-            --nav-text-hover: #1F2937;
-            --input-bg: #ffffff;
-            --input-border: #929599;
-            --input-placeholder: #727780;
-            --select-option-bg: #ffffff;
-            --badge-indigo-bg: #EDE9FE; --badge-indigo-text: #4F46E5;
-            --badge-blue-bg: #DBEAFE; --badge-blue-text: #1E40AF;
-            --badge-amber-bg: #FEF3C7; --badge-amber-text: #92400E;
-            --badge-red-bg: #FEE2E2; --badge-red-text: #B91C1C;
-            --badge-green-bg: #ECFDF5; --badge-green-text: #065F46;
-            --badge-gray-bg: #E5E7EB; --badge-gray-text: #374151;
-            --icon-indigo-bg: #EDE9FE; --icon-blue-bg: #DBEAFE;
-            --icon-amber-bg: #FEF3C7; --icon-green-bg: #D1FAE5;
-            --icon-red-bg: #FEE2E2; --icon-purple-bg: #EDE9FE; --icon-purple-text: #6D28D9;
-            --money: #0C875E;
-            --star-active: #F59E0B;
-            --star-inactive: #929599;
-            --toast-bg: rgba(255,255,255,0.95);
-            --toast-text: #1F2937;
-            --scrollbar-thumb: rgba(0,0,0,0.12);
-            --scrollbar-hover: rgba(0,0,0,0.2);
-            --close-filter: none;
-            --nav-height: 64px;
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
-            --sidebar-width: 260px;
-        }
-        [data-theme="dark"] {
-            --bg: #101C2C;
-            --bg-secondary: #16243A;
-            --card-bg: #16243A;
-            --card-border: #223A5E;
-            --card-shadow: 0 2px 8px rgba(16,28,44,0.10);
-            --text: #E3F6FF;
-            --text-secondary: #7FB7C9;
-            --surface: #16243A;
-            --surface-alt: #1B2B44;
-            --border: #223A5E;
-            --border-light: #223A5E;
-            --nav-bg: #16243A;
-            --nav-border: #223A5E;
-            --nav-text: #7FB7C9;
-            --nav-text-hover: #E3F6FF;
-            --input-bg: #132033;
-            --input-border: #596B86;
-            --input-placeholder: #7E96AD;
-            --select-option-bg: #16243A;
-            --badge-indigo-bg: #223A5E; --badge-indigo-text: #7FB7C9;
-            --badge-blue-bg: #1E40AF; --badge-blue-text: #93C5FD;
-            --badge-amber-bg: #FDE68A; --badge-amber-text: #78350F;
-            --badge-red-bg: #F87171; --badge-red-text: #450A0A;
-            --badge-green-bg: #10B981; --badge-green-text: #0F172A;
-            --badge-gray-bg: #223A5E; --badge-gray-text: #7FB7C9;
-            --icon-indigo-bg: #223A5E; --icon-blue-bg: #1E40AF;
-            --icon-amber-bg: #FDE68A; --icon-green-bg: #10B981;
-            --icon-red-bg: #F87171; --icon-purple-bg: #223A5E; --icon-purple-text: #7FB7C9;
-            --money: #10B981;
-            --star-active: #38BDF8;
-            --star-inactive: #5D6E89;
-            --toast-bg: #16243A;
-            --toast-text: #E3F6FF;
-            --scrollbar-thumb: #223A5E;
-            --scrollbar-hover: #1E40AF;
-            --close-filter: none;
-        }
-        * { box-sizing: border-box; }
-
         /* ── Accesibilidad (§6.6 WCAG 2.1) ─────────────────────────
-           Anillo de foco visible en TODO control interactivo. Se usa
-           :focus-visible para no molestar al puntero, y outline (no
-           box-shadow) porque se respeta en el modo de alto contraste
-           de Windows. Nunca se elimina el contorno del navegador. */
-        :focus-visible {
-            outline: 2px solid var(--primary-light);
-            outline-offset: 2px;
-            border-radius: 6px;
-        }
+           El anillo de foco y la preferencia de movimiento reducido viven
+           en static/css/style.css, que es la unica fuente de tokens y
+           primitivas: las pantallas independientes (login, seleccion de
+           rol) no heredan de esta plantilla y los necesitan igual.
+           Aqui queda solo lo que es propio del layout con barra lateral. */
+
         /* Los controles de icono son pequeños: el anillo va hacia dentro */
         .app-topbar .top-actions a:focus-visible,
         .app-topbar .top-actions button:focus-visible,
@@ -139,7 +50,7 @@
             top: -100px;
             left: 12px;
             z-index: 2000;
-            background: var(--primary);
+            background: var(--primary-solid);
             color: #fff;
             padding: 12px 20px;
             border-radius: 0 0 12px 12px;
@@ -155,25 +66,10 @@
         /* Al saltar, el destino no debe quedar bajo la barra fija */
         #contenido-principal:focus { outline: none; }
 
-        /* §6.6 — respetar la preferencia de movimiento reducido */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-                scroll-behavior: auto !important;
-            }
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            margin: 0;
-            padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 12px);
-            -webkit-font-smoothing: antialiased;
-        }
+        /* El fondo, el color del texto y la tipografia del cuerpo viven en
+           static/css/style.css. Si viven aqui, las pantallas que no
+           heredan de esta plantilla (login, seleccion de rol, registro)
+           se quedan con el fondo blanco del navegador en tema oscuro. */
 
         /* ---- Animated Background (dark only) ---- */
         .app-bg-scene {
@@ -181,7 +77,7 @@
         }
 
         .app-bg-scene .orb {
-            position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35;
+            position: absolute; border-radius: var(--radius-full); filter: blur(100px); opacity: 0.35;
             animation: appOrbDrift 14s ease-in-out infinite alternate;
         }
         .app-bg-scene .orb-1 { width: 500px; height: 500px; background: #4F46E5; top: -150px; left: -100px; }
@@ -210,8 +106,12 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             color: var(--text);
-            padding: 0 16px;
-            height: 56px;
+            padding: 0 var(--space-4);
+            /* La barra superior no puede quedar bajo el Dynamic Island:
+               con viewport-fit=cover, env(safe-area-inset-top) vale la
+               altura real del notch. */
+            padding-top: var(--safe-top);
+            height: calc(var(--topbar-height) + var(--safe-top));
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -222,17 +122,26 @@
         }
         .app-topbar .brand {
             font-weight: 800;
-            font-size: 1.15rem;
+            font-size: 1rem;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: var(--space-2);
             text-decoration: none;
             color: var(--text);
-            letter-spacing: -0.3px;
+            letter-spacing: -0.02em;
+        }
+        .app-topbar .brand-mark {
+            width: 26px; height: 26px;
+            border-radius: var(--radius-sm);
+            background: var(--primary-solid);
+            color: #fff;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: .78rem; font-weight: 900;
+            flex-shrink: 0;
         }
         .app-topbar .top-actions {
             display: flex;
-            gap: 4px;
+            gap: 2px;
             align-items: center;
         }
         .app-topbar .top-actions a,
@@ -240,34 +149,37 @@
             color: var(--nav-text);
             background: none;
             border: none;
-            font-size: 1.25rem;
-            width: 40px;
-            height: 40px;
+            font-size: 1.15rem;
+            width: 38px;
+            height: 38px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
+            border-radius: var(--radius-md);
             cursor: pointer;
             text-decoration: none;
-            transition: color 0.18s, background 0.18s;
+            transition: color .16s ease, background-color .16s ease;
             position: relative;
+            -webkit-tap-highlight-color: transparent;
         }
         .app-topbar .top-actions a:hover,
         .app-topbar .top-actions button:hover {
             color: var(--nav-text-hover);
-            background: var(--bg-secondary);
+            background: var(--surface-alt);
         }
+        .app-topbar .top-actions a:active,
+        .app-topbar .top-actions button:active { transform: translateY(1px); }
         .topbar-notif-badge {
             position: absolute;
-            top: 5px;
-            right: 5px;
-            background: #EF4444;
+            top: 4px;
+            right: 4px;
+            background: var(--state-danger);
             color: #fff;
-            font-size: 0.6rem;
+            font-size: .58rem;
             font-weight: 700;
-            min-width: 16px;
-            height: 16px;
-            border-radius: 8px;
+            min-width: 15px;
+            height: 15px;
+            border-radius: var(--radius-full);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -283,8 +195,8 @@
             left: 0;
             right: 0;
             background: var(--nav-bg);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-top: 1px solid var(--nav-border);
             display: flex;
             justify-content: space-around;
@@ -292,6 +204,8 @@
             height: calc(var(--nav-height) + var(--safe-bottom));
             padding-bottom: var(--safe-bottom);
             z-index: 1000;
+            /* No debeScaler el scroll hacia atrás al llegar al borde. */
+            overscroll-behavior-y: contain;
         }
         .bottom-nav a {
             display: flex;
@@ -300,57 +214,57 @@
             justify-content: center;
             text-decoration: none;
             color: var(--nav-text);
-            font-size: 0.66rem;
+            font-size: var(--fs-2xs);
             font-weight: 500;
             flex: 1;
-            transition: color 0.18s;
+            transition: color .16s ease;
             gap: 3px;
-            padding: 8px 4px 6px;
+            padding: var(--space-2) 2px 6px;
             position: relative;
+            /* Objetivo táctil cómodo (44 px de alto en la fila). */
+            min-height: 44px;
+            -webkit-tap-highlight-color: transparent;
         }
-        .bottom-nav a i { font-size: 1.4rem; line-height: 1; }
-        .bottom-nav a span { line-height: 1; }
-        /* Active pill indicator */
-        .bottom-nav a.active { color: var(--primary); }
+        .bottom-nav a i { font-size: 1.35rem; line-height: 1; }
+        .bottom-nav a span { line-height: 1.15; }
+        /* Activo: color de marca + indicador superior. */
+        .bottom-nav a.active { color: var(--primary); font-weight: 600; }
         .bottom-nav a.active::before {
             content: '';
             position: absolute;
             top: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 28px;
-            height: 3px;
+            width: 22px;
+            height: 2px;
             background: var(--primary);
-            border-radius: 0 0 4px 4px;
+            border-radius: 0 0 3px 3px;
         }
-        .bottom-nav a:hover { color: var(--primary-light); }
-        /* FAB publish button */
+        .bottom-nav a:active { transform: translateY(1px); }
+        /* Botón de publicar: un FAB sobrio, un solo color. */
         .bottom-nav a.nav-publish {
-            margin-top: -18px;
+            margin-top: -14px;
             justify-content: flex-end;
-            padding-bottom: 10px;
+            padding-bottom: var(--space-2);
         }
         .bottom-nav a.nav-publish::before { display: none; }
         .bottom-nav a.nav-publish .pub-icon {
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            background: var(--primary-solid);
+            border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fff;
-            font-size: 1.5rem;
-            box-shadow: 0 4px 20px rgba(79,70,229,0.45);
-            transition: transform 0.18s, box-shadow 0.18s;
+            font-size: 1.25rem;
+            box-shadow: var(--shadow-md);
+            transition: transform .14s ease, background-color .16s ease;
         }
         .bottom-nav a.nav-publish:active .pub-icon {
             transform: scale(0.94);
-            box-shadow: 0 2px 10px rgba(79,70,229,0.3);
         }
-        .bottom-nav a.nav-publish.active .pub-icon {
-            box-shadow: 0 4px 24px rgba(79,70,229,0.6);
-        }
+        .bottom-nav a.nav-publish.active .pub-icon { background: var(--primary-dark); }
 
         /* Desktop Sidebar */
         .desktop-sidebar {
@@ -360,99 +274,106 @@
             left: 0;
             width: var(--sidebar-width);
             height: 100vh;
+            height: 100dvh;
             background: var(--nav-bg);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border-right: 1px solid var(--nav-border);
             z-index: 1001;
             flex-direction: column;
         }
         .sidebar-brand {
-            padding: 24px 20px;
+            padding: var(--space-5) var(--space-5) var(--space-4);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: var(--space-3);
             text-decoration: none;
-            border-bottom: 1px solid var(--border);
         }
         .sidebar-brand .brand-icon {
-            width: 42px; height: 42px;
-            border-radius: 12px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            width: 38px; height: 38px;
+            border-radius: var(--radius-md);
+            background: var(--primary-solid);
             display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 1.2rem;
-            box-shadow: 0 4px 16px rgba(79,70,229,0.3);
+            color: #fff; font-size: 1rem;
+            font-weight: 900;
+            flex-shrink: 0;
         }
         .sidebar-brand .brand-text {
-            font-weight: 800; font-size: 1.3rem; color: var(--text);
+            font-weight: 800; font-size: 1.05rem; color: var(--text);
+            letter-spacing: -0.02em; line-height: 1.15;
         }
         .sidebar-brand .brand-sub {
-            font-size: 0.65rem; color: var(--text-secondary); font-weight: 500;
+            font-size: var(--fs-2xs); color: var(--text-secondary); font-weight: 500;
+            display: block;
         }
         .sidebar-nav {
             flex: 1;
-            padding: 16px 12px;
+            padding: 0 var(--space-3) var(--space-4);
             display: flex;
             flex-direction: column;
-            gap: 4px;
+            gap: 2px;
+            overflow-y: auto;
         }
         .sidebar-nav .nav-label {
-            font-size: 0.65rem;
+            font-size: var(--fs-2xs);
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            color: var(--text-secondary);
-            padding: 12px 12px 6px;
+            letter-spacing: .06em;
+            color: var(--text-muted);
+            padding: var(--space-5) var(--space-3) var(--space-2);
         }
+        .sidebar-nav .nav-label:first-child { padding-top: var(--space-2); }
         .sidebar-nav a {
+            position: relative;
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 11px 14px;
-            border-radius: 12px;
+            gap: var(--space-3);
+            padding: 9px var(--space-3);
+            border-radius: var(--radius-md);
             text-decoration: none;
             color: var(--nav-text);
             font-weight: 500;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            font-size: var(--fs-base);
+            transition: background-color .16s ease, color .16s ease;
         }
-        .sidebar-nav a i { font-size: 1.15rem; width: 22px; text-align: center; }
+        .sidebar-nav a i { font-size: 1.05rem; width: 20px; text-align: center; flex-shrink: 0; }
         .sidebar-nav a:hover {
             background: var(--surface-alt);
             color: var(--text);
         }
+        /* Activo: superficie de marca + barra, no un gradiente. */
         .sidebar-nav a.active {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: #fff;
+            background: var(--brand-soft);
+            color: var(--brand-ink);
             font-weight: 600;
-            box-shadow: 0 4px 16px rgba(79,70,229,0.3);
         }
-        .sidebar-nav a.publish-btn {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            color: #fff;
-            font-weight: 700;
-            justify-content: center;
-            margin: 8px 0;
-            padding: 13px;
-            box-shadow: 0 4px 16px rgba(79,70,229,0.3);
-            position: relative;
-            overflow: hidden;
-        }
-        .sidebar-nav a.publish-btn::after {
+        .sidebar-nav a.active::before {
             content: '';
             position: absolute;
-            top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-            animation: sidebarBtnShine 3s ease-in-out infinite;
+            left: calc(var(--space-3) * -1);
+            top: 8px; bottom: 8px;
+            width: 3px;
+            background: var(--primary);
+            border-radius: 0 3px 3px 0;
         }
-        @keyframes sidebarBtnShine {
-            0%, 100% { left: -100%; }
-            50% { left: 100%; }
+        .sidebar-nav a.publish-btn {
+            background: var(--primary-solid);
+            color: #fff;
+            font-weight: 600;
+            justify-content: flex-start;
+            gap: var(--space-3);
+            margin: var(--space-3) 0 var(--space-2);
+            padding: 10px var(--space-3);
+            box-shadow: var(--shadow-brand);
+            transition: background-color .16s ease, transform .12s ease;
         }
         .sidebar-nav a.publish-btn:hover {
-            box-shadow: 0 6px 24px rgba(79,70,229,0.45);
+            background: var(--primary-dark);
+            color: #fff;
             transform: translateY(-1px);
         }
+        .sidebar-nav a.publish-btn.active { background: var(--primary-dark); color: #fff; }
+        .sidebar-nav a.publish-btn.active::before { display: none; }
         .sidebar-footer {
             padding: 16px 12px;
             border-top: 1px solid var(--border);
@@ -462,44 +383,54 @@
             align-items: center;
             gap: 10px;
             padding: 10px 12px;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             text-decoration: none;
             color: var(--text);
             transition: background 0.2s;
         }
         .sidebar-user:hover { background: var(--surface-alt); }
         .sidebar-user .user-avatar {
-            width: 38px; height: 38px;
-            border-radius: 50%;
+            width: 34px; height: 34px;
+            border-radius: var(--radius-full);
             object-fit: cover;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            background: var(--brand-soft);
+            color: var(--brand-ink);
             display: flex; align-items: center; justify-content: center;
-            color: #fff; font-size: 1rem; flex-shrink: 0;
+            font-size: .9rem; flex-shrink: 0;
         }
         .sidebar-user .user-name {
-            font-weight: 600; font-size: 0.85rem;
+            display: block;
+            font-weight: 600; font-size: var(--fs-sm);
             overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
             color: var(--text);
         }
         .sidebar-user .user-role {
-            font-size: 0.7rem; color: var(--text-secondary);
+            display: block;
+            font-size: var(--fs-2xs); color: var(--text-secondary);
         }
+        /* Pie del sidebar: tema y salida, en una sola fila. */
+        .sidebar-footer-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            margin-top: var(--space-1);
+        }
+        .sidebar-footer-row form { margin: 0; flex: 0 0 auto; }
         .sidebar-logout {
             display: flex;
             align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: #F87171;
+            justify-content: center;
+            width: 36px; height: 36px;
+            border-radius: var(--radius-md);
+            font-size: .95rem;
+            color: var(--text-secondary);
             cursor: pointer;
             border: none;
             background: none;
-            width: 100%;
-            transition: background 0.2s;
+            transition: background-color .16s ease, color .16s ease;
+            -webkit-tap-highlight-color: transparent;
         }
-        .sidebar-logout:hover { background: rgba(239,68,68,0.1); }
+        .sidebar-logout:hover { background: var(--state-danger-soft); color: var(--state-danger); }
 
         /* Theme toggle */
         .theme-toggle-btn { position: relative; }
@@ -507,9 +438,10 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-size: 0.85rem;
+            flex: 1;
+            padding: 9px 12px;
+            border-radius: var(--radius-md);
+            font-size: var(--fs-sm);
             font-weight: 500;
             color: var(--text-secondary);
             cursor: pointer;
@@ -530,7 +462,7 @@
             font-weight: 700;
             min-width: 16px;
             height: 16px;
-            border-radius: 8px;
+            border-radius: var(--radius-sm);
             display: flex; align-items: center; justify-content: center;
             padding: 0 3px;
             line-height: 1;
@@ -540,71 +472,60 @@
         .card {
             border: 1px solid var(--card-border);
             background: var(--card-bg);
-            border-radius: 16px;
-            box-shadow: var(--card-shadow);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
             overflow: hidden;
         }
         [data-theme="dark"] .card {
             /* No blur, fondo sólido minimalista */
         }
-        .card-body { padding: 16px; }
+        .card-body { padding: var(--space-4); }
 
         /* Buttons */
-        .btn { border-radius: 12px; font-weight: 600; transition: all 0.2s; }
+        .btn { border-radius: var(--radius-md); font-weight: 600; transition: all 0.2s; }
+        /* Un solo acento, sólido. Sin gradiente y sin halo de color. */
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            border: none;
-            box-shadow: 0 4px 16px rgba(79,70,229,0.3);
+            background: var(--primary-solid);
+            border: 1px solid var(--primary-solid);
+            color: #fff;
+            box-shadow: var(--shadow-brand);
         }
-        .btn-primary:hover {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            box-shadow: 0 6px 24px rgba(79,70,229,0.45);
-            transform: translateY(-1px);
-        }
-        .btn-outline-primary {
-            border-color: rgba(129,140,248,0.4);
-            color: var(--primary-light);
-        }
-        .btn-outline-primary:hover {
-            background: var(--primary);
-            border-color: var(--primary);
+        .btn-primary:hover, .btn-primary:focus-visible {
+            background: var(--primary-solid-hover);
+            border-color: var(--primary-solid-hover);
             color: #fff;
         }
+        .btn-primary:active { transform: translateY(1px); box-shadow: none; }
+        .btn-outline-primary {
+            border-color: var(--border-strong);
+            color: var(--brand-ink);
+            background: var(--surface);
+        }
+        .btn-outline-primary:hover {
+            background: var(--brand-soft);
+            border-color: var(--primary);
+            color: var(--brand-ink);
+        }
+        .btn-outline-secondary {
+            border-color: var(--border-strong);
+            color: var(--text-secondary);
+            background: var(--surface);
+        }
+        .btn-outline-secondary:hover { background: var(--surface-alt); color: var(--text); }
 
-        /* Content area */
+        /* Content area. Un solo ancho por nivel: contenido y amplio. */
         .content-wrapper {
-            max-width: 540px;
+            max-width: var(--w-content);
             margin: 0 auto;
-            padding: 16px 12px;
+            padding: var(--space-4) var(--space-3) var(--space-6);
             position: relative;
             z-index: 1;
         }
 
-        /* Form styling — Dark */
-        .form-control, .form-select {
-            border-radius: 12px;
-            padding: 12px 14px;
-            border: 1px solid var(--input-border);
-            font-size: 0.95rem;
-            transition: all 0.2s;
-            background: var(--input-bg);
-            color: var(--text);
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary-light);
-            box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
-            background: var(--input-bg);
-            color: var(--text);
-        }
-        .form-control::placeholder { color: var(--input-placeholder); }
-        .form-select { color: var(--text); }
-        .form-select option { background: var(--select-option-bg); color: var(--text); }
-        .form-label {
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin-bottom: 4px;
-        }
+        /* Los estilos de los controles de formulario viven en
+           static/css/style.css, no aqui: las pantallas independientes
+           (login, seleccion de rol) no heredan de base.html y los
+           necesitan igual. */
 
         /* Toast messages */
         .app-toast {
@@ -616,7 +537,7 @@
             max-width: 90%;
         }
         .app-toast .alert {
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             font-weight: 500;
             box-shadow: 0 4px 24px rgba(0,0,0,0.3);
             border: 1px solid var(--card-border);
@@ -632,38 +553,32 @@
 
         /* Badges */
         .badge {
-            border-radius: 8px;
+            border-radius: var(--radius-full);
             font-weight: 600;
-            padding: 5px 10px;
+            padding: 4px 10px;
+            font-size: var(--fs-2xs);
+            letter-spacing: .01em;
         }
 
         /* Avatar */
         .avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-full);
             object-fit: cover;
             background: var(--surface-alt);
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--text-secondary);
-            font-size: 1.3rem;
+            font-size: 1.15rem;
             flex-shrink: 0;
-        }
-
-        /* Section titles */
-        .section-title {
-            font-weight: 700;
-            font-size: 1.4rem;
-            margin-bottom: 16px;
-            color: var(--text);
         }
 
         /* Scrollbar dark */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: var(--radius-xs); }
         ::-webkit-scrollbar-thumb:hover { background: var(--scrollbar-hover); }
 
         /* Text utilities for dark */
@@ -679,20 +594,19 @@
                 margin-left: var(--sidebar-width);
             }
             .content-wrapper {
-                max-width: 780px;
-                padding: 32px 28px;
+                max-width: var(--w-wide);
+                padding: var(--space-8) var(--space-6);
             }
             .app-toast {
                 top: 24px;
                 left: calc(var(--sidebar-width) + 50%);
                 transform: translateX(calc(-50%));
             }
-            .card-body { padding: 20px; }
-            .section-title { font-size: 1.6rem; }
+            .card-body { padding: var(--space-5); }
         }
         /* Tablet */
         @media (min-width: 768px) and (max-width: 991.98px) {
-            .content-wrapper { max-width: 640px; padding: 24px 16px; }
+            .content-wrapper { max-width: 720px; padding: var(--space-6) var(--space-4); }
             .bottom-nav { display: none; }
             body { padding-bottom: 0; }
             .desktop-nav { display: flex !important; }
@@ -705,20 +619,22 @@
         }
         .legal-footer {
             text-align: center;
-            padding: 18px 16px 26px;
-            font-size: 0.78rem;
-            color: var(--text-secondary);
+            padding: var(--space-5) var(--space-4) var(--space-8);
+            font-size: var(--fs-xs);
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-light);
+            margin-top: var(--space-8);
         }
         .legal-footer a {
             color: var(--text-secondary);
             text-decoration: none;
-            transition: color 0.2s;
+            transition: color .16s ease;
         }
         .legal-footer a:hover {
-            color: var(--primary-light);
+            color: var(--brand-ink);
             text-decoration: underline;
         }
-        .legal-sep { margin: 0 8px; opacity: 0.5; }
+        .legal-sep { margin: 0 8px; opacity: .5; }
     </style>
     {% block extra_css %}{% endblock %}
 </head>
@@ -737,72 +653,92 @@
     <!-- Desktop Sidebar -->
     <aside class="desktop-sidebar" aria-label="Menú lateral">
         <a class="sidebar-brand" href="{% url 'jobs:job_list' %}">
-            <div class="brand-icon"><span style="font-weight:900;font-size:1.15rem;line-height:1;">U</span></div>
-            <div>
-                <div class="brand-text">U-Work</div>
-                <div class="brand-sub">Plataforma de microtrabajo</div>
-            </div>
+            <span class="brand-icon">U</span>
+            <span>
+                <span class="brand-text">U-Work</span>
+                <span class="brand-sub">Microtrabajo universitario</span>
+            </span>
         </a>
         <nav class="sidebar-nav">
-            <div class="nav-label">Navegación</div>
             {% if user.es_estudiante %}
             <a href="{% url 'jobs:job_list' %}" class="{% if request.resolver_match.url_name == 'job_list' %}active{% endif %}">
-                <i class="bi bi-compass"></i> Explorar trabajos
+                <i class="bi bi-compass" aria-hidden="true"></i> Explorar trabajos
             </a>
             <a href="{% url 'jobs:my_jobs' %}" class="{% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
-                <i class="bi bi-send-check"></i> Mis postulaciones
-            </a>
-            <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
-                <i class="bi bi-graph-up"></i> Balance
-            </a>
-            <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                <i class="bi bi-person-circle"></i> Mi perfil
+                <i class="bi bi-send-check" aria-hidden="true"></i> Mis postulaciones
             </a>
             {% else %}
+            <a href="{% url 'jobs:job_list' %}" class="{% if request.resolver_match.url_name == 'job_list' %}active{% endif %}">
+                <i class="bi bi-compass" aria-hidden="true"></i> Explorar trabajos
+            </a>
             <a href="{% url 'jobs:my_jobs' %}" class="{% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
-                <i class="bi bi-list-check"></i> Mis publicaciones
-            </a>
-            <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
-                <i class="bi bi-graph-up"></i> Balance
-            </a>
-            <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-                <i class="bi bi-person-circle"></i> Mi perfil
-            </a>
-            <div style="flex:1"></div>
-            <a href="{% url 'jobs:job_create' %}" class="publish-btn">
-                <i class="bi bi-plus-lg"></i> Publicar trabajo
+                <i class="bi bi-list-check" aria-hidden="true"></i> Mis publicaciones
             </a>
             {% endif %}
-            <div class="nav-label" style="margin-top:8px;">Otros</div>
+            <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
+                <i class="bi bi-graph-up-arrow" aria-hidden="true"></i> Balance
+            </a>
+            <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
+                <i class="bi bi-person" aria-hidden="true"></i> Mi perfil
+            </a>
+
+            {% if not user.es_estudiante %}
+            <a href="{% url 'jobs:job_create' %}" class="publish-btn {% if request.resolver_match.url_name == 'job_create' %}active{% endif %}">
+                <i class="bi bi-plus-lg" aria-hidden="true"></i> Publicar trabajo
+            </a>
+            {% endif %}
+
+            <div class="nav-label">Cuenta</div>
             <a href="{% url 'notifications:list' %}" class="{% if request.resolver_match.app_name == 'notifications' %}active{% endif %}" style="position:relative;">
-                <i class="bi bi-bell-fill"></i> Notificaciones
+                <i class="bi bi-bell" aria-hidden="true"></i> Notificaciones
                 {% if notif_count %}<span class="notif-badge" style="right:auto; margin-left:auto;">{{ notif_count }}</span>{% endif %}
             </a>
             <a href="{% url 'support:create' %}" class="{% if request.resolver_match.app_name == 'support' %}active{% endif %}">
-                <i class="bi bi-headset"></i> Soporte
+                <i class="bi bi-headset" aria-hidden="true"></i> Soporte
             </a>
+
+            {% if user.is_staff %}
+            <div class="nav-label">Personal</div>
+            <a href="{% url 'moderation:panel_publicaciones' %}" class="{% if request.resolver_match.url_name == 'panel_publicaciones' %}active{% endif %}">
+                <i class="bi bi-clipboard-check" aria-hidden="true"></i> Revisión de publicaciones
+            </a>
+            <a href="{% url 'moderation:panel_reportes' %}" class="{% if request.resolver_match.url_name == 'panel_reportes' %}active{% endif %}">
+                <i class="bi bi-flag" aria-hidden="true"></i> Reportes
+            </a>
+            <a href="{% url 'moderation:apelaciones' %}" class="{% if request.resolver_match.url_name == 'apelaciones' %}active{% endif %}">
+                <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Apelaciones
+            </a>
+            <a href="{% url 'moderation:bitacora' %}" class="{% if request.resolver_match.url_name == 'bitacora' %}active{% endif %}">
+                <i class="bi bi-journal-text" aria-hidden="true"></i> Bitácora
+            </a>
+            <a href="{% url 'support:panel_tickets' %}" class="{% if request.resolver_match.url_name == 'panel_tickets' %}active{% endif %}">
+                <i class="bi bi-inbox" aria-hidden="true"></i> Tickets de soporte
+            </a>
+            {% endif %}
         </nav>
         <div class="sidebar-footer">
             <a href="{% url 'accounts:profile' %}" class="sidebar-user">
                 {% if user.foto %}
                 <img src="{{ user.foto.url }}" class="user-avatar" alt="">
                 {% else %}
-                <div class="user-avatar"><i class="bi bi-person-fill"></i></div>
+                <span class="user-avatar"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
                 {% endif %}
-                <div style="min-width:0">
-                    <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
-                    <div class="user-role">{{ user.get_rol_display }}</div>
-                </div>
+                <span style="min-width:0">
+                    <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+                    <span class="user-role">{{ user.get_rol_display }}</span>
+                </span>
             </a>
-            <form method="post" action="{% url 'accounts:logout' %}">
-                {% csrf_token %}
-                <button type="submit" class="sidebar-logout">
-                    <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+            <div class="sidebar-footer-row">
+                <button type="button" data-theme-toggle class="sidebar-theme-toggle" title="Cambiar tema">
+                    <i class="bi bi-moon-fill" aria-hidden="true"></i> <span>Tema oscuro</span>
                 </button>
-            </form>
-            <button onclick="toggleTheme()" class="sidebar-theme-toggle" title="Cambiar tema">
-                <i class="bi bi-moon-fill"></i> <span>Tema oscuro</span>
-            </button>
+                <form method="post" action="{% url 'accounts:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="sidebar-logout" aria-label="Cerrar sesión" title="Cerrar sesión">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
         </div>
     </aside>
     {% endif %}
@@ -810,42 +746,41 @@
     <!-- Top Bar (mobile/tablet) -->
     <header class="app-topbar">
         <a class="brand" href="{% url 'jobs:job_list' %}">
-            <span style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#4F46E5,#818CF8);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:0.85rem;flex-shrink:0;">U</span>
+            <span style="width:28px;height:28px;border-radius: var(--radius-sm);background:var(--primary-solid);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:0.85rem;flex-shrink:0;">U</span>
             U-Work
         </a>
         <div class="top-actions">
             {% if user.is_authenticated %}
-            <!-- Tablet nav links -->
-            <div class="desktop-nav" style="display: none; gap: 4px; align-items: center;">
+            <!-- Enlaces de tablet -->
+            <div class="desktop-nav" style="display: none; gap: 2px; align-items: center;">
                 {% if user.es_estudiante %}
                 <a href="{% url 'jobs:job_list' %}" title="Explorar" aria-label="Explorar trabajos"><i class="bi bi-compass" aria-hidden="true"></i></a>
                 <a href="{% url 'jobs:my_jobs' %}" title="Mis postulaciones" aria-label="Mis postulaciones"><i class="bi bi-send-check" aria-hidden="true"></i></a>
                 {% else %}
                 <a href="{% url 'jobs:my_jobs' %}" title="Mis publicaciones" aria-label="Mis publicaciones"><i class="bi bi-list-check" aria-hidden="true"></i></a>
-                <a href="{% url 'jobs:job_create' %}" title="Publicar" aria-label="Publicar trabajo"><i class="bi bi-plus-circle-fill" aria-hidden="true"></i></a>
+                <a href="{% url 'jobs:job_create' %}" title="Publicar" aria-label="Publicar trabajo"><i class="bi bi-plus-circle" aria-hidden="true"></i></a>
                 {% endif %}
-                <a href="{% url 'accounts:balance' %}" title="Balance" aria-label="Ver balance"><i class="bi bi-graph-up" aria-hidden="true"></i></a>
-                <a href="{% url 'accounts:profile' %}" title="Perfil" aria-label="Mi perfil"><i class="bi bi-person-circle" aria-hidden="true"></i></a>
+                <a href="{% url 'accounts:balance' %}" title="Balance" aria-label="Ver balance"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i></a>
+                <a href="{% url 'accounts:profile' %}" title="Perfil" aria-label="Mi perfil"><i class="bi bi-person" aria-hidden="true"></i></a>
                 <a href="{% url 'support:create' %}" title="Soporte" aria-label="Soporte"><i class="bi bi-headset" aria-hidden="true"></i></a>
-                <form method="post" action="{% url 'accounts:logout' %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" title="Cerrar sesión" aria-label="Cerrar sesión"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></button>
-                </form>
             </div>
-            <!-- Notification bell (mobile) -->
+            <!-- Avisos -->
             <a href="{% url 'notifications:list' %}" title="Notificaciones" aria-label="Notificaciones{% if notif_count %}, {{ notif_count }} sin leer{% endif %}" class="d-flex d-lg-none" style="position:relative;">
                 <i class="bi bi-bell{% if notif_count %}-fill{% endif %}" aria-hidden="true"></i>
                 {% if notif_count %}<span class="topbar-notif-badge" aria-hidden="true">{{ notif_count }}</span>{% endif %}
             </a>
-            <!-- Logout (mobile) -->
-            <form method="post" action="{% url 'accounts:logout' %}" class="d-flex d-lg-none">
-                {% csrf_token %}
-                <button type="submit" title="Cerrar sesión" aria-label="Cerrar sesión"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></button>
-            </form>
+            <!-- Avatar: el menú de cuenta vive en el perfil -->
+            <a href="{% url 'accounts:profile' %}" title="Mi perfil" aria-label="Mi perfil" class="d-flex d-lg-none" style="position:relative;">
+                {% if user.foto %}
+                <img src="{{ user.foto.url }}" alt="" style="width:26px;height:26px;border-radius: var(--radius-full);object-fit:cover;">
+                {% else %}
+                <span style="width:26px;height:26px;border-radius: var(--radius-full);background:var(--brand-soft);color:var(--brand-ink);display:inline-flex;align-items:center;justify-content:center;font-size:.8rem;"><i class="bi bi-person-fill" aria-hidden="true"></i></span>
+                {% endif %}
+            </a>
             {% else %}
             <a href="{% url 'accounts:login' %}" aria-label="Iniciar sesión"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i></a>
             {% endif %}
-            <button onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar tema" class="theme-toggle-btn">
+            <button type="button" data-theme-toggle title="Cambiar tema" aria-label="Cambiar tema" class="theme-toggle-btn">
                 <i class="bi bi-moon-fill" aria-hidden="true"></i>
             </button>
         </div>
@@ -882,48 +817,49 @@
     <nav class="bottom-nav" aria-label="Navegación principal">
         {% if user.es_estudiante %}
         <a href="{% url 'jobs:job_list' %}" class="{% if request.resolver_match.url_name == 'job_list' %}active{% endif %}">
-            <i class="bi bi-house"></i>
+            <i class="bi bi-house" aria-hidden="true"></i>
             <span>Inicio</span>
         </a>
         <a href="{% url 'jobs:my_jobs' %}" class="{% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
-            <i class="bi bi-send-check"></i>
+            <i class="bi bi-send-check" aria-hidden="true"></i>
             <span>Postulaciones</span>
         </a>
         <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
-            <i class="bi bi-graph-up"></i>
+            <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
             <span>Balance</span>
         </a>
         <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-            <i class="bi bi-person"></i>
+            <i class="bi bi-person" aria-hidden="true"></i>
             <span>Perfil</span>
         </a>
         {% else %}
         <a href="{% url 'jobs:job_list' %}" class="{% if request.resolver_match.url_name == 'job_list' %}active{% endif %}">
-            <i class="bi bi-house"></i>
+            <i class="bi bi-house" aria-hidden="true"></i>
             <span>Inicio</span>
         </a>
         <a href="{% url 'jobs:my_jobs' %}" class="{% if request.resolver_match.url_name == 'my_jobs' %}active{% endif %}">
-            <i class="bi bi-list-check"></i>
+            <i class="bi bi-list-check" aria-hidden="true"></i>
             <span>Publicados</span>
         </a>
         <a href="{% url 'jobs:job_create' %}" class="nav-publish {% if request.resolver_match.url_name == 'job_create' %}active{% endif %}">
-            <div class="pub-icon"><i class="bi bi-plus-lg"></i></div>
+            <span class="pub-icon"><i class="bi bi-plus-lg" aria-hidden="true"></i></span>
             <span>Publicar</span>
         </a>
         <a href="{% url 'accounts:balance' %}" class="{% if request.resolver_match.url_name == 'balance' %}active{% endif %}">
-            <i class="bi bi-graph-up"></i>
+            <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
             <span>Balance</span>
         </a>
         <a href="{% url 'accounts:profile' %}" class="{% if request.resolver_match.url_name == 'profile' %}active{% endif %}">
-            <i class="bi bi-person"></i>
+            <i class="bi bi-person" aria-hidden="true"></i>
             <span>Perfil</span>
         </a>
         {% endif %}
     </nav>
     {% endif %}
 
+    <script src="{% static 'js/theme.js' %}" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
+    <script nonce="{{ csp_nonce }}">
         // Auto-dismiss toast messages
         setTimeout(() => {
             document.querySelectorAll('.app-toast .alert').forEach(el => {
@@ -931,30 +867,22 @@
             });
         }, 3500);
 
-        // Theme toggle
-        function toggleTheme() {
-            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            if (isDark) {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('uwork-theme', 'light');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('uwork-theme', 'dark');
-            }
-            updateThemeIcons();
-        }
-        function updateThemeIcons() {
-            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.querySelectorAll('.theme-toggle-btn i, .sidebar-theme-toggle i').forEach(function(icon) {
-                icon.className = isDark ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        // El cambio de tema vive en static/js/theme.js: todas las
+        // pantallas lo comparten, incluidas las que no heredan de esta
+        // plantilla.
+
+        // Confirmación de formularios destructivos: sustituye al
+        // onsubmit="return confirm(...)", que la CSP bloquea.
+        document.querySelectorAll('form[data-confirm]').forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!window.confirm(form.dataset.confirm)) {
+                    event.preventDefault();
+                }
             });
-            var label = document.querySelector('.sidebar-theme-toggle span');
-            if (label) label.textContent = isDark ? 'Tema claro' : 'Tema oscuro';
-        }
-        updateThemeIcons();
+        });
     </script>
     {% block extra_js %}{% endblock %}
-    <script>
+    <script nonce="{{ csp_nonce }}">
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('/sw.js', { scope: '/' })
                 .then(reg => console.log('SW registrado:', reg.scope))

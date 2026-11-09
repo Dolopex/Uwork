@@ -1,65 +1,165 @@
 {% extends 'base.html' %}
-{% load form_tags %}
-{% block title %}Postularme — {{ job.titulo }} — U-Work{% endblock %}
+{% load form_tags static %}
+{% block title %}Postularme a {{ job.titulo }} · U-Work{% endblock %}
 {% block extra_css %}
 <style>
-    @media (min-width: 992px) {
-        .content-wrapper { max-width: 960px !important; }
-        .apply-layout { display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start; }
-        .apply-sidebar { position: sticky; top: 80px; }
+    .content-wrapper { max-width: 980px !important; }
+    .apply-head { margin-bottom: var(--space-5); }
+    .apply-head h1 {
+        font-size: var(--fs-2xl);
+        font-weight: 800;
+        letter-spacing: -.025em;
+        color: var(--text);
+        margin: 0 0 var(--space-2);
     }
+    .apply-head p {
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        margin: 0;
+        max-width: 58ch;
+        line-height: 1.55;
+    }
+    .apply-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--space-5); }
+    @media (min-width: 992px) {
+        .apply-layout { grid-template-columns: minmax(0, 1fr) 300px; gap: var(--space-6); align-items: start; }
+        .apply-sidebar { position: sticky; top: var(--space-6); }
+    }
+    .apply-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: var(--space-5);
+    }
+    .apply-card__title {
+        font-size: var(--fs-base);
+        font-weight: 700;
+        color: var(--text);
+        margin: 0 0 var(--space-1);
+        display: flex; align-items: center; gap: var(--space-2);
+    }
+    .apply-card__title i { color: var(--text-secondary); }
+    .apply-card__hint {
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        margin: 0 0 var(--space-5);
+        line-height: 1.5;
+    }
+    .side-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        margin-bottom: var(--space-3);
+    }
+    .side-card__label {
+        font-size: var(--fs-xs);
+        font-weight: 700;
+        color: var(--text-secondary);
+        margin: 0 0 var(--space-2);
+        display: flex; align-items: center; gap: 6px;
+    }
+    .side-card__label i { color: var(--text-muted); }
+    .side-card__amount {
+        font-size: var(--fs-2xl);
+        font-weight: 800;
+        color: var(--money);
+        letter-spacing: -.02em;
+        margin: 0 0 var(--space-3);
+        font-variant-numeric: tabular-nums;
+    }
+    .side-card__title { font-size: var(--fs-base); font-weight: 700; color: var(--text); margin: 0 0 var(--space-3); }
+    .side-meta { display: flex; align-items: center; gap: var(--space-2); font-size: var(--fs-sm); color: var(--text-secondary); }
+    .side-meta img, .side-meta__avatar {
+        width: 32px; height: 32px; border-radius: var(--radius-full);
+        object-fit: cover; flex-shrink: 0;
+    }
+    .side-meta__avatar {
+        background: var(--surface-alt);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--text-secondary);
+    }
+    .side-meta strong { display: block; font-weight: 600; font-size: var(--fs-sm); color: var(--text); }
 </style>
 {% endblock %}
 {% block content %}
-<div class="section-title"><i class="bi bi-send-fill" style="color: var(--primary-light);"></i> Postularme</div>
+<div class="apply-head">
+    <h1>Postularme a {{ job.titulo }}</h1>
+    <p>
+        Tu mensaje es lo primero que ve el empleador. Cuéntale qué puedes hacer y
+        en cuánto tiempo lo podrías entregar.
+    </p>
+</div>
+
 <div class="apply-layout">
 <div>
-    <form method="post">
-        {% csrf_token %}
-        <div class="card mb-3">
-            <div class="card-body">
-                <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:14px;"><i class="bi bi-chat-left-text-fill"></i> Tu mensaje</div>
-                {% for field in form %}
-                <div class="mb-3">
-                    <label class="form-label" style="font-weight:600; font-size:0.85rem;">{{ field.label }}</label>
-                    {{ field|add_class:"form-control" }}
-                    {% if field.errors %}
-                    <div class="text-danger small mt-1" role="alert">{{ field.errors.0 }}</div>
-                    {% endif %}
-                </div>
-                {% endfor %}
+    <div class="apply-card">
+        <h2 class="apply-card__title"><i class="bi bi-chat-left-text" aria-hidden="true"></i> Tu mensaje</h2>
+        <p class="apply-card__hint">El empleador lo lee antes de decidir a quién acepta.</p>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="field">
+                <label class="field__label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field|accessible:"form-control" }}
+                <div class="counter" data-counter><span data-counter-text></span></div>
+                {% field_error field %}
             </div>
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg w-100 py-3" style="border-radius:14px; font-weight:700;">
-            <i class="bi bi-send-fill"></i> Enviar postulación
-        </button>
-    </form>
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+            <div class="auth-alert" role="alert">
+                <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                <div>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</div>
+            </div>
+            {% endif %}
+
+            <div class="step-nav" style="margin-top:var(--space-5);">
+                <button type="submit" class="step-nav__next" data-submit-btn data-submit-pending="Enviando...">
+                    <span data-submit-label>Enviar postulación</span>
+                    <i class="bi bi-send" aria-hidden="true"></i>
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <aside class="apply-sidebar">
-    <div class="card">
-        <div class="card-body">
-            <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:10px;"><i class="bi bi-briefcase-fill"></i> Trabajo</div>
-            <h6 style="font-weight:800; color:var(--text); margin-bottom:8px;">{{ job.titulo }}</h6>
-            <div style="font-size:2rem; font-weight:900; color:var(--money); margin-bottom:12px;">{{ job.pago|cop }}</div>
-            <div class="d-flex flex-wrap gap-1 mb-3">
-                <span class="badge" style="background:var(--badge-indigo-bg); color:var(--badge-indigo-text); font-size:0.7rem;">{{ job.get_categoria_display }}</span>
-                <span class="badge" style="background:var(--badge-green-bg); color:var(--badge-green-text); font-size:0.7rem;">{{ job.get_modalidad_display }}</span>
-            </div>
-            {% if job.fecha_limite %}
-            <div style="font-size:0.8rem; color:var(--text-secondary);"><i class="bi bi-calendar"></i> Límite: {{ job.fecha_limite|date:"d M Y" }}</div>
+    <div class="side-card">
+        <p class="side-card__label"><i class="bi bi-briefcase" aria-hidden="true"></i> Trabajo</p>
+        <p class="side-card__title">{{ job.titulo }}</p>
+        <p class="side-card__amount">{{ job.pago|cop }}</p>
+        <div class="d-flex flex-wrap gap-1 mb-3">
+            <span class="chip chip--brand">{{ job.get_categoria_display }}</span>
+            <span class="chip chip--neutral">{{ job.get_modalidad_display }}</span>
+        </div>
+        {% if job.fecha_limite %}
+        <div style="font-size:var(--fs-sm); color:var(--text-secondary);">
+            <i class="bi bi-calendar" aria-hidden="true"></i>
+            Límite: {{ job.fecha_limite|date:"d M Y" }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="side-card">
+        <p class="side-card__label"><i class="bi bi-person" aria-hidden="true"></i> Publica</p>
+        <div class="side-meta">
+            {% if job.creador.foto %}
+            <img src="{{ job.creador.foto.url }}" alt="">
+            {% else %}
+            <span class="side-meta__avatar" aria-hidden="true"><i class="bi bi-person-fill"></i></span>
             {% endif %}
-            <hr style="border-color:var(--border);">
-            <div class="d-flex align-items-center gap-2">
-                {% if job.creador.foto %}<img src="{{ job.creador.foto.url }}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;">
-                {% else %}<div style="width:32px;height:32px;border-radius:50%;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;color:var(--text-secondary);"><i class="bi bi-person-fill"></i></div>{% endif %}
-                <div>
-                    <div style="font-weight:600; font-size:0.85rem; color:var(--text);">{{ job.creador.first_name|default:job.creador.username }}</div>
-                    <div style="font-size:0.72rem; color:var(--text-secondary);">Empleador</div>
-                </div>
-            </div>
+            <span style="min-width:0;">
+                <strong>{{ job.creador.first_name|default:job.creador.username }}</strong>
+                <span style="font-size:var(--fs-xs); color:var(--text-secondary);">Empleador</span>
+            </span>
         </div>
     </div>
 </aside>
-</div>{# end apply-layout #}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/wizard.js' %}" defer></script>
 {% endblock %}

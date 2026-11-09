@@ -1,427 +1,764 @@
 {% extends 'base.html' %}
 {% load form_tags %}
-{% block title %}Mi Balance — U-Work{% endblock %}
+{% block title %}Mi Balance · U-Work{% endblock %}
 {% block extra_css %}
 <style>
-    .balance-hero {
-        background: linear-gradient(135deg, #10B981, #059669);
-        border-radius: 20px;
-        padding: 24px 20px;
+    .content-wrapper { max-width: 1120px !important; }
+
+    /* --- Encabezado --- */
+    .bal-head {
+        display: flex; align-items: flex-start; justify-content: space-between;
+        gap: var(--space-4); margin-bottom: var(--space-5);
+    }
+    .bal-head h1 {
+        font-size: var(--fs-2xl); font-weight: 800; letter-spacing: -.025em;
+        color: var(--text); margin: 0 0 var(--space-1);
+    }
+    .bal-head p {
+        font-size: var(--fs-sm); color: var(--text-secondary); margin: 0;
+        max-width: 58ch; line-height: 1.5;
+    }
+
+    /* --- Tarjeta --- */
+    .bal-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-5);
+        margin-bottom: var(--space-4);
+    }
+    .bal-card__head {
+        display: flex; align-items: center; gap: var(--space-2);
+        margin-bottom: var(--space-4);
+    }
+    .bal-card__title {
+        font-size: var(--fs-base); font-weight: 700; color: var(--text); margin: 0;
+    }
+    .bal-card__note {
+        font-size: var(--fs-xs); color: var(--text-secondary);
+        margin-left: auto; text-align: right;
+    }
+
+    /* --- Portada: la cifra que resume todo --- */
+    .bal-hero {
+        background: var(--fill-success);
         color: #fff;
-        position: relative;
-        overflow: hidden;
-        margin-bottom: 16px;
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+        display: grid; gap: var(--space-5);
+        margin-bottom: var(--space-4);
     }
-    .balance-hero::before {
-        content: '';
-        position: absolute;
-        top: -40px; right: -40px;
-        width: 140px; height: 140px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.08);
+    .bal-hero--empleador { background: var(--primary-solid); }
+    @media (min-width: 768px) {
+        .bal-hero {
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+            align-items: center; gap: var(--space-8);
+        }
     }
-    .balance-hero .hero-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        opacity: 0.8;
+    .bal-hero__label {
+        display: flex; align-items: center; gap: var(--space-2);
+        font-size: var(--fs-sm); font-weight: 600; opacity: .88;
     }
-    .balance-hero .hero-amount {
-        font-size: 2.2rem;
-        font-weight: 800;
-        margin: 4px 0 0;
-        line-height: 1.1;
+    .bal-hero__amount {
+        font-size: var(--fs-3xl); font-weight: 800; letter-spacing: -.03em;
+        line-height: 1.05; margin: var(--space-2) 0 0;
+        font-variant-numeric: tabular-nums;
     }
-    .balance-hero .hero-sub {
-        font-size: 0.8rem;
-        opacity: 0.7;
-        margin-top: 4px;
+    .bal-hero__sub {
+        font-size: var(--fs-sm); opacity: .82; margin: var(--space-2) 0 0;
+        line-height: 1.45;
     }
-    .metric-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 16px;
+    .bal-hero__split {
+        display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-4);
     }
-    .metric-card {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 16px;
-        padding: 16px;
-        position: relative;
-        overflow: hidden;
+    .bal-hero__cell {
+        border-left: 1px solid rgba(255, 255, 255, .22);
+        padding-left: var(--space-3);
     }
-    .metric-card .metric-icon {
-        width: 38px; height: 38px;
-        border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1rem; margin-bottom: 10px;
+    .bal-hero__value {
+        display: block; font-size: var(--fs-lg); font-weight: 800;
+        font-variant-numeric: tabular-nums; line-height: 1.2;
     }
-    .metric-card .metric-value {
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: var(--text);
-        line-height: 1;
+    .bal-hero__caption {
+        display: block; font-size: var(--fs-xs); opacity: .8; margin-top: 3px;
+        line-height: 1.35;
     }
-    .metric-card .metric-label {
-        font-size: 0.7rem;
-        color: var(--text-secondary);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        margin-top: 4px;
-    }
-    .metric-card .metric-bar {
-        position: absolute;
-        bottom: 0; left: 0; right: 0;
-        height: 3px;
-    }
-    .section-card {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 16px;
-        padding: 18px;
-        margin-bottom: 16px;
-    }
-    .section-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 16px;
-    }
-    .section-header .sh-icon {
-        width: 34px; height: 34px;
-        border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.95rem;
-    }
-    .section-header h6 {
-        font-weight: 700;
-        font-size: 0.9rem;
-        margin: 0;
-        color: var(--text);
-    }
-    /* Status breakdown */
-    .status-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--border);
-    }
-    .status-row:last-child { border-bottom: none; }
-    .status-dot {
-        width: 10px; height: 10px;
-        border-radius: 50%;
-        display: inline-block;
-        margin-right: 8px;
-    }
-    .status-row .label {
-        font-size: 0.85rem;
-        font-weight: 500;
-        color: var(--text);
-        display: flex;
-        align-items: center;
-    }
-    .status-row .value {
-        font-weight: 700;
-        font-size: 0.95rem;
-        color: var(--text);
-    }
-    /* Bar chart */
-    .bar-chart {
-        display: flex;
-        align-items: flex-end;
-        gap: 8px;
-        height: 120px;
-        padding-top: 10px;
-    }
-    .bar-col {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-    }
-    .bar-fill {
-        width: 100%;
-        max-width: 36px;
-        border-radius: 8px 8px 4px 4px;
-        background: linear-gradient(180deg, var(--primary-light), var(--primary));
-        transition: height 0.5s ease;
-        min-height: 4px;
-    }
-    .bar-label {
-        font-size: 0.65rem;
-        color: var(--text-secondary);
-        font-weight: 600;
-    }
-    .bar-value {
-        font-size: 0.7rem;
-        font-weight: 700;
-        color: var(--text);
-    }
-    /* Category bars */
-    .cat-bar-row {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-    .cat-bar-row .cat-label {
-        width: 80px;
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--text);
-        text-align: right;
-        flex-shrink: 0;
-    }
-    .cat-bar-track {
-        flex: 1;
-        height: 10px;
-        background: var(--surface-alt);
-        border-radius: 5px;
-        overflow: hidden;
-    }
-    .cat-bar-fill {
-        height: 100%;
-        border-radius: 5px;
-        transition: width 0.6s ease;
-    }
-    .cat-bar-row .cat-count {
-        font-size: 0.75rem;
-        font-weight: 700;
-        width: 24px;
-        text-align: center;
-        color: var(--text-secondary);
-    }
-    /* Progress ring */
-    .completion-ring {
-        width: 80px; height: 80px;
-        position: relative;
-        display: inline-block;
-    }
-    .completion-ring svg { transform: rotate(-90deg); }
-    .completion-ring .ring-text {
-        position: absolute;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        font-weight: 800;
-        font-size: 1rem;
-        color: var(--text);
+
+    /* --- Indicadores --- */
+    .bal-kpis {
+        display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-3); margin-bottom: var(--space-4);
     }
     @media (min-width: 992px) {
-        .content-wrapper { max-width: 1100px !important; }
-        .balance-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
-        .balance-right { position: sticky; top: 80px; }
-        .metric-grid { grid-template-columns: repeat(2, 1fr); }
+        .bal-kpis { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    .bal-kpi {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+    }
+    .bal-kpi__head {
+        display: flex; align-items: center; gap: var(--space-2);
+        margin-bottom: var(--space-3);
+    }
+    .bal-kpi__value {
+        font-size: var(--fs-2xl); font-weight: 800; color: var(--text);
+        line-height: 1; letter-spacing: -.02em;
+        font-variant-numeric: tabular-nums;
+    }
+    /* Cuando no hay dato, la cifra se sustituye por una frase: un 0,0
+       seria una calificacion que nadie dio. */
+    .bal-kpi__value--vacio {
+        font-size: var(--fs-lg); font-weight: 700; color: var(--text-muted);
+        letter-spacing: -.01em;
+    }
+    .bal-kpi__note {
+        display: flex; align-items: center; gap: 5px;
+        font-size: var(--fs-xs); color: var(--text-secondary);
+        margin-top: var(--space-2); line-height: 1.35;
+    }
+    .bal-kpi__note i { color: var(--text-muted); font-size: .8rem; }
+
+    /* --- Grafico de columnas --- */
+    .bal-chart {
+        display: flex; align-items: flex-end; gap: var(--space-2);
+        height: 148px;
+        /* La linea de base: es el eje, no un adorno. */
+        border-bottom: 1px solid var(--border);
+    }
+    .bal-chart__col {
+        flex: 1; min-width: 0; height: 100%;
+        display: flex; flex-direction: column; justify-content: flex-end;
+        align-items: center; gap: var(--space-1);
+    }
+    .bal-chart__value {
+        font-size: var(--fs-2xs); font-weight: 700; color: var(--text-secondary);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+    .bal-chart__bar {
+        width: 100%; max-width: 34px;
+        /* El acento como texto: es el unico que garantiza contraste contra
+           la superficie en los dos temas. */
+        background: var(--primary);
+        /* Radio pequeno arriba y apoyo en la linea base: es un grafico,
+           no un bloque. */
+        border-radius: 4px 4px 0 0;
+        min-height: 3px;
+    }
+    .bal-chart__bar--money { background: var(--state-success); }
+    .bal-chart__label {
+        font-size: var(--fs-2xs); color: var(--text-muted); font-weight: 600;
+    }
+
+    /* --- Barra apilada del estado --- */
+    .bal-stack {
+        display: flex; height: 10px; border-radius: var(--radius-full);
+        overflow: hidden; background: var(--surface-alt);
+    }
+    .bal-stack__seg { height: 100%; }
+    .bal-legend { display: grid; gap: var(--space-2); margin-top: var(--space-4); }
+    .bal-legend__row {
+        display: flex; align-items: center; gap: var(--space-2);
+        font-size: var(--fs-sm);
+    }
+    .bal-legend__swatch {
+        width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0;
+    }
+    .bal-legend__name { color: var(--text-secondary); }
+    .bal-legend__value {
+        margin-left: auto; font-weight: 700; color: var(--text);
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* --- Desglose: la barra sin fondo, el nombre al lado --- */
+    .bal-split { display: grid; gap: var(--space-3); }
+    .bal-split__row {
+        display: grid; grid-template-columns: 104px minmax(0, 1fr) 30px;
+        align-items: center; gap: var(--space-3);
+    }
+    .bal-split__name {
+        font-size: var(--fs-sm); color: var(--text-secondary);
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .bal-split__bar {
+        height: 8px; border-radius: var(--radius-full);
+        background: var(--primary);
+    }
+    .bal-split__count {
+        font-size: var(--fs-sm); font-weight: 700; color: var(--text);
+        text-align: right; font-variant-numeric: tabular-nums;
+    }
+
+    /* --- Calificaciones --- */
+    .bal-stars { display: grid; gap: var(--space-2); }
+    .bal-stars__row {
+        display: grid; grid-template-columns: 46px 24px minmax(0, 1fr);
+        align-items: center; gap: var(--space-2);
+    }
+    .bal-stars__label {
+        font-size: var(--fs-xs); color: var(--text-secondary);
+        display: flex; align-items: center; gap: 4px;
+    }
+    .bal-stars__bar {
+        height: 8px; border-radius: var(--radius-full);
+        background: var(--star-active);
+    }
+    .bal-stars__count {
+        font-size: var(--fs-xs); font-weight: 700; color: var(--text);
+        text-align: right; font-variant-numeric: tabular-nums;
+    }
+
+    /* --- Reseñas --- */
+    .bal-review { padding: var(--space-3) 0; }
+    .bal-review + .bal-review { border-top: 1px solid var(--border-light); }
+    .bal-review__head {
+        display: flex; align-items: center; gap: var(--space-2);
+        margin-bottom: var(--space-1);
+    }
+    .bal-review__stars { color: var(--star-active); font-size: var(--fs-xs); }
+    .bal-review__stars .bi-star { color: var(--star-inactive); }
+    .bal-review__author { font-size: var(--fs-sm); font-weight: 600; color: var(--text); }
+    .bal-review__date {
+        margin-left: auto; font-size: var(--fs-2xs); color: var(--text-muted);
+    }
+    .bal-review__text {
+        font-size: var(--fs-sm); color: var(--text-secondary);
+        line-height: 1.55; margin: 0;
+    }
+    .bal-review__job {
+        font-size: var(--fs-2xs); color: var(--text-muted); margin-top: 4px;
+        display: flex; align-items: center; gap: 4px;
+    }
+
+    /* --- Actividad reciente --- */
+    .bal-timeline { list-style: none; margin: 0; padding: 0; }
+    .bal-timeline__item {
+        display: flex; align-items: flex-start; gap: var(--space-3);
+        padding: var(--space-3) 0;
+    }
+    .bal-timeline__body { min-width: 0; flex: 1; }
+    .bal-timeline__title {
+        font-size: var(--fs-sm); font-weight: 600; color: var(--text);
+        display: block; text-decoration: none;
+        overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .bal-timeline__title:hover { color: var(--brand-ink); }
+    .bal-timeline__meta {
+        font-size: var(--fs-xs); color: var(--text-secondary);
+        display: flex; align-items: center; gap: var(--space-2);
+        margin-top: 2px; flex-wrap: wrap;
+    }
+
+    /* --- Acciones --- */
+    .bal-actions { display: grid; gap: var(--space-2); }
+
+    /* --- Rejilla --- */
+    @media (min-width: 992px) {
+        .bal-layout {
+            display: grid; grid-template-columns: minmax(0, 1fr) 312px;
+            gap: var(--space-5); align-items: start;
+        }
+        .bal-side { position: sticky; top: var(--space-6); }
     }
 </style>
 {% endblock %}
+
 {% block content %}
-<div class="balance-layout">
-<div class="balance-left">
-<!-- Header -->
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+<div class="bal-head">
     <div>
-        <h5 style="font-weight:800; margin:0; color:var(--text);">Mi Balance</h5>
-        <p style="font-size:0.8rem; color:var(--text-secondary); margin:2px 0 0;">Resumen de tu actividad en U-Work</p>
+        <h1>Mi balance</h1>
+        <p>
+            {% if user.es_estudiante %}
+                Lo que has ganado, lo que tienes por cobrar y cómo te va en cada postulación.
+            {% else %}
+                Lo que has invertido en trabajos, lo que está en curso y cómo responden tus avisos.
+            {% endif %}
+        </p>
     </div>
-    <a href="{% url 'accounts:profile' %}" style="width:36px;height:36px;border-radius:10px;background:var(--icon-indigo-bg);display:flex;align-items:center;justify-content:center;color:var(--badge-indigo-text);text-decoration:none;">
+    <a href="{% url 'accounts:profile' %}" class="icon-tile icon-tile--neutral"
+       title="Mi perfil" aria-label="Mi perfil">
         <i class="bi bi-person"></i>
     </a>
 </div>
 
-<!-- Hero Card — Earnings for students, Spending for employers -->
 {% if user.es_estudiante %}
-<div class="balance-hero">
-    <div class="hero-label"><i class="bi bi-wallet2"></i> Total ganado</div>
-    <div class="hero-amount">{{ total_ganado|cop }}</div>
-    <div class="hero-sub">{{ asignados_finalizados }} trabajo{{ asignados_finalizados|pluralize:"s" }} completado{{ asignados_finalizados|pluralize:"s" }}</div>
+<div class="bal-hero">
+    <div>
+        <span class="bal-hero__label"><i class="bi bi-wallet2" aria-hidden="true"></i> Total ganado</span>
+        <p class="bal-hero__amount">{{ total_ganado|cop }}</p>
+        <p class="bal-hero__sub">
+            {{ asignados_finalizados }} trabajo{{ asignados_finalizados|pluralize:"s" }}
+            finalizado{{ asignados_finalizados|pluralize:"s" }} en U-Work.
+        </p>
+    </div>
+    <div class="bal-hero__split">
+        <div class="bal-hero__cell">
+            <span class="bal-hero__value">{{ total_ganado|cop }}</span>
+            <span class="bal-hero__caption">Cobrado por trabajos finalizados</span>
+        </div>
+        <div class="bal-hero__cell">
+            <span class="bal-hero__value">{{ en_proceso_dinero|cop }}</span>
+            <span class="bal-hero__caption">Por cobrar en {{ asignados_en_proceso }} trabajo{{ asignados_en_proceso|pluralize:"s" }} en curso</span>
+        </div>
+        <div class="bal-hero__cell">
+            <span class="bal-hero__value">{{ promedio_trabajo|cop }}</span>
+            <span class="bal-hero__caption">Promedio por trabajo finalizado</span>
+        </div>
+    </div>
 </div>
 {% else %}
-<div class="balance-hero" style="background:linear-gradient(135deg,var(--primary),var(--primary-light));">
-    <div class="hero-label"><i class="bi bi-cash-stack"></i> Total invertido</div>
-    <div class="hero-amount">{{ total_gastado|cop }}</div>
-    <div class="hero-sub">{{ publicados_finalizados }} trabajo{{ publicados_finalizados|pluralize:"s" }} finalizado{{ publicados_finalizados|pluralize:"s" }}</div>
+<div class="bal-hero bal-hero--empleador">
+    <div>
+        <span class="bal-hero__label"><i class="bi bi-cash-stack" aria-hidden="true"></i> Total invertido</span>
+        <p class="bal-hero__amount">{{ total_gastado|cop }}</p>
+        <p class="bal-hero__sub">
+            {{ publicados_finalizados }} trabajo{{ publicados_finalizados|pluralize:"s" }}
+            finalizado{{ publicados_finalizados|pluralize:"s" }} en U-Work.
+        </p>
+    </div>
+    <div class="bal-hero__split">
+        <div class="bal-hero__cell">
+            <span class="bal-hero__value">{{ total_gastado|cop }}</span>
+            <span class="bal-hero__caption">Pagado por trabajos finalizados</span>
+        </div>
+        <div class="bal-hero__cell">
+            <span class="bal-hero__value">{{ en_proceso_dinero|cop }}</span>
+            <span class="bal-hero__caption">Comprometido en {{ publicados_en_proceso }} trabajo{{ publicados_en_proceso|pluralize:"s" }} en curso</span>
+        </div>
+        <div class="bal-hero__cell">
+            <span class="bal-hero__value">{{ promedio_trabajo|cop }}</span>
+            <span class="bal-hero__caption">Promedio por trabajo finalizado</span>
+        </div>
+    </div>
 </div>
 {% endif %}
 
-<!-- Key Metrics -->
-<div class="metric-grid">
+<div class="bal-kpis">
     {% if user.es_estudiante %}
-    <div class="metric-card">
-        <div class="metric-icon" style="background:var(--icon-blue-bg); color:var(--badge-blue-text);"><i class="bi bi-send-fill"></i></div>
-        <div class="metric-value">{{ total_postulaciones }}</div>
-        <div class="metric-label">Postulaciones</div>
-        <div class="metric-bar" style="background:linear-gradient(90deg,#2563EB,#60A5FA);"></div>
+    <div class="bal-kpi">
+        <div class="bal-kpi__head">
+            <span class="icon-tile icon-tile--info" aria-hidden="true"><i class="bi bi-send"></i></span>
+            <span class="label-xs">Postulaciones</span>
+        </div>
+        <div class="bal-kpi__value">{{ total_postulaciones }}</div>
+        <div class="bal-kpi__note">
+            <i class="bi bi-graph-up-arrow" aria-hidden="true"></i>
+            {{ tasa_aceptacion }}% de aceptación
+        </div>
     </div>
-    <div class="metric-card">
-        <div class="metric-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-check2-all"></i></div>
-        <div class="metric-value">{{ postulaciones_aceptadas }}</div>
-        <div class="metric-label">Aceptadas</div>
-        <div class="metric-bar" style="background:linear-gradient(90deg,#059669,#34D399);"></div>
+    <div class="bal-kpi">
+        <div class="bal-kpi__head">
+            <span class="icon-tile icon-tile--success" aria-hidden="true"><i class="bi bi-check2-all"></i></span>
+            <span class="label-xs">Aceptadas</span>
+        </div>
+        <div class="bal-kpi__value">{{ postulaciones_aceptadas }}</div>
+        <div class="bal-kpi__note">
+            <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+            {{ asignados_en_proceso }} todavía en curso
+        </div>
     </div>
-    <div class="metric-card">
-        <div class="metric-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-briefcase-fill"></i></div>
-        <div class="metric-value">{{ asignados_en_proceso }}</div>
-        <div class="metric-label">En proceso</div>
-        <div class="metric-bar" style="background:linear-gradient(90deg,#D97706,#FBBF24);"></div>
+    <div class="bal-kpi">
+        <div class="bal-kpi__head">
+            <span class="icon-tile icon-tile--warning" aria-hidden="true"><i class="bi bi-briefcase"></i></span>
+            <span class="label-xs">En proceso</span>
+        </div>
+        <div class="bal-kpi__value">{{ asignados_en_proceso }}</div>
+        <div class="bal-kpi__note">
+            <i class="bi bi-wallet2" aria-hidden="true"></i>
+            {{ en_proceso_dinero|cop }} por cobrar
+        </div>
     </div>
-    <div class="metric-card">
-        <div class="metric-icon" style="background:var(--icon-purple-bg); color:var(--icon-purple-text);"><i class="bi bi-star-fill"></i></div>
-        <div class="metric-value">{{ user.calificacion_promedio }}</div>
-        <div class="metric-label">Rating</div>
-        <div class="metric-bar" style="background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div>
+    <div class="bal-kpi">
+        <div class="bal-kpi__head">
+            <span class="icon-tile icon-tile--brand" aria-hidden="true"><i class="bi bi-star"></i></span>
+            <span class="label-xs">Calificación</span>
+        </div>
+        <div class="bal-kpi__value {% if not reviews_recibidas %}bal-kpi__value--vacio{% endif %}">
+            {% if reviews_recibidas %}{{ user.calificacion_promedio|nota }}{% else %}Sin nota{% endif %}
+        </div>
+        <div class="bal-kpi__note">
+            <i class="bi bi-chat-square-heart" aria-hidden="true"></i>
+            {{ reviews_recibidas }} reseña{{ reviews_recibidas|pluralize:"s" }} recibida{{ reviews_recibidas|pluralize:"s" }}
+        </div>
     </div>
     {% else %}
-    <div class="metric-card">
-        <div class="metric-icon" style="background:var(--icon-indigo-bg); color:var(--badge-indigo-text);"><i class="bi bi-megaphone-fill"></i></div>
-        <div class="metric-value">{{ total_publicados }}</div>
-        <div class="metric-label">Publicados</div>
-        <div class="metric-bar" style="background:linear-gradient(90deg,#4F46E5,#818CF8);"></div>
+    <div class="bal-kpi">
+        <div class="bal-kpi__head">
+            <span class="icon-tile icon-tile--brand" aria-hidden="true"><i class="bi bi-megaphone"></i></span>
+            <span class="label-xs">Publicados</span>
+        </div>
+        <div class="bal-kpi__value">{{ total_publicados }}</div>
+        <div class="bal-kpi__note">
+            <i class="bi bi-broadcast" aria-hidden="true"></i>
+            {{ publicados_disponibles }} disponible{{ publicados_disponibles|pluralize:"s" }}
+        </div>
     </div>
-    <div class="metric-card">
-        <div class="metric-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-hourglass-split"></i></div>
-        <div class="metric-value">{{ publicados_en_proceso }}</div>
-        <div class="metric-label">En proceso</div>
-        <div class="metric-bar" style="background:linear-gradient(90deg,#D97706,#FBBF24);"></div>
+    <div class="bal-kpi">
+        <div class="bal-kpi__head">
+            <span class="icon-tile icon-tile--success" aria-hidden="true"><i class="bi bi-check-circle"></i></span>
+            <span class="label-xs">Finalizados</span>
+        </div>
+        <div class="bal-kpi__value">{{ publicados_finalizados }}</div>
+        <div class="bal-kpi__note">
+            <i class="bi bi-cash-coin" aria-hidden="true"></i>
+            {{ total_gastado|cop }} pagados
+        </div>
     </div>
-    <div class="metric-card">
-        <div class="metric-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-check-circle-fill"></i></div>
-        <div class="metric-value">{{ publicados_finalizados }}</div>
-        <div class="metric-label">Finalizados</div>
-        <div class="metric-bar" style="background:linear-gradient(90deg,#059669,#34D399);"></div>
+    <div class="bal-kpi">
+        <div class="bal-kpi__head">
+            <span class="icon-tile icon-tile--warning" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span>
+            <span class="label-xs">En proceso</span>
+        </div>
+        <div class="bal-kpi__value">{{ publicados_en_proceso }}</div>
+        <div class="bal-kpi__note">
+            <i class="bi bi-wallet2" aria-hidden="true"></i>
+            {{ en_proceso_dinero|cop }} comprometidos
+        </div>
     </div>
-    <div class="metric-card">
-        <div class="metric-icon" style="background:var(--icon-purple-bg); color:var(--icon-purple-text);"><i class="bi bi-star-fill"></i></div>
-        <div class="metric-value">{{ user.calificacion_promedio }}</div>
-        <div class="metric-label">Rating</div>
-        <div class="metric-bar" style="background:linear-gradient(90deg,#7C3AED,#A78BFA);"></div>
+    <div class="bal-kpi">
+        <div class="bal-kpi__head">
+            <span class="icon-tile icon-tile--info" aria-hidden="true"><i class="bi bi-people"></i></span>
+            <span class="label-xs">Candidatos</span>
+        </div>
+        <div class="bal-kpi__value">{{ postulaciones_recibidas }}</div>
+        <div class="bal-kpi__note">
+            <i class="bi bi-person-check" aria-hidden="true"></i>
+            {{ candidatos_por_trabajo }} por trabajo publicado
+        </div>
     </div>
     {% endif %}
 </div>
 
-<!-- Activity Chart (last 6 months) -->
-<div class="section-card">
-    <div class="section-header">
-        <div class="sh-icon" style="background:var(--icon-blue-bg); color:var(--badge-blue-text);"><i class="bi bi-bar-chart-fill"></i></div>
-        <h6>Actividad (últimos 6 meses)</h6>
-    </div>
-    <div class="bar-chart">
-        {% for mes in meses %}
-        <div class="bar-col">
-            <div class="bar-value">{{ mes.count }}</div>
-            <div class="bar-fill" style="height: {% widthratio mes.count max_mes 100 %}%;"></div>
-            <div class="bar-label">{{ mes.label }}</div>
-        </div>
-        {% endfor %}
-    </div>
-    <div style="text-align:center; margin-top:8px;">
-        <span style="font-size:0.7rem; color:var(--text-secondary);">
-            {% if user.es_estudiante %}Postulaciones realizadas{% else %}Trabajos publicados{% endif %} por mes
-        </span>
-    </div>
-</div>
+<div class="bal-layout">
+<div class="bal-main">
 
-</div>{# end balance-left #}
-<div class="balance-right">
-<!-- Category Breakdown -->
-{% if categorias_data %}
-<div class="section-card">
-    <div class="section-header">
-        <div class="sh-icon" style="background:var(--icon-purple-bg); color:var(--icon-purple-text);"><i class="bi bi-pie-chart-fill"></i></div>
-        <h6>Por categoría</h6>
-    </div>
-    {% for cat in categorias_data %}
-    <div class="cat-bar-row">
-        <div class="cat-label">{{ cat.nombre }}</div>
-        <div class="cat-bar-track">
-            <div class="cat-bar-fill" style="width: {% widthratio cat.total categorias_data.0.total 100 %}%; background: {{ cat.color }};"></div>
+    <!-- Dinero por mes -->
+    <div class="bal-card">
+        <div class="bal-card__head">
+            <h2 class="bal-card__title">
+                {% if user.es_estudiante %}Ingresos por mes{% else %}Gasto por mes{% endif %}
+            </h2>
+            <span class="bal-card__note">
+                De trabajos finalizados, últimos 12 meses
+            </span>
         </div>
-        <div class="cat-count">{{ cat.total }}</div>
-    </div>
-    {% endfor %}
-</div>
-{% endif %}
-
-<!-- Status Breakdown -->
-{% if user.es_estudiante %}
-<div class="section-card">
-    <div class="section-header">
-        <div class="sh-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-list-ul"></i></div>
-        <h6>Desglose de postulaciones</h6>
-    </div>
-    <div class="status-row">
-        <span class="label"><span class="status-dot" style="background:#F59E0B;"></span> Pendientes</span>
-        <span class="value">{{ postulaciones_pendientes }}</span>
-    </div>
-    <div class="status-row">
-        <span class="label"><span class="status-dot" style="background:#10B981;"></span> Aceptadas</span>
-        <span class="value">{{ postulaciones_aceptadas }}</span>
-    </div>
-    <div class="status-row">
-        <span class="label"><span class="status-dot" style="background:#EF4444;"></span> Rechazadas</span>
-        <span class="value">{{ postulaciones_rechazadas }}</span>
-    </div>
-</div>
-{% else %}
-<div class="section-card">
-    <div class="section-header">
-        <div class="sh-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-list-ul"></i></div>
-        <h6>Estado de trabajos</h6>
-    </div>
-    <div class="status-row">
-        <span class="label"><span class="status-dot" style="background:#3B82F6;"></span> Disponibles</span>
-        <span class="value">{{ publicados_disponibles }}</span>
-    </div>
-    <div class="status-row">
-        <span class="label"><span class="status-dot" style="background:#F59E0B;"></span> En proceso</span>
-        <span class="value">{{ publicados_en_proceso }}</span>
-    </div>
-    <div class="status-row">
-        <span class="label"><span class="status-dot" style="background:#10B981;"></span> Finalizados</span>
-        <span class="value">{{ publicados_finalizados }}</span>
-    </div>
-</div>
-{% endif %}
-
-<!-- Reviews summary -->
-<div class="section-card">
-    <div class="section-header">
-        <div class="sh-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-chat-square-heart-fill"></i></div>
-        <h6>Calificaciones</h6>
-    </div>
-    <div style="display:flex; gap:16px; justify-content:center; text-align:center;">
-        <div>
-            <div style="font-size:1.8rem; font-weight:800; color:var(--text);">{{ reviews_recibidas }}</div>
-            <div style="font-size:0.7rem; color:var(--text-secondary); font-weight:600;">RECIBIDAS</div>
-        </div>
-        <div style="width:1px; background:var(--border);"></div>
-        <div>
-            <div style="font-size:1.8rem; font-weight:800; color:var(--text);">{{ reviews_realizadas }}</div>
-            <div style="font-size:0.7rem; color:var(--text-secondary); font-weight:600;">REALIZADAS</div>
-        </div>
-        <div style="width:1px; background:var(--border);"></div>
-        <div>
-            <div style="font-size:1.8rem; font-weight:800; color:var(--star-active);">
-                <i class="bi bi-star-fill" style="font-size:1rem;"></i> {{ user.calificacion_promedio }}
+        {% if max_dinero_mes %}
+        <div class="bal-chart">
+            {% for mes in dinero_mes %}
+            <div class="bal-chart__col">
+                {% if mes.total %}
+                <span class="bal-chart__value">{{ mes.total|cop_corto }}</span>
+                {% endif %}
+                <div class="bal-chart__bar bal-chart__bar--money"
+                     style="height: {% widthratio mes.total max_dinero_mes 100 %}%;"></div>
+                <span class="bal-chart__label">{{ mes.label }}</span>
             </div>
-            <div style="font-size:0.7rem; color:var(--text-secondary); font-weight:600;">PROMEDIO</div>
+            {% endfor %}
         </div>
+        {% else %}
+        <div class="empty">
+            <span class="empty__icon" aria-hidden="true"><i class="bi bi-graph-up"></i></span>
+            <p class="empty__title">Todavía no hay dinero registrado</p>
+            <p class="empty__text">
+                {% if user.es_estudiante %}
+                    El importe aparece cuando un trabajo llega a estado finalizado.
+                {% else %}
+                    El importe aparece cuando uno de tus trabajos llega a estado finalizado.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
     </div>
+
+    <!-- Actividad por mes -->
+    <div class="bal-card">
+        <div class="bal-card__head">
+            <h2 class="bal-card__title">Actividad por mes</h2>
+            <span class="bal-card__note">
+                {% if user.es_estudiante %}Postulaciones enviadas{% else %}Trabajos publicados{% endif %},
+                últimos 12 meses
+            </span>
+        </div>
+        {% if max_mes %}
+        <div class="bal-chart">
+            {% for mes in meses %}
+            <div class="bal-chart__col">
+                {% if mes.count %}
+                <span class="bal-chart__value">{{ mes.count }}</span>
+                {% endif %}
+                <div class="bal-chart__bar"
+                     style="height: {% widthratio mes.count max_mes 100 %}%;"></div>
+                <span class="bal-chart__label">{{ mes.label }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty">
+            <span class="empty__icon" aria-hidden="true"><i class="bi bi-calendar"></i></span>
+            <p class="empty__title">Sin actividad en los últimos doce meses</p>
+            <p class="empty__text">
+                {% if user.es_estudiante %}
+                    Tus postulaciones nuevas aparecerán aquí mes a mes.
+                {% else %}
+                    Los trabajos que publiques aparecerán aquí mes a mes.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Actividad reciente -->
+    <div class="bal-card">
+        <div class="bal-card__head">
+            <h2 class="bal-card__title">Actividad reciente</h2>
+        </div>
+        {% if actividad_reciente %}
+        <ul class="bal-timeline">
+            {% for item in actividad_reciente %}
+            <li class="bal-timeline__item">
+                <span class="icon-tile icon-tile--neutral" aria-hidden="true">
+                    {% if user.es_estudiante %}
+                        <i class="bi bi-send"></i>
+                    {% else %}
+                        <i class="bi bi-briefcase"></i>
+                    {% endif %}
+                </span>
+                <div class="bal-timeline__body">
+                    {% if user.es_estudiante %}
+                    <a class="bal-timeline__title" href="{% url 'jobs:job_detail' item.trabajo.pk %}">{{ item.trabajo.titulo }}</a>
+                    <div class="bal-timeline__meta">
+                        <span class="chip chip--{% if item.estado == 'aceptada' %}success{% elif item.estado == 'rechazada' %}danger{% else %}warning{% endif %}">
+                            {% if item.estado == 'aceptada' %}Aceptada{% elif item.estado == 'rechazada' %}Rechazada{% else %}Pendiente{% endif %}
+                        </span>
+                        <span>{{ item.trabajo.pago|cop }}</span>
+                        <span>{{ item.created_at|date:"d M Y" }}</span>
+                    </div>
+                    {% else %}
+                    <a class="bal-timeline__title" href="{% url 'jobs:job_detail' item.pk %}">{{ item.titulo }}</a>
+                    <div class="bal-timeline__meta">
+                        <span class="chip chip--{% if item.estado == 'disponible' %}success{% elif item.estado == 'en_proceso' %}warning{% elif item.estado == 'finalizado' %}brand{% else %}neutral{% endif %}">
+                            {{ item.get_estado_display }}
+                        </span>
+                        <span>{{ item.pago|cop }}</span>
+                        <span>{{ item.created_at|date:"d M Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <div class="empty">
+            <span class="empty__icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
+            <p class="empty__title">Nada registrado todavía</p>
+            <p class="empty__text">
+                {% if user.es_estudiante %}
+                    Cuando postules a un trabajo, verás aquí el seguimiento.
+                {% else %}
+                    Cuando publiques un trabajo, verás aquí el seguimiento.
+                {% endif %}
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
 </div>
 
-<!-- Quick Actions -->
-<div class="d-grid gap-2 mb-3">
-    <a href="{% url 'jobs:my_jobs' %}" class="btn btn-lg py-3" style="background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; font-weight:700; border:none; border-radius:14px;">
-        <i class="bi bi-briefcase-fill"></i> Ir a mis trabajos
-    </a>
-    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary btn-lg py-3" style="border-radius:14px;">
-        <i class="bi bi-person"></i> Volver al perfil
-    </a>
+<aside class="bal-side">
+
+    <!-- Estado -->
+    <div class="bal-card">
+        <div class="bal-card__head">
+            <h2 class="bal-card__title">
+                {% if user.es_estudiante %}Postulaciones{% else %}Estado de tus trabajos{% endif %}
+            </h2>
+        </div>
+        {% if user.es_estudiante %}
+        <div class="bal-stack">
+            <span class="bal-stack__seg" style="width: {% widthratio postulaciones_pendientes total_postulaciones 100 %}%; background: var(--state-warning);"></span>
+            <span class="bal-stack__seg" style="width: {% widthratio postulaciones_aceptadas total_postulaciones 100 %}%; background: var(--state-success);"></span>
+            <span class="bal-stack__seg" style="width: {% widthratio postulaciones_rechazadas total_postulaciones 100 %}%; background: var(--state-danger);"></span>
+        </div>
+        <div class="bal-legend">
+            <div class="bal-legend__row">
+                <span class="bal-legend__swatch" style="background:var(--state-warning);"></span>
+                <span class="bal-legend__name">Pendientes</span>
+                <span class="bal-legend__value">{{ postulaciones_pendientes }}</span>
+            </div>
+            <div class="bal-legend__row">
+                <span class="bal-legend__swatch" style="background:var(--state-success);"></span>
+                <span class="bal-legend__name">Aceptadas</span>
+                <span class="bal-legend__value">{{ postulaciones_aceptadas }}</span>
+            </div>
+            <div class="bal-legend__row">
+                <span class="bal-legend__swatch" style="background:var(--state-danger);"></span>
+                <span class="bal-legend__name">Rechazadas</span>
+                <span class="bal-legend__value">{{ postulaciones_rechazadas }}</span>
+            </div>
+        </div>
+        {% else %}
+        <div class="bal-stack">
+            <span class="bal-stack__seg" style="width: {% widthratio publicados_disponibles total_publicados 100 %}%; background: var(--state-info);"></span>
+            <span class="bal-stack__seg" style="width: {% widthratio publicados_en_proceso total_publicados 100 %}%; background: var(--state-warning);"></span>
+            <span class="bal-stack__seg" style="width: {% widthratio publicados_finalizados total_publicados 100 %}%; background: var(--state-success);"></span>
+        </div>
+        <div class="bal-legend">
+            <div class="bal-legend__row">
+                <span class="bal-legend__swatch" style="background:var(--state-info);"></span>
+                <span class="bal-legend__name">Disponibles</span>
+                <span class="bal-legend__value">{{ publicados_disponibles }}</span>
+            </div>
+            <div class="bal-legend__row">
+                <span class="bal-legend__swatch" style="background:var(--state-warning);"></span>
+                <span class="bal-legend__name">En proceso</span>
+                <span class="bal-legend__value">{{ publicados_en_proceso }}</span>
+            </div>
+            <div class="bal-legend__row">
+                <span class="bal-legend__swatch" style="background:var(--state-success);"></span>
+                <span class="bal-legend__name">Finalizados</span>
+                <span class="bal-legend__value">{{ publicados_finalizados }}</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Calificaciones -->
+    <div class="bal-card">
+        <div class="bal-card__head">
+            <h2 class="bal-card__title">Calificaciones recibidas</h2>
+            {% if reviews_recibidas %}
+            <span class="bal-card__note">{{ user.calificacion_promedio|nota }} de 5</span>
+            {% endif %}
+        </div>
+        {% if reviews_recibidas %}
+        <div class="bal-stars">
+            {% for fila in distribucion_calificaciones %}
+            <div class="bal-stars__row">
+                <span class="bal-stars__label">
+                    {{ fila.puntos }} <i class="bi bi-star-fill" aria-hidden="true"></i>
+                </span>
+                <span class="bal-stars__count">{{ fila.total }}</span>
+                <div>
+                    {% if fila.total %}
+                    <div class="bal-stars__bar" style="width: {% widthratio fila.total max_calificacion 100 %}%;"></div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if ultimas_calificaciones %}
+        <div style="margin-top:var(--space-5);">
+            {% for reseña in ultimas_calificaciones %}
+            <div class="bal-review">
+                <div class="bal-review__head">
+                    <span class="bal-review__stars">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= reseña.puntuacion %}
+                                <i class="bi bi-star-fill" aria-hidden="true"></i>
+                            {% else %}
+                                <i class="bi bi-star" aria-hidden="true"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                    <span class="bal-review__author">{{ reseña.autor.first_name|default:reseña.autor.username }}</span>
+                    <span class="bal-review__date">{{ reseña.created_at|date:"d M Y" }}</span>
+                </div>
+                {% if reseña.comentario %}
+                <p class="bal-review__text">{{ reseña.comentario }}</p>
+                {% endif %}
+                <div class="bal-review__job">
+                    <i class="bi bi-briefcase" aria-hidden="true"></i> {{ reseña.trabajo.titulo }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% else %}
+        <div class="empty" style="padding:var(--space-6) 0;">
+            <span class="empty__icon" aria-hidden="true"><i class="bi bi-star"></i></span>
+            <p class="empty__title">Sin calificaciones todavía</p>
+            <p class="empty__text">
+                Las reseñas aparecen cuando alguien califica un trabajo en el que
+                participaste.
+            </p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Por categoría -->
+    {% if categorias_data %}
+    <div class="bal-card">
+        <div class="bal-card__head">
+            <h2 class="bal-card__title">Por categoría</h2>
+        </div>
+        <div class="bal-split">
+            {% for cat in categorias_data %}
+            <div class="bal-split__row">
+                <span class="bal-split__name">{{ cat.nombre }}</span>
+                <div>
+                    <div class="bal-split__bar" style="width: {% widthratio cat.total categorias_data.0.total 100 %}%;"></div>
+                </div>
+                <span class="bal-split__count">{{ cat.total }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Por modalidad -->
+    {% if modalidades_data %}
+    <div class="bal-card">
+        <div class="bal-card__head">
+            <h2 class="bal-card__title">Por modalidad</h2>
+        </div>
+        <div class="bal-split">
+            {% for mod in modalidades_data %}
+            <div class="bal-split__row">
+                <span class="bal-split__name">{{ mod.nombre }}</span>
+                <div>
+                    <div class="bal-split__bar" style="width: {% widthratio mod.total modalidades_data.0.total 100 %}%;"></div>
+                </div>
+                <span class="bal-split__count">{{ mod.total }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Trabajo de mayor valor -->
+    {% if mejor_trabajo %}
+    <div class="bal-card">
+        <div class="bal-card__head">
+            <h2 class="bal-card__title">Trabajo de mayor valor</h2>
+        </div>
+        <a href="{% url 'jobs:job_detail' mejor_trabajo.pk %}"
+           style="display:flex; align-items:center; gap:var(--space-3); text-decoration:none; color:var(--text);">
+            <span class="icon-tile icon-tile--brand" aria-hidden="true"><i class="bi bi-trophy"></i></span>
+            <span style="min-width:0;">
+                <span style="display:block; font-size:var(--fs-sm); font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ mejor_trabajo.titulo }}</span>
+                <span style="display:block; font-size:var(--fs-xs); color:var(--text-secondary); margin-top:2px;">
+                    {{ mejor_trabajo.pago|cop }} · {{ mejor_trabajo.get_estado_display }}
+                </span>
+            </span>
+        </a>
+    </div>
+    {% endif %}
+
+    <!-- Acciones -->
+    <div class="bal-actions">
+        <a href="{% url 'jobs:my_jobs' %}" class="btn btn-accent w-100" style="padding:12px;">
+            <i class="bi bi-briefcase"></i>
+            {% if user.es_estudiante %}Ver mis postulaciones{% else %}Ver mis publicaciones{% endif %}
+        </a>
+        <a href="{% url 'accounts:profile' %}" class="btn btn-quiet w-100" style="padding:12px;">
+            <i class="bi bi-person"></i> Volver al perfil
+        </a>
+    </div>
+
+</aside>
 </div>
-</div>{# end balance-right #}
-</div>{# end balance-layout #}
 {% endblock %}

@@ -123,15 +123,22 @@ Lista explícita declarada por el tutor:
        gitleaks para secretos
 [X]  Headers de seguridad
        X-Content-Type-Options, X-Frame-Options DENY, Referrer-Policy,
-       CSP, HSTS (solo en producción)
+       CSP con nonce (uwork/middleware.py), HSTS (solo en producción)
+[X]  HTTPS detrás del proxy de Vercel
+       SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https').
+       Sin esto, SECURE_SSL_REDIRECT respondía 301 para siempre y la
+       aplicación no cargaba en producción.
 [X]  Rate-limiting en endpoints sensibles
        Login, registro, publicación, detalle de trabajo, reenvío de
        verificación y soporte. Límite por IP con respuesta 429.
 
 DEUDA TÉCNICA CONOCIDA:
-  - La CSP usa 'unsafe-inline' en style-src porque las plantillas tienen
-    CSS en bloques <style> y atributos style=. Cerrarlo exige mover ese
-    CSS a archivos estáticos. En script-src NO se permite inline.
+  - La CSP ya se emite: uwork/middleware.py genera un nonce por request y
+    lo inyecta en script-src y style-src. Los 26 manejadores inline
+    (onclick/onsubmit/onchange) se migraron a addEventListener y los
+    <script> de las plantillas llevan nonce. Sigue pendiente cerrar
+    'unsafe-inline' en style-src, que requiere mover el CSS de las
+    plantillas a archivos estáticos.
   - El rate-limiting usa la caché local: en varias instancias de Vercel
     el contador no se comparte. Para producción con tráfico alto
     conviene un backend compartido (Redis).
@@ -162,11 +169,15 @@ Modalidad declarada: moderación manual desde panel de administración
 (los autores del proyecto como administradores iniciales)
 
 IMPLEMENTADO:
-[X]  Flujo de moderación básico:
-       1. Usuario publica trabajo o comentario
-       2. Contenido queda en estado "pendiente de revisión"
-       3. NO se hace público hasta aprobación del moderador
-       4. Moderador aprueba, rechaza con justificación, o escala
+[X]  Moderación previa a publicar (Términos §6) — estaba declarada pero NO
+       implementada: el código publicaba de inmediato. Ahora:
+       1. El trabajo se crea en estado "pendiente de revisión"
+          (Job.Estado.PENDIENTE_REVISION)
+       2. NO aparece en el listado público ni admite postulaciones
+       3. Un moderador lo aprueba (Job.Estado.DISPONIBLE) o lo rechaza
+          con justificación (Job.Estado.RECHAZADO + Job.motivo_rechazo)
+       4. Editar una publicación aprobada la devuelve a revisión
+       Panel: /moderacion/panel/publicaciones/
 
 [X]  Categorías de contenido prohibido (declaradas en el documento):
        - Ofertas de trabajo ilegales (armas, sustancias, contenido sexual)
@@ -196,19 +207,36 @@ PENDIENTES:
        y cuándo se levantó. El admin no permite editar ni borrar filas:
        levantar un baneo genera un nuevo registro, no borra el original.
 [X]  Canal de apelación para usuarios sancionados
-       Modelo Apelacion: el sancionado solicita revisión y el staff
-       responde. Aceptar la apelación levanta el baneo automáticamente.
+       Ahora con canal real de usuario, no solo el modelo:
+         /moderacion/apelacion/        el sancionado presenta la apelación
+         /moderacion/apelaciones/mias/ historial de apelaciones del usuario
+       accounts/middleware.py: el middleware de baneo tiene una lista de
+       excepciones (BannedUserMiddleware.RUTAS_PERMITIDAS) para que el
+       sancionado alcance el canal; en el resto de la plataforma sigue
+       sin acceso. Aceptar la apelación levanta el baneo automáticamente y
+       notifica por app y por correo.
 
 RUTAS DE LA MODERACIÓN (solo para staff):
-  /moderacion/panel/      cola de reportes, vencidos primero
-  /moderacion/bitacora/   bitácora de sanciones
-  /moderacion/apelaciones/ apelaciones
+  /moderacion/panel/               cola de reportes, vencidos primero
+  /moderacion/panel/publicaciones/ cola de revisión previa a publicar
+  /moderacion/bitacora/            bitácora de sanciones
+  /moderacion/apelaciones/         apelaciones
+
+CANAL DEL USUARIO:
+  /moderacion/apelacion/           presentar una apelación
+  /moderacion/apelaciones/mias/    ver el estado de sus apelaciones
+
+PANEL DE SOPORTE (solo para staff):
+  /soporte/panel/                  cola de tickets
 
 PRÓXIMOS PASOS SUGERIDOS:
   - Moderar desde la interfaz sigue siendo manual: no hay notificación
-    push al staff cuando entra un reporte vencido.
+    push al staff cuando entra un reporte vencido. Sí hay notificación en
+    la app y en el correo, pero no de SLA vencido.
   - No hay categorización de la gravedad de la infracción más allá de
     temporal/permanente.
+  - La cola de moderación y la de soporte cargan la lista completa en
+    memoria: falta paginación (pendiente del Lote 3).
 
 
 ================================================================================

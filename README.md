@@ -9,6 +9,11 @@ Plataforma de microtrabajos universitarios construida con Django. Conecta estudi
 
 - **Registro por roles** — Flujo separado para estudiantes y empleadores con campos específicos por rol
 - **Gestión de trabajos** — Publicar, buscar, filtrar y postularse a trabajos con categorías, modalidad y urgencia
+- **Moderación previa a publicar** — Toda publicación pasa por revisión del personal antes de hacerse visible (Términos §6)
+- **Canal de apelación** — El usuario sancionado puede pedir la revisión de su sanción y recibe respuesta
+- **Bitácora de sanciones** — Registro de auditoría inmutable: quién sancionó, a quién, cuándo y por qué
+- **Panel de soporte** — Cola de tickets que el personal responde y cierra, con aviso al usuario
+- **Notificaciones** — Avisos en la app de postulaciones, aceptación, reseñas, sanciones, apelaciones y tickets
 - **Ciclo de trabajo completo** — Publicación → Postulación → Asignación → Finalización → Reseña
 - **Sistema de reseñas** — Calificación de 1-5 estrellas con comentarios, promedio calculado por usuario
 - **Dashboard analítico** — Ingresos/gastos, desglose por categoría, tendencias de 6 meses, contadores de estado
@@ -62,17 +67,46 @@ U-Work/
 │   └── admin.py
 ├── reviews/                  # Reseñas y calificaciones
 │   ├── models.py             # Modelo Review (1-5 estrellas)
+│   ├── signals.py            # Recalcula calificacion_promedio al crear/borrar
 │   ├── views.py
 │   ├── forms.py
 │   ├── urls.py
 │   └── admin.py
+├── notifications/            # Avisos dentro de la app
+│   ├── models.py             # Modelo Notification
+│   ├── views.py              # Listado y contador de no leídas
+│   ├── context_processors.py # Badge de la barra superior
+│   └── urls.py
+├── support/                  # Módulo de soporte
+│   ├── models.py             # Modelo SupportTicket
+│   ├── views.py              # Crear ticket, mis tickets, panel de staff
+│   ├── forms.py
+│   └── urls.py
+├── legal/                    # Términos y Política de Privacidad (R14, R15)
+│   ├── views.py
+│   └── urls.py
+├── moderation/               # Reportes, sanciones y apelaciones (§6.5.4)
+│   ├── models.py             # Reporte, Sancion, Apelacion
+│   ├── views.py              # Paneles de staff y canal de apelación
+│   ├── forms.py
+│   └── urls.py
 ├── templates/
 │   ├── base.html             # Layout principal + sistema de temas
-│   ├── accounts/             # 7 plantillas de cuentas
-│   ├── jobs/                 # 6 plantillas de trabajos
-│   └── reviews/              # 1 plantilla de reseñas
+│   ├── accounts/             # Plantillas de cuentas
+│   ├── jobs/                 # Plantillas de trabajos
+│   ├── reviews/              # Plantillas de reseñas
+│   ├── notifications/        # Listado de notificaciones
+│   ├── support/              # Tickets de soporte y panel de staff
+│   ├── moderation/           # Paneles de moderación y canal de apelación
+│   └── legal/                # Documentos legales públicos
 ├── static/css/               # Estilos adicionales
-└── media/                    # Uploads (perfiles, carnets, trabajos)
+├── media/                    # Uploads (perfiles, carnets, trabajos)
+├── .env.example              # Plantilla de variables de entorno
+├── api/index.py              # Entrypoint WSGI para Vercel (no es una API)
+└── uwork/
+    ├── settings.py
+    ├── middleware.py         # CSP con nonce por request
+    └── context_processors.py # nonce de la CSP en las plantillas
 ```
 
 ---
@@ -177,6 +211,44 @@ Restricción: una reseña por combinación autor-receptor-trabajo.
 |---|---|---|
 | `/reviews/job/<id>/review/` | `create_review` | Escribir reseña |
 
+### Notificaciones
+
+| Ruta | Vista | Descripción |
+|---|---|---|
+| `/notificaciones/` | `notification_list` | Bandeja de avisos |
+| `/notificaciones/<id>/leer/` | `mark_read` | Marcar como leído |
+| `/notificaciones/api/no-leidas/` | `unread_count` | Contador (JSON) |
+
+### Soporte
+
+| Ruta | Vista | Descripción |
+|---|---|---|
+| `/soporte/` | `ticket_create` | Abrir un reporte |
+| `/soporte/mis-reportes/` | `my_tickets` | Historial de tickets |
+| `/soporte/panel/` | `panel_tickets` | Cola de tickets (staff) |
+| `/soporte/panel/<id>/resolver/` | `resolver_ticket` | Responder y cerrar (staff) |
+
+### Legal
+
+| Ruta | Vista | Descripción |
+|---|---|---|
+| `/terminos-y-condiciones/` | `terminos` | Términos y Condiciones (R14) |
+| `/politica-de-privacidad/` | `privacidad` | Política de Privacidad (R15) |
+
+### Moderación
+
+| Ruta | Vista | Descripción |
+|---|---|---|
+| `/moderacion/panel/` | `panel_reportes` | Cola de reportes (staff) |
+| `/moderacion/panel/publicaciones/` | `panel_publicaciones` | Revisión previa a publicar (staff) |
+| `/moderacion/panel/reporte/<id>/resolver/` | `resolver_reporte` | Resolver reporte (staff) |
+| `/moderacion/panel/publicacion/<id>/revisar/` | `revisar_trabajo` | Aprobar o rechazar (staff) |
+| `/moderacion/bitacora/` | `bitacora_sanciones` | Bitácora de sanciones (staff) |
+| `/moderacion/apelaciones/` | `panel_apelaciones` | Apelaciones (staff) |
+| `/moderacion/apelacion/` | `apelacion_crear` | Presentar una apelación |
+| `/moderacion/apelaciones/mias/` | `mis_apelaciones` | Mis apelaciones |
+| `/moderacion/reportar/<id>/` | `reportar_trabajo` | Reportar una publicación |
+
 ---
 
 ## Instalación
@@ -225,16 +297,31 @@ La aplicación estará disponible en `http://127.0.0.1:8000/`.
 
 ### Variables de entorno
 
-Crea un archivo `.env` en la raíz del proyecto:
+Crea un archivo `.env` en la raíz del proyecto a partir de la plantilla:
+
+```bash
+cp .env.example .env
+```
+
+Las variables que importan:
 
 ```env
 DATABASE_URL=postgresql://user:password@host/dbname?sslmode=require
 SECRET_KEY=tu-secret-key-aqui
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
+CSRF_TRUSTED_ORIGINS=https://tu-dominio.vercel.app
+SITE_URL=https://tu-dominio.vercel.app
+RESEND_API_KEY=re_...
 ```
 
-Si no se define `DATABASE_URL`, la app usa SQLite automáticamente (útil para desarrollo local).
+- `CSRF_TRUSTED_ORIGINS` y `SITE_URL` son obligatorias en producción: la
+  primera para que el token CSRF sea válido detrás del proxy de Vercel y la
+  segunda para que los enlaces de verificación, sanción y apelación apunten
+  al dominio real.
+- Si no se define `DATABASE_URL`, la app usa SQLite automáticamente (útil
+  para desarrollo local).
+- Si no se define `RESEND_API_KEY`, los correos se imprimen en la consola.
 
 ---
 
@@ -246,7 +333,21 @@ Si no se define `DATABASE_URL`, la app usa SQLite automáticamente (útil para d
    - `SECRET_KEY` → clave secreta de Django
    - `DEBUG` → `False`
    - `ALLOWED_HOSTS` → tu dominio de Vercel
+   - `CSRF_TRUSTED_ORIGINS` → `https://tu-dominio.vercel.app`
+   - `SITE_URL` → `https://tu-dominio.vercel.app`
+   - `RESEND_API_KEY` → clave de Resend (para los correos reales)
 3. Vercel ejecutará `build_files.sh` automáticamente para colectar estáticos y migrar
+
+Notas de despliegue:
+
+- `SECURE_PROXY_SSL_HEADER` está configurado para que HTTPS funcione detrás
+  del proxy de Vercel. Sin él, `SECURE_SSL_REDIRECT` responde 301 en bucle.
+- `api/index.py` es el entrypoint WSGI de Vercel. **No es una API**: no hay
+  DRF ni endpoints JSON más allá del contador de notificaciones.
+- **El almacenamiento de archivos sigue pendiente de contrato.** En Vercel el
+  disco local no persiste, así que las fotos de perfil y las imágenes de los
+  trabajos se pierden. Hay que definir `STORAGE_BACKEND` con django-storages
+  y contratar un proveedor (Vercel Blob, S3 o Cloudinary).
 
 ---
 
@@ -277,3 +378,52 @@ El tema se persiste en `localStorage` y se puede cambiar desde:
 ## Panel de administración
 
 Accesible en `/admin/` con un superusuario. Registra los modelos User, Job, Application y Review con filtros y fieldsets personalizados.
+
+---
+
+## Sistema de diseño
+
+La app usa un sistema de tokens propio, en `static/css/style.css`, cargado por
+todas las plantillas (las que heredan `base.html` y las independientes).
+
+| Capa | Dónde |
+|---|---|
+| Tokens (color, radio, sombra, espaciado, tipografía) | `static/css/style.css` |
+| Primitivas (superficie, chip, botón, encabezado de página, vacío) | `static/css/style.css` |
+| Maquetado del shell (barra, sidebar, bottom-nav) | `templates/base.html` |
+| Filosofía visual | `design/FILOSOFIA.md` |
+| Hoja visual del sistema | `design/sistema-visual.png` |
+
+Reglas que gobiernan el sistema:
+
+1. **Un solo acento** (índigo). `--primary` es el acento como texto y
+   `--primary-solid` como relleno: en tema oscuro el texto necesita ser claro
+   y el relleno saturado.
+2. **Una escala de radios** (6/8/12/16/20), **una de elevación** (xs/sm/md/lg),
+   **una tipográfica** (32/22/18/16/14/13/12/11).
+3. **Sombras neutras** teñidas al fondo. Nunca halos de color.
+4. **El color codifica estado**, nunca decora. Verde es correcto, ámbar es
+   atención, rojo es peligro, azul es información.
+5. **El acento se reserva para actuar**: botones, enlaces activos y foco.
+
+Añadir un color, un radio o una sombra fuera de estas escalas rompe el
+sistema: se nota en la primera pantalla.
+
+---
+
+## Seguridad
+
+| Control | Dónde |
+|---|---|
+| Content-Security-Policy con nonce por request | `uwork/middleware.py` |
+| HTTPS detrás del proxy de Vercel | `SECURE_PROXY_SSL_HEADER` |
+| Cierre de sesión de usuarios sancionados | `accounts/middleware.py` |
+| Rate-limiting por IP en endpoints sensibles | `accounts/middleware.py` |
+| Validación MIME y de tamaño real de uploads | `accounts/upload_validators.py` |
+| Canal de apelación para el sancionado | `accounts/middleware.py` |
+
+La CSP se emite de verdad: `uwork/middleware.py` genera un nonce por request
+y lo inyecta en `script-src` y `style-src`. Los manejadores inline
+(`onclick`, `onsubmit`, `onchange`) están prohibidos por esa política, así
+que todas las plantillas los registran con `addEventListener` y las
+etiquetas `<script>` llevan `nonce="{{ csp_nonce }}"`.

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
-{% load form_tags %}
-{% block title %}Registro Estudiante — U-Work{% endblock %}
+{% load form_tags static %}
+{% block title %}Registro Estudiante · U-Work{% endblock %}
 {% block extra_css %}
 <style>
     body { background: var(--bg) !important; padding-bottom: 0 !important; }
@@ -8,330 +8,395 @@
     .bottom-nav { display: none !important; }
     .desktop-sidebar { display: none !important; }
     .app-layout { margin-left: 0 !important; }
-    .content-wrapper { max-width: 600px !important; padding: 0 16px 40px !important; }
+    .content-wrapper { max-width: 720px !important; padding: var(--space-6) var(--space-4) var(--space-10) !important; }
 
-    /* Background */
-    .reg-bg {
-        position: fixed; inset: 0; z-index: 0;
-        background: var(--bg);
-    }
-
-    /* Header */
-    .reg-hero {
-        text-align: center; padding: 40px 0 28px; color: var(--text);
-        position: relative; z-index: 1;
-        animation: heroFadeIn 0.6s ease-out;
-    }
-    @keyframes heroFadeIn { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
-    .reg-hero .icon-wrap {
-        width: 80px; height: 80px; border-radius: 24px;
-        background: linear-gradient(135deg, #1D4ED8, #2563EB);
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 2.2rem; color: #fff; margin-bottom: 16px;
-        box-shadow: 0 8px 28px rgba(29,78,216,0.22);
-    }
-    .reg-hero h2 { font-weight: 900; font-size: 1.7rem; margin: 0; letter-spacing: -0.5px; color: var(--text); }
-    .reg-hero p { color: var(--text-secondary); font-size: 0.9rem; margin-top: 6px; }
-
-    /* Back button */
-    .back-link {
+    .reg-back {
         display: inline-flex; align-items: center; gap: 6px;
         color: var(--text-secondary); text-decoration: none;
-        font-weight: 600; font-size: 0.85rem; padding: 10px 0;
-        transition: color 0.2s; position: relative; z-index: 1;
+        font-weight: 600; font-size: var(--fs-sm);
+        padding: var(--space-2) 0;
+        margin-bottom: var(--space-5);
+        transition: color .16s ease;
     }
-    .back-link:hover { color: var(--text); }
-
-    /* Progress steps */
-    .progress-steps {
-        display: flex; justify-content: center; gap: 8px;
-        margin-bottom: 24px; position: relative; z-index: 1;
+    .reg-back:hover { color: var(--text); }
+    .reg-head { margin-bottom: var(--space-6); }
+    .reg-head h1 {
+        font-size: var(--fs-2xl);
+        font-weight: 800;
+        letter-spacing: -.025em;
+        color: var(--text);
+        margin: 0 0 var(--space-2);
     }
-    .progress-step {
-        width: 40px; height: 5px; border-radius: 3px;
-        background: var(--border);
-        transition: all 0.4s ease;
+    .reg-head p {
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        margin: 0;
+        max-width: 58ch;
+        line-height: 1.55;
     }
-    .progress-step.active { background: #2563EB; width: 56px; }
-    .progress-step.done { background: rgba(37,99,235,0.35); }
-    [data-theme="dark"] .progress-step.active { background: #38BDF8; }
-    [data-theme="dark"] .progress-step.done { background: rgba(56,189,248,0.35); }
-
-    /* Form sections */
-    .form-section {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 18px; padding: 24px 20px;
-        margin-bottom: 16px; position: relative; z-index: 1;
-        animation: sectionSlideUp 0.5s ease-out both;
+    .reg-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: var(--space-5);
     }
-    .form-section:nth-child(2) { animation-delay: 0.1s; }
-    .form-section:nth-child(3) { animation-delay: 0.2s; }
-    .form-section:nth-child(4) { animation-delay: 0.3s; }
-    .form-section:nth-child(5) { animation-delay: 0.4s; }
-    .form-section:nth-child(6) { animation-delay: 0.5s; }
-    @keyframes sectionSlideUp {
-        from { opacity: 0; transform: translateY(24px); }
-        to { opacity: 1; transform: translateY(0); }
+    .reg-foot {
+        text-align: center;
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        margin: var(--space-5) 0 0;
     }
-    .form-section-title {
-        font-weight: 700; font-size: 0.78rem; text-transform: uppercase;
-        letter-spacing: 1.2px; color: #2563EB; margin-bottom: 16px;
-        display: flex; align-items: center; gap: 8px;
+    .reg-foot a { color: var(--brand-ink); font-weight: 600; text-decoration: none; }
+    .reg-foot a:hover { text-decoration: underline; }
+    .reg-legal {
+        display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2) var(--space-4);
+        margin-top: var(--space-4);
+        font-size: var(--fs-xs);
     }
-    [data-theme="dark"] .form-section-title { color: #38BDF8; }
-    .form-section-title i { font-size: 1rem; }
-    .form-section-title .step-num {
-        width: 24px; height: 24px; border-radius: 50%;
-        background: linear-gradient(135deg, #1D4ED8, #2563EB);
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 0.7rem; color: #fff; font-weight: 800;
-    }
-
-    /* Inputs */
-    .form-label { color: var(--text-secondary); font-weight: 600; font-size: 0.8rem; }
-    .form-control, .form-select {
-        background: var(--input-bg) !important;
-        border: 2px solid var(--input-border) !important;
-        color: var(--text) !important; border-radius: 14px !important;
-        padding: 14px 16px !important; font-size: 0.95rem !important;
-        transition: all 0.25s !important;
-    }
-    .form-control::placeholder { color: var(--input-placeholder) !important; }
-    .form-control:focus, .form-select:focus {
-        border-color: #2563EB !important;
-        background: rgba(37,99,235,0.04) !important;
-        box-shadow: 0 0 0 3px rgba(37,99,235,0.08) !important;
-    }
-    [data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus {
-        border-color: #38BDF8 !important;
-        background: rgba(56,189,248,0.06) !important;
-        box-shadow: 0 0 0 3px rgba(56,189,248,0.12) !important;
-    }
-    .form-select option { background: var(--select-option-bg); color: var(--text); }
-
-    /* Upload area */
-    .upload-area {
-        border: 2px dashed var(--border); border-radius: 18px;
-        padding: 24px; text-align: center; cursor: pointer;
-        transition: all 0.25s; background: var(--surface-alt);
-    }
-    .upload-area:hover { border-color: #2563EB; background: rgba(37,99,235,0.04); }
-    [data-theme="dark"] .upload-area:hover { border-color: #38BDF8; background: rgba(56,189,248,0.04); }
-    .upload-area i { font-size: 2.2rem; color: var(--text-secondary); }
-    .upload-area p { font-size: 0.8rem; color: var(--text-secondary); margin: 10px 0 0; }
-    .upload-area .upload-hint { font-size: 0.7rem; color: var(--input-placeholder); margin-top: 4px; }
-
-    /* Submit button */
-    .btn-register {
-        background: linear-gradient(135deg, #1D4ED8, #10B981);
-        border: none; border-radius: 16px; padding: 18px;
-        font-size: 1.1rem; font-weight: 800; color: #fff;
-        width: 100%; cursor: pointer;
-        transition: all 0.25s; z-index: 1; position: relative;
-        box-shadow: 0 6px 20px rgba(29,78,216,0.2);
-    }
-    .btn-register:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(29,78,216,0.3); }
-
-    .text-danger { color: #EF4444 !important; }
-    [data-theme="dark"] .text-danger { color: #FCA5A5 !important; }
-    .text-muted { color: var(--text-secondary) !important; }
-    a.fw-bold { color: #2563EB !important; }
-    [data-theme="dark"] a.fw-bold { color: #38BDF8 !important; }
-
-    @media (min-width: 992px) {
-        .content-wrapper { max-width: 640px !important; padding-top: 20px !important; }
+    .reg-legal a { color: var(--text-muted); text-decoration: none; }
+    .reg-legal a:hover { color: var(--brand-ink); text-decoration: underline; }
+    @media (min-width: 768px) {
+        .reg-panel { padding: var(--space-6); }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="reg-bg"></div>
+{% include 'partials/theme_toggle.html' %}
+<a href="{% url 'accounts:role_select' %}" class="reg-back"><i class="bi bi-arrow-left" aria-hidden="true"></i> Volver</a>
 
-<a href="{% url 'accounts:role_select' %}" class="back-link"><i class="bi bi-arrow-left"></i> Volver</a>
-
-<div class="reg-hero">
-    <div class="icon-wrap"><i class="bi bi-mortarboard-fill"></i></div>
-    <h2>Registro Estudiante</h2>
-    <p>Completa tu perfil para empezar a trabajar</p>
+<div class="reg-head">
+    <h1>Crea tu cuenta de estudiante</h1>
+    <p>
+        Son cinco pasos cortos. Puedes volver atrás en cualquiera de ellos: los
+        datos se conservan mientras avanzas.
+    </p>
 </div>
 
-<div class="progress-steps">
-    <div class="progress-step active"></div>
-    <div class="progress-step"></div>
-    <div class="progress-step"></div>
-    <div class="progress-step"></div>
-    <div class="progress-step"></div>
-</div>
-
-<form method="post" enctype="multipart/form-data" id="regForm">
-    {% csrf_token %}
-
-    {% comment %}
-    Resumen de errores: WCAG 3.3.1. role=alert + tabindex=-1 permiten que
-    el lector de pantalla lo anuncie y que el foco program's lands en él.
-    Los errores en línea de cada campo se conservan.
-    {% endcomment %}
-    {% if form.errors %}
-    <div class="alert alert-danger" role="alert" tabindex="-1" id="error-summary"
-         style="border-radius:12px; font-size:0.82rem;">
-        <strong><i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
-        Revisa estos {{ form.errors|length }} campo(s):</strong>
-        <ul style="margin:8px 0 0; padding-left:20px;">
+{% comment %}
+Resumen de errores: WCAG 3.3.1. role=alert + tabindex=-1 permiten que el
+lector de pantalla lo anuncie y que el foco programado caiga en él.
+Cada enlace lleva al campo: el asistente abre el paso que lo contiene.
+{% endcomment %}
+{% if form.errors %}
+<div class="auth-alert" role="alert" tabindex="-1" id="error-summary" style="margin-bottom:var(--space-5);">
+    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+    <div>
+        <strong>Revisa {{ form.errors|length }} campo(s).</strong>
+        <ul style="margin:8px 0 0; padding-left:18px;">
             {% for field in form %}
                 {% if field.errors %}
-                <li><a href="#{{ field.id_for_label }}" style="color:inherit;">{{ field.label }}: {{ field.errors.0 }}</a></li>
+                <li><a href="#{{ field.id_for_label }}" data-error-link style="color:inherit;">{{ field.label }}: {{ field.errors.0 }}</a></li>
                 {% endif %}
             {% endfor %}
         </ul>
     </div>
-    {% endif %}
+</div>
+{% endif %}
 
-    <!-- 1. Datos personales -->
-    <div class="form-section">
-        <div class="form-section-title"><span class="step-num">1</span> Datos personales</div>
-        <div class="row g-2">
-            <div class="col-6">
-                <label class="form-label">Nombre</label>
-                {{ form.first_name|add_class:"form-control" }}
+<form method="post" enctype="multipart/form-data" id="regForm" data-wizard novalidate>
+    {% csrf_token %}
+
+    <ol class="stepper" style="--pasos: 5;">
+        <li class="stepper__item is-current">
+            <button type="button" class="stepper__btn" data-step-target="1">
+                <span class="stepper__dot" aria-hidden="true">1</span>
+                <span class="stepper__label">Datos personales</span>
+            </button>
+        </li>
+        <li class="stepper__item">
+            <button type="button" class="stepper__btn" data-step-target="2">
+                <span class="stepper__dot" aria-hidden="true">2</span>
+                <span class="stepper__label">Foto</span>
+            </button>
+        </li>
+        <li class="stepper__item">
+            <button type="button" class="stepper__btn" data-step-target="3">
+                <span class="stepper__dot" aria-hidden="true">3</span>
+                <span class="stepper__label">Universidad</span>
+            </button>
+        </li>
+        <li class="stepper__item">
+            <button type="button" class="stepper__btn" data-step-target="4">
+                <span class="stepper__dot" aria-hidden="true">4</span>
+                <span class="stepper__label">Habilidades</span>
+            </button>
+        </li>
+        <li class="stepper__item">
+            <button type="button" class="stepper__btn" data-step-target="5">
+                <span class="stepper__dot" aria-hidden="true">5</span>
+                <span class="stepper__label">Seguridad</span>
+            </button>
+        </li>
+    </ol>
+
+    <p class="stepper__meta" data-step-meta aria-live="polite"></p>
+
+    <div class="reg-panel">
+
+        <!-- Paso 1: datos personales -->
+        <section class="step-panel is-active" data-step-panel="1" aria-labelledby="paso1-titulo">
+            <h2 class="step-panel__title" id="paso1-titulo" data-step-heading data-step-title="1">Datos personales</h2>
+            <p class="step-panel__hint">
+                Usa tu nombre como aparece en tu documento y un correo institucional
+                activo.
+            </p>
+
+            <div class="step-panel__body">
+                <div class="step-panel__grid">
+                    <div class="field">
+                        <label class="field__label" for="{{ form.first_name.id_for_label }}">Nombre</label>
+                        {{ form.first_name|accessible:"form-control" }}
+                        {% field_error form.first_name %}
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="{{ form.last_name.id_for_label }}">Apellido</label>
+                        {{ form.last_name|accessible:"form-control" }}
+                        {% field_error form.last_name %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+                    {{ form.username|accessible:"form-control" }}
+                    <span class="field__hint">Es el nombre que verán los empleadores. Sin espacios.</span>
+                    {% field_error form.username %}
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="{{ form.email.id_for_label }}">Correo electrónico institucional</label>
+                    {{ form.email|accessible:"form-control" }}
+                    <span class="field__hint" id="{{ form.email.id_for_label }}-help">{{ form.email.help_text }}</span>
+                    {% field_error form.email %}
+                </div>
+
+                <div class="step-panel__grid">
+                    <div class="field">
+                        <label class="field__label" for="{{ form.cedula.id_for_label }}">Cédula o documento</label>
+                        {{ form.cedula|accessible:"form-control" }}
+                        {% field_error form.cedula %}
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de nacimiento</label>
+                        {{ form.fecha_nacimiento|accessible:"form-control" }}
+                        {% field_error form.fecha_nacimiento %}
+                    </div>
+                </div>
+
+                <div class="step-panel__grid">
+                    <div class="field">
+                        <label class="field__label" for="{{ form.telefono.id_for_label }}">Teléfono</label>
+                        {{ form.telefono|accessible:"form-control" }}
+                        {% field_error form.telefono %}
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="{{ form.direccion.id_for_label }}">Ubicación</label>
+                        {{ form.direccion|accessible:"form-control" }}
+                        {% field_error form.direccion %}
+                    </div>
+                </div>
             </div>
-            <div class="col-6">
-                <label class="form-label">Apellido</label>
-                {{ form.last_name|add_class:"form-control" }}
+
+            <div class="step-nav">
+                <button type="button" class="step-nav__next" data-step-next>
+                    Continuar <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
             </div>
-        </div>
-        <div class="mt-2">
-            <label class="form-label">Usuario</label>
-            {{ form.username|add_class:"form-control" }}
-            {% if form.username.errors %}<div class="text-danger small mt-1" role="alert">{{ form.username.errors.0 }}</div>{% endif %}
-        </div>
-        <div class="mt-2">
-            <label class="form-label">Correo electrónico institucional</label>
-            {{ form.email|accessible:"form-control" }}
-            <div class="form-text" style="font-size:0.72rem;" id="{{ form.email.id_for_label }}-help">{{ form.email.help_text }}</div>
-            {% field_error form.email %}
-        </div>
-        <div class="row g-2 mt-1">
-            <div class="col-6">
-                <label class="form-label">Cédula / Documento</label>
-                {{ form.cedula|add_class:"form-control" }}
+        </section>
+
+        <!-- Paso 2: foto de perfil -->
+        <section class="step-panel" data-step-panel="2" aria-labelledby="paso2-titulo" hidden>
+            <h2 class="step-panel__title" id="paso2-titulo" data-step-heading data-step-title="2">Foto de perfil</h2>
+            <p class="step-panel__hint">
+                Una foto clara ayuda a los empleadores a reconocerte. Puedes dejarla
+                en blanco si prefieres.
+            </p>
+
+            <div class="step-panel__body">
+                <div class="field">
+                    <span class="field__label" id="foto-label">Imagen de perfil</span>
+                    <div class="upload-zone" data-upload-zone>
+                        <input type="file" name="{{ form.foto.html_name }}" id="{{ form.foto.id_for_label }}"
+                               accept="image/jpeg,image/png" aria-labelledby="foto-label">
+                        <span class="upload-zone__icon" data-upload-icon aria-hidden="true"><i class="bi bi-cloud-arrow-up"></i></span>
+                        <span class="upload-zone__title">Arrastra tu foto o haz clic para elegirla</span>
+                        <span class="upload-zone__hint">JPG o PNG, hasta 5 MB</span>
+                        <span class="field__error" data-upload-error hidden></span>
+                        <span class="upload-zone__preview" data-upload-preview>
+                            <img src="" alt="">
+                            <span style="min-width:0;">
+                                <span class="upload-zone__name" data-upload-name></span>
+                                <span class="upload-zone__meta" data-upload-meta></span>
+                            </span>
+                        </span>
+                    </div>
+                    {% field_error form.foto %}
+                </div>
             </div>
-            <div class="col-6">
-                <label class="form-label">Fecha de nacimiento</label>
-                {{ form.fecha_nacimiento|add_class:"form-control" }}
+
+            <div class="step-nav">
+                <button type="button" class="step-nav__back" data-step-back>
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i> Atrás
+                </button>
+                <button type="button" class="step-nav__next" data-step-next>
+                    Continuar <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
             </div>
-        </div>
-        <div class="row g-2 mt-1">
-            <div class="col-6">
-                <label class="form-label">Teléfono</label>
-                {{ form.telefono|add_class:"form-control" }}
+        </section>
+
+        <!-- Paso 3: información universitaria -->
+        <section class="step-panel" data-step-panel="3" aria-labelledby="paso3-titulo" hidden>
+            <h2 class="step-panel__title" id="paso3-titulo" data-step-heading data-step-title="3">Información universitaria</h2>
+            <p class="step-panel__hint">
+                Estos datos verifican que perteneces a la comunidad universitaria.
+            </p>
+
+            <div class="step-panel__body">
+                <div class="field">
+                    <label class="field__label" for="{{ form.universidad.id_for_label }}">Universidad</label>
+                    {{ form.universidad|accessible:"form-control" }}
+                    {% field_error form.universidad %}
+                </div>
+
+                <div class="step-panel__grid">
+                    <div class="field">
+                        <label class="field__label" for="{{ form.carrera.id_for_label }}">Carrera</label>
+                        {{ form.carrera|accessible:"form-control" }}
+                        {% field_error form.carrera %}
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="{{ form.semestre.id_for_label }}">Semestre</label>
+                        {{ form.semestre|accessible:"form-control" }}
+                        {% field_error form.semestre %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <span class="field__label" id="carnet-label">Foto del carnet estudiantil</span>
+                    <div class="upload-zone" data-upload-zone>
+                        <input type="file" name="{{ form.foto_carnet.html_name }}" id="{{ form.foto_carnet.id_for_label }}"
+                               accept="image/jpeg,image/png" aria-labelledby="carnet-label">
+                        <span class="upload-zone__icon" data-upload-icon aria-hidden="true"><i class="bi bi-card-image"></i></span>
+                        <span class="upload-zone__title">Sube una foto legible de tu carnet</span>
+                        <span class="upload-zone__hint">Sirve para validar tu identidad estudiantil</span>
+                        <span class="field__error" data-upload-error hidden></span>
+                        <span class="upload-zone__preview" data-upload-preview>
+                            <img src="" alt="">
+                            <span style="min-width:0;">
+                                <span class="upload-zone__name" data-upload-name></span>
+                                <span class="upload-zone__meta" data-upload-meta></span>
+                            </span>
+                        </span>
+                    </div>
+                    {% field_error form.foto_carnet %}
+                </div>
             </div>
-            <div class="col-6">
-                <label class="form-label">Ubicación</label>
-                {{ form.direccion|add_class:"form-control" }}
+
+            <div class="step-nav">
+                <button type="button" class="step-nav__back" data-step-back>
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i> Atrás
+                </button>
+                <button type="button" class="step-nav__next" data-step-next>
+                    Continuar <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
             </div>
-        </div>
+        </section>
+
+        <!-- Paso 4: habilidades -->
+        <section class="step-panel" data-step-panel="4" aria-labelledby="paso4-titulo" hidden>
+            <h2 class="step-panel__title" id="paso4-titulo" data-step-heading data-step-title="4">Habilidades</h2>
+            <p class="step-panel__hint">
+                Las habilidades alimentan la búsqueda de ofertas. Añade una y pulsa Enter.
+            </p>
+
+            <div class="step-panel__body">
+                <div class="field">
+                    <span class="field__label" id="habilidades-label">Tus habilidades</span>
+                    <div class="tag-list" data-tag-list>
+                        <span class="tag-list__empty" data-tag-empty>Sin habilidades todavía.</span>
+                    </div>
+                    <input type="text" class="tag-entry" id="entrada-habilidad"
+                           data-tag-entry placeholder="Programación, diseño, traducción"
+                           aria-labelledby="habilidades-label">
+                    <span class="field__hint">Pulsa Enter después de cada habilidad.</span>
+                    <span style="display:none;" aria-hidden="true">{{ form.habilidades }}</span>
+                    {% field_error form.habilidades %}
+                </div>
+            </div>
+
+            <div class="step-nav">
+                <button type="button" class="step-nav__back" data-step-back>
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i> Atrás
+                </button>
+                <button type="button" class="step-nav__next" data-step-next>
+                    Continuar <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Paso 5: seguridad -->
+        <section class="step-panel" data-step-panel="5" aria-labelledby="paso5-titulo" hidden>
+            <h2 class="step-panel__title" id="paso5-titulo" data-step-heading data-step-title="5">Seguridad</h2>
+            <p class="step-panel__hint">
+                Tu pregunta de seguridad recupera el acceso si olvidas la contraseña.
+            </p>
+
+            <div class="step-panel__body">
+                <div class="field">
+                    <label class="field__label" for="{{ form.pregunta_seguridad.id_for_label }}">Pregunta de seguridad</label>
+                    {{ form.pregunta_seguridad|accessible:"form-control" }}
+                    {% field_error form.pregunta_seguridad %}
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="{{ form.respuesta_seguridad.id_for_label }}">Respuesta de seguridad</label>
+                    {{ form.respuesta_seguridad|accessible:"form-control" }}
+                    {% field_error form.respuesta_seguridad %}
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="{{ form.password1.id_for_label }}">Contraseña</label>
+                    {{ form.password1|accessible:"form-control" }}
+                    <div class="meter" data-meter>
+                        <div class="meter__track" aria-hidden="true">
+                            <span class="meter__seg" data-meter-seg></span>
+                            <span class="meter__seg" data-meter-seg></span>
+                            <span class="meter__seg" data-meter-seg></span>
+                            <span class="meter__seg" data-meter-seg></span>
+                        </div>
+                        <span class="meter__text" data-meter-text aria-live="polite">Muy corta</span>
+                    </div>
+                    <span class="field__hint" id="{{ form.password1.id_for_label }}-help">{{ form.password1.help_text }}</span>
+                    {% field_error form.password1 %}
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="{{ form.password2.id_for_label }}">Confirmar contraseña</label>
+                    {{ form.password2|accessible:"form-control" }}
+                    <span class="field__hint" id="{{ form.password2.id_for_label }}-help">{{ form.password2.help_text }}</span>
+                    {% field_error form.password2 %}
+                </div>
+            </div>
+
+            <div class="step-nav">
+                <button type="button" class="step-nav__back" data-step-back>
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i> Atrás
+                </button>
+                <button type="submit" class="step-nav__next" data-submit-btn data-submit-pending="Creando cuenta...">
+                    <span data-submit-label>Crear mi cuenta</span>
+                    <i class="bi bi-check-lg" aria-hidden="true"></i>
+                </button>
+            </div>
+        </section>
     </div>
-
-    <!-- 2. Foto de perfil -->
-    <div class="form-section">
-        <div class="form-section-title"><span class="step-num">2</span> Foto de perfil</div>
-        <label class="upload-area d-block" for="id_foto">
-            <i class="bi bi-cloud-arrow-up-fill"></i>
-            <p>Toca para subir tu foto de perfil</p>
-            <div class="upload-hint">JPG, PNG — Máx 5MB</div>
-        </label>
-        <div style="display:none;">{{ form.foto }}</div>
-    </div>
-
-    <!-- 3. Datos universitarios -->
-    <div class="form-section">
-        <div class="form-section-title"><span class="step-num">3</span> Información universitaria</div>
-        <div class="mb-2">
-            <label class="form-label">Universidad</label>
-            {{ form.universidad|add_class:"form-control" }}
-        </div>
-        <div class="row g-2">
-            <div class="col-8">
-                <label class="form-label">Carrera</label>
-                {{ form.carrera|add_class:"form-control" }}
-            </div>
-            <div class="col-4">
-                <label class="form-label">Semestre</label>
-                {{ form.semestre|add_class:"form-control" }}
-            </div>
-        </div>
-        <div class="mt-3">
-            <label class="form-label">Foto del carnet estudiantil</label>
-            <label class="upload-area d-block" for="id_foto_carnet">
-                <i class="bi bi-card-image"></i>
-                <p>Sube una foto clara de tu carnet</p>
-                <div class="upload-hint">Esto verifica tu identidad estudiantil</div>
-            </label>
-            <div style="display:none;">{{ form.foto_carnet }}</div>
-        </div>
-    </div>
-
-    <!-- 4. Habilidades -->
-    <div class="form-section">
-        <div class="form-section-title"><span class="step-num">4</span> Habilidades</div>
-        {{ form.habilidades|add_class:"form-control" }}
-        <small class="text-muted d-block mt-1">Ej: Programación, Diseño, Traducción, Redacción</small>
-    </div>
-
-    <!-- 5. Seguridad -->
-    <div class="form-section">
-        <div class="form-section-title"><span class="step-num">5</span> Seguridad</div>
-        <div class="mb-2">
-            <label class="form-label">Pregunta de seguridad</label>
-            {{ form.pregunta_seguridad|add_class:"form-control" }}
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Respuesta de seguridad</label>
-            {{ form.respuesta_seguridad|add_class:"form-control" }}
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Contraseña</label>
-            {{ form.password1|add_class:"form-control" }}
-            {% if form.password1.errors %}<div class="text-danger small mt-1" role="alert">{{ form.password1.errors.0 }}</div>{% endif %}
-        </div>
-        <div>
-            <label class="form-label">Confirmar contraseña</label>
-            {{ form.password2|add_class:"form-control" }}
-            {% if form.password2.errors %}<div class="text-danger small mt-1" role="alert">{{ form.password2.errors.0 }}</div>{% endif %}
-        </div>
-    </div>
-
-    <button type="submit" class="btn-register mb-3">
-        <span class="btn-shine"></span>
-        <i class="bi bi-rocket-takeoff-fill"></i> Crear mi cuenta
-    </button>
-
-    <p class="text-center small" style="color:#7FB7C9; position:relative; z-index:1;">
-        ¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}" class="fw-bold" style="text-decoration:none;">Inicia sesión</a>
-    </p>
 </form>
+
+<p class="reg-foot">
+    ¿Ya tienes cuenta? <a href="{% url 'accounts:login' %}">Inicia sesión</a>
+</p>
 {% endblock %}
 
 {% block extra_js %}
-<script>
-    // Animate progress steps on scroll
-    (function() {
-        var sections = document.querySelectorAll('.form-section');
-        var steps = document.querySelectorAll('.progress-step');
-        function updateProgress() {
-            var scrollPos = window.scrollY + window.innerHeight * 0.5;
-            sections.forEach(function(s, i) {
-                if (s.offsetTop < scrollPos) {
-                    steps.forEach(function(st, j) {
-                        st.classList.toggle('active', j === i);
-                        st.classList.toggle('done', j < i);
-                    });
-                }
-            });
-        }
-        window.addEventListener('scroll', updateProgress);
-        updateProgress();
-    })();
-</script>
+<script src="{% static 'js/wizard.js' %}" defer></script>
 {% endblock %}

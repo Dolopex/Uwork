@@ -29,7 +29,18 @@ class BannedUserMiddleware:
     siguiente request y se le informa del motivo. También cubre el baneo
     temporal: cuando expira, el usuario vuelve a tener acceso sin que nadie
     tenga que reactivar su cuenta a mano.
+
+    Excepción: el canal de apelación. Sin ella el sancionado quedaba en un
+    callejón sin salida: el middleware cerraba la sesión en cada request,
+    así que ni siquiera alcanzaba la vista para apelar (P0-3).
     """
+
+    #: Rutas que un usuario sancionado sí puede visitar.
+    RUTAS_PERMITIDAS = (
+        '/moderacion/apelacion/',
+        '/moderacion/apelaciones/mias/',
+        '/accounts/logout/',
+    )
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -39,6 +50,8 @@ class BannedUserMiddleware:
         if usuario is not None and usuario.is_authenticated:
             if getattr(usuario, 'is_banned', False):
                 if usuario.baneo_vigente:
+                    if self._ruta_permitida(request.path):
+                        return self.get_response(request)
                     motivo = usuario.motivo_baneo or ''
                     expiracion = usuario.baneo_hasta
                     logout(request)
@@ -51,12 +64,20 @@ class BannedUserMiddleware:
                             'La suspensión vence el {}.'.format(
                                 expiracion.strftime('%d/%m/%Y %H:%M')),
                         )
+                    messages.info(
+                        request,
+                        'Si la sanción no corresponde, apela desde el canal '
+                        'de revisión.')
                     return redirect(settings.LOGIN_URL)
 
                 # El baneo temporal ya venció: limpiar los campos para que la
                 # cuenta quede utilizable sin intervención manual.
                 usuario.levantar_baneo()
         return self.get_response(request)
+
+    def _ruta_permitida(self, path):
+        return any(path.startswith(prefijo)
+                   for prefijo in self.RUTAS_PERMITIDAS)
 
 
 class RateLimitMiddleware:

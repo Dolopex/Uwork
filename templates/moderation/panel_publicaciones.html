@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% load form_tags %}
+{% block title %}Revisión de publicaciones · U-Work{% endblock %}
+{% block content %}
+<div style="max-width:1000px; margin:0 auto;">
+
+    <div class="d-flex justify-content-between align-items-center mb-3" style="flex-wrap:wrap; gap:10px;">
+        <div>
+            <h4 style="font-weight:800; color:var(--text); margin:0 0 4px;">
+                <i class="bi bi-clipboard-check"></i> Revisión de publicaciones
+            </h4>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+                Moderación previa a publicar (Términos §6): una publicación no se
+                hace pública hasta que se aprueba aquí.
+            </p>
+        </div>
+        <a href="{% url 'moderation:panel_reportes' %}" class="btn btn-sm"
+           style="border:1.5px solid var(--border); border-radius: var(--radius-sm); font-weight:700; color:var(--text); padding:8px 14px;">
+            <i class="bi bi-flag"></i> Reportes
+        </a>
+    </div>
+
+    <div class="section-title" style="font-size:1.05rem; margin-bottom:12px;">
+        Pendientes de revisión ({{ pendientes.count }})
+    </div>
+
+    {% if not pendientes %}
+    <div class="card mb-4"><div class="card-body text-center" style="padding:44px 16px;">
+        <i class="bi bi-check2-all" style="font-size:2rem; color:var(--text-secondary); opacity:0.5;"></i>
+        <p style="font-size:0.88rem; font-weight:700; color:var(--text); margin:12px 0 4px;">No hay publicaciones pendientes</p>
+        <p style="font-size:0.78rem; color:var(--text-secondary); margin:0;">La cola de revisión está vacía.</p>
+    </div></div>
+    {% endif %}
+
+    {% for job in pendientes %}
+    <div class="card mb-3" style="border-color:rgba(217,119,6,0.4);">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2" style="gap:12px;">
+                <div style="min-width:0;">
+                    <div style="font-size:var(--fs-xs); font-weight:700; font-size:0.95rem; color:var(--text);">
+                        {{ job.titulo }}
+                        <span class="badge" style="background:rgba(217,119,6,0.15); color:var(--state-warning);">
+                            Pendiente de revisión
+                        </span>
+                    </div>
+                    <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:3px;">
+                        <i class="bi bi-person"></i> {{ job.creador.get_full_name|default:job.creador.username }}
+                        · {{ job.get_categoria_display }} · {{ job.get_modalidad_display }}
+                        · enviado el {{ job.created_at|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+                <span style="font-weight:800; color:var(--money); font-size:0.95rem; white-space:nowrap;">{{ job.pago|cop }}</span>
+            </div>
+
+            <div style="font-size:0.83rem; color:var(--text); padding:11px 13px; background:var(--surface-alt); border-radius: var(--radius-sm); margin-bottom:8px;">
+                <strong style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">
+                    Descripción</strong>
+                {{ job.descripcion|truncatechars:400 }}
+            </div>
+            {% if job.requisitos %}
+            <div style="font-size:0.8rem; color:var(--text-secondary); margin-bottom:10px;">
+                <strong>Requisitos:</strong> {{ job.requisitos|truncatechars:160 }}
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center mb-2" style="gap:8px; flex-wrap:wrap;">
+                <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-sm btn-outline-secondary"
+                   style="border-radius: var(--radius-sm); font-weight:700; padding:8px 14px;">
+                    <i class="bi bi-eye"></i> Ver publicación
+                </a>
+                <span style="font-size:0.75rem; color:var(--text-secondary);">
+                    <i class="bi bi-calendar-event"></i> Límite: {{ job.fecha_limite|date:"d/m/Y" }}
+                </span>
+            </div>
+
+            <form method="post" action="{% url 'moderation:revisar_trabajo' job.pk %}">
+                {% csrf_token %}
+                <input type="hidden" name="decision" value="aprobar">
+                <button type="submit" class="btn btn-sm w-100"
+                        style="background:var(--state-success); color:#fff; border:none; border-radius: var(--radius-sm); font-weight:700; padding:10px;">
+                    <i class="bi bi-check-lg"></i> Aprobar y publicar
+                </button>
+            </form>
+
+            <form method="post" action="{% url 'moderation:revisar_trabajo' job.pk %}"
+                  style="margin-top:8px;">
+                {% csrf_token %}
+                <input type="hidden" name="decision" value="rechazar">
+                <label for="motivo_{{ job.pk }}" style="font-size:0.75rem; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">
+                    Motivo del rechazo
+                </label>
+                <textarea name="motivo" id="motivo_{{ job.pk }}" rows="2" required
+                          placeholder="Explica qué debe corregir el autor"
+                          style="width:100%; padding:10px 12px; font-size:0.85rem; border-radius: var(--radius-sm);
+                                 border:1px solid var(--input-border); background:var(--input-bg); color:var(--text); margin-bottom:8px;"></textarea>
+                <button type="submit" class="btn btn-sm w-100"
+                        style="background:rgba(220,38,38,0.12); color:var(--state-danger); border:1px solid rgba(220,38,38,0.3); border-radius: var(--radius-sm); font-weight:700; padding:10px;">
+                    <i class="bi bi-x-lg"></i> Rechazar
+                </button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+
+    {% if rechazados %}
+    <div class="section-title" style="font-size:1.05rem; margin:28px 0 12px;">
+        Rechazadas recientemente
+    </div>
+    <div class="table-responsive">
+        <table class="table" style="font-size:0.83rem;">
+            <thead><tr><th>Trabajo</th><th>Autor</th><th>Motivo</th><th>Fecha</th></tr></thead>
+            <tbody>
+                {% for job in rechazados %}
+                <tr>
+                    <td><a href="{% url 'jobs:job_detail' job.pk %}" style="color:var(--primary-light); text-decoration:none;">{{ job.titulo }}</a></td>
+                    <td>{{ job.creador }}</td>
+                    <td style="max-width:260px;">{{ job.motivo_rechazo|truncatechars:80 }}</td>
+                    <td>{{ job.updated_at|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

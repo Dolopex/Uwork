@@ -3,171 +3,268 @@
 Estilo compartido por los documentos legales públicos (R14, R15).
 Los bloques de contenido se llenan en legal/terminos.html y
 legal/privacidad.html.
+
+El documento se lee como documento: encabezado sobrio, índice lateral que
+sigue la lectura, cuerpo con una medida cómoda y un anexo único donde
+concentran las decisiones que todavía no ha tomado la institución. Antes
+cada bloque pendiente era una caja punteada repetida a lo largo del texto:
+distraía de la lectura y hacía el documento parecer un borrador en quince
+lugares distintos en vez de uno solo.
 {% endcomment %}
 {% block extra_css %}
 <style>
-    .legal-wrap {
-        max-width: 780px;
-        margin: 0 auto;
+    .content-wrapper { max-width: 1160px !important; }
+
+    /* --- Encabezado del documento --- */
+    .doc-head {
+        padding-bottom: var(--space-5);
+        margin-bottom: var(--space-6);
+        border-bottom: 1px solid var(--border);
     }
-    .legal-header {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        border-radius: 20px;
-        padding: 28px 24px;
-        color: #fff;
-        margin-bottom: 18px;
-    }
-    .legal-header h1 {
-        font-size: 1.4rem;
+    .doc-head h1 {
+        font-size: var(--fs-3xl);
         font-weight: 800;
-        margin: 0 0 6px;
+        letter-spacing: -.03em;
+        line-height: 1.12;
+        color: var(--text);
+        margin: 0 0 var(--space-3);
     }
-    .legal-header p {
-        font-size: 0.82rem;
-        color: rgba(255, 255, 255, 0.85);
-        margin: 0;
-    }
-    .legal-toc {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border, var(--border));
-        border-radius: 14px;
-        padding: 16px 18px;
-        margin-bottom: 18px;
-    }
-    .legal-toc-title {
-        font-size: 0.7rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    .doc-head__sub {
+        font-size: var(--fs-md);
         color: var(--text-secondary);
-        margin-bottom: 10px;
-    }
-    .legal-toc ol {
         margin: 0;
-        padding-left: 20px;
-        font-size: 0.83rem;
-        line-height: 1.9;
+        max-width: 62ch;
+        line-height: 1.55;
     }
-    .legal-toc a {
-        color: var(--primary-light);
-        text-decoration: none;
+    .doc-head__meta {
+        display: flex; flex-wrap: wrap; gap: var(--space-3) var(--space-6);
+        margin: var(--space-5) 0 0;
     }
-    .legal-toc a:hover { text-decoration: underline; }
-    .legal-body {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border, var(--border));
-        border-radius: 16px;
-        padding: 26px 22px;
-        font-size: 0.88rem;
+    .doc-head__meta dt {
+        font-size: var(--fs-2xs);
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: .06em;
+    }
+    .doc-head__meta dd {
+        margin: 2px 0 0;
+        font-size: var(--fs-sm);
+        font-weight: 600;
+        color: var(--text);
+    }
+
+    /* --- Cuerpo del documento --- */
+    .doc-body {
+        font-size: var(--fs-base);
         line-height: 1.75;
         color: var(--text);
+        max-width: 72ch;
     }
-    .legal-body h2 {
-        font-size: 1.02rem;
+    .doc-body h2 {
+        font-size: var(--fs-lg);
         font-weight: 800;
+        letter-spacing: -.015em;
         color: var(--text);
-        margin: 28px 0 10px;
-        padding-top: 18px;
-        border-top: 1px solid var(--border);
-        scroll-margin-top: 90px;
+        margin: var(--space-8) 0 var(--space-3);
+        scroll-margin-top: var(--space-8);
     }
-    .legal-body h2:first-child {
-        margin-top: 0;
-        padding-top: 0;
-        border-top: none;
-    }
-    .legal-body h3 {
-        font-size: 0.9rem;
+    .doc-body h2:first-child { margin-top: 0; }
+    .doc-body h3 {
+        font-size: var(--fs-base);
         font-weight: 700;
         color: var(--text);
-        margin: 18px 0 6px;
+        margin: var(--space-5) 0 var(--space-2);
     }
-    .legal-body p { margin: 0 0 12px; }
-    .legal-body ul, .legal-body ol {
-        margin: 0 0 12px;
-        padding-left: 22px;
+    .doc-body p { margin: 0 0 var(--space-4); }
+    .doc-body ul, .doc-body ol {
+        margin: 0 0 var(--space-4);
+        padding-left: var(--space-5);
     }
-    .legal-body li { margin-bottom: 5px; }
-    .legal-body strong { font-weight: 700; }
-
-    /* Marcador de texto que falta y solo un abogado debe redactar. */
-    .pendiente {
-        display: block;
-        background: rgba(217, 119, 6, 0.10);
-        border: 1px dashed rgba(217, 119, 6, 0.55);
-        border-radius: 10px;
-        padding: 11px 14px;
-        margin: 10px 0;
-        font-size: 0.83rem;
-        color: #92400E;
-    }
-    [data-theme="dark"] .pendiente { color: #FCD34D; }
-    .pendiente::before {
-        content: "PENDIENTE";
-        display: block;
-        font-size: 0.62rem;
-        font-weight: 800;
-        letter-spacing: 0.8px;
-        margin-bottom: 3px;
-        opacity: 0.75;
+    .doc-body li { margin-bottom: var(--space-2); }
+    .doc-body strong { font-weight: 700; }
+    .doc-body a { color: var(--brand-ink); font-weight: 600; }
+    .doc-body code {
+        font-size: .92em;
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-xs);
+        padding: 1px 5px;
     }
 
-    .legal-alert {
-        background: rgba(217, 119, 6, 0.10);
-        border: 1px solid rgba(217, 119, 6, 0.4);
-        border-radius: 14px;
-        padding: 14px 16px;
-        font-size: 0.82rem;
-        color: var(--text);
-        margin-bottom: 18px;
-    }
-    .legal-alert strong { color: #B45309; }
-    [data-theme="dark"] .legal-alert strong { color: #FCD34D; }
-
-    .data-table {
+    /* --- Tablas del documento --- */
+    .doc-table {
         width: 100%;
         border-collapse: collapse;
-        margin: 10px 0 16px;
-        font-size: 0.82rem;
+        margin: var(--space-3) 0 var(--space-5);
+        font-size: var(--fs-sm);
     }
-    .data-table th, .data-table td {
-        border: 1px solid var(--border);
-        padding: 8px 11px;
+    .doc-table th {
         text-align: left;
-        vertical-align: top;
-    }
-    .data-table th {
-        background: var(--surface-alt, rgba(0, 0, 0, 0.03));
         font-weight: 700;
+        color: var(--text);
+        padding: var(--space-2) var(--space-3) var(--space-2) 0;
+        border-bottom: 2px solid var(--border-strong);
+        vertical-align: bottom;
+    }
+    .doc-table td {
+        padding: var(--space-3) var(--space-3) var(--space-3) 0;
+        border-bottom: 1px solid var(--border-light);
+        vertical-align: top;
+        line-height: 1.55;
+    }
+    .doc-table tr:last-child td { border-bottom: none; }
+    /* En el anexo la primera columna es una referencia de seccion: no
+       debe partirse en dos lineas. */
+    .doc-table--anexo td:first-child { width: 1%; white-space: nowrap; }
+
+    /* --- Anexo: lo que falta por definir --- */
+    .doc-annex {
+        margin-top: var(--space-10);
+        padding-top: var(--space-6);
+        border-top: 1px solid var(--border);
+    }
+    .doc-annex h2 {
+        font-size: var(--fs-lg);
+        font-weight: 800;
+        letter-spacing: -.015em;
+        color: var(--text);
+        margin: 0 0 var(--space-3);
+    }
+    .doc-annex__intro {
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        line-height: 1.65;
+        max-width: 68ch;
+        margin: 0 0 var(--space-4);
+    }
+    .doc-annex__intro strong { color: var(--text); }
+
+    .doc-foot {
+        margin-top: var(--space-8);
+        padding-top: var(--space-5);
+        border-top: 1px solid var(--border);
+        display: flex; flex-wrap: wrap; justify-content: space-between;
+        gap: var(--space-3);
+        font-size: var(--fs-sm);
+    }
+    .doc-foot a { color: var(--brand-ink); font-weight: 600; text-decoration: none; }
+    .doc-foot a:hover { text-decoration: underline; }
+
+    @media (max-width: 991.98px) {
+        .doc-head h1 { font-size: var(--fs-2xl); }
+        .doc-body { font-size: var(--fs-sm); }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="legal-wrap">
-    <div class="legal-header">
-        <h1>{% block legal_title %}{% endblock %}</h1>
-        <p>{% block legal_subtitle %}{% endblock %}</p>
+<div class="doc-progress" aria-hidden="true"></div>
+
+<div class="doc-shell">
+    <aside class="doc-aside">
+        <nav class="doc-toc" aria-label="Contenido del documento">
+            <p class="doc-toc__title">Contenido</p>
+            <ol>
+                {% block legal_toc %}{% endblock %}
+                {% if mostrar_anexo %}
+                <li><a href="#anexo-titulo">Decisiones pendientes</a></li>
+                {% endif %}
+            </ol>
+            <p class="doc-toc__meta">
+                <span>Última actualización</span>
+                <br>
+                <strong>{{ ultima_actualizacion }}</strong>
+            </p>
+        </nav>
+    </aside>
+
+    <div>
+        <header class="doc-head">
+            <h1>{% block legal_title %}{% endblock %}</h1>
+            <p class="doc-head__sub">{% block legal_subtitle %}{% endblock %}</p>
+            <dl class="doc-head__meta">
+                <div>
+                    <dt>Última actualización</dt>
+                    <dd>{{ ultima_actualizacion }}</dd>
+                </div>
+                <div>
+                    <dt>Versión</dt>
+                    <dd>{{ version_documento }}</dd>
+                </div>
+                <div>
+                    <dt>{% block legal_meta_label %}Marco de referencia{% endblock %}</dt>
+                    <dd>{% block legal_meta_value %}{% endblock %}</dd>
+                </div>
+            </dl>
+        </header>
+
+        <article class="doc-body">
+            {% block legal_body %}{% endblock %}
+        </article>
+
+        {% if mostrar_anexo %}
+        <section class="doc-annex" aria-labelledby="anexo-titulo">
+            <h2 id="anexo-titulo">Anexo. Decisiones que corresponden a la institución</h2>
+            <p class="doc-annex__intro">
+                <strong>Documento en revisión.</strong> Los puntos marcados con
+                <span class="pendiente">Pendiente</span> son definiciones que le
+                corresponden a la institución y que todavía no están tomadas.
+                Hasta que se definan, el comportamiento descrito es el que la
+                plataforma aplica hoy, y estos puntos son la lista de lo que falta
+                para cerrar el documento.
+            </p>
+            {% block legal_annex %}{% endblock %}
+        </section>
+        {% endif %}
+
+        <nav class="doc-foot" aria-label="Navegación del documento">
+            <a href="{% url 'accounts:role_select' %}">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i> Volver al inicio
+            </a>
+            <span style="color:var(--text-secondary);">
+                {% block legal_otro_documento %}{% endblock %}
+            </span>
+        </nav>
     </div>
-
-    <div class="legal-alert">
-        <strong>Documento en revisión.</strong>
-        Esta estructura fue generada a partir del documento de pendientes del
-        proyecto. Los bloques marcados como <strong>PENDIENTE</strong> deben ser
-        redactados y aprobados por el área jurídica de la institución antes de
-        su publicación definitiva.
-    </div>
-
-    {% block legal_toc %}{% endblock %}
-
-    <div class="legal-body">
-        {% block legal_body %}{% endblock %}
-    </div>
-
-    <p style="text-align:center; font-size:0.75rem; color:var(--text-secondary); margin-top:18px;">
-        <a href="{% url 'accounts:role_select' %}" style="color:var(--primary-light);">
-            <i class="bi bi-arrow-left"></i> Volver al inicio
-        </a>
-    </p>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script nonce="{{ csp_nonce }}">
+// El índice lateral marca la sección que se está leyendo. Se usa un
+// IntersectionObserver en vez de un listener de scroll: el navegador
+// avisa cuando un elemento cruza la línea de lectura y no hace falta
+// ejecutar código en cada cuadro de la pagina.
+(function () {
+    var enlaces = document.querySelectorAll('.doc-toc a[href^="#"]');
+    if (!enlaces.length || !('IntersectionObserver' in window)) return;
+
+    var secciones = [];
+    enlaces.forEach(function (enlace) {
+        var seccion = document.querySelector(enlace.getAttribute('href'));
+        if (seccion) secciones.push({ enlace: enlace, seccion: seccion });
+    });
+    if (!secciones.length) return;
+
+    function activar(seccion) {
+        secciones.forEach(function (item) {
+            item.enlace.classList.toggle('is-active', item.seccion === seccion);
+        });
+    }
+
+    var observador = new IntersectionObserver(function (entradas) {
+        entradas.forEach(function (entrada) {
+            if (entrada.isIntersecting) activar(entrada.target);
+        });
+    }, {
+        rootMargin: '-72px 0px -70% 0px',
+        threshold: 0
+    });
+
+    secciones.forEach(function (item) {
+        observador.observe(item.seccion);
+    });
+})();
+</script>
 {% endblock %}

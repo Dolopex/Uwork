@@ -10,6 +10,12 @@ class Notification(models.Model):
         FINALIZADO  = 'finalizado',  'Trabajo finalizado'
         RESENA      = 'resena',      'Nueva reseña'
         SISTEMA     = 'sistema',     'Sistema'
+        # §6.5.4 / Lote 2 — eventos que el modelo declaraba pero nadie creaba.
+        BANNEO     = 'baneo',       'Cuenta suspendida'
+        APELACION  = 'apelacion',   'Apelación resuelta'
+        REPORTE    = 'reporte',     'Publicación reportada'
+        APROBACION = 'aprobacion',  'Publicación revisada'
+        TICKET     = 'ticket',      'Ticket de soporte resuelto'
 
     usuario    = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notificaciones')
     tipo       = models.CharField(max_length=20, choices=Tipo.choices, default=Tipo.SISTEMA)

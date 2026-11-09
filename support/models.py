@@ -23,6 +23,13 @@ class SupportTicket(models.Model):
         verbose_name='Usuario reportado (opcional)'
     )
     estado     = models.CharField(max_length=20, choices=Estado.choices, default=Estado.ABIERTO)
+    # Respuesta del personal de soporte: sin esto los tickets se creaban y
+    # nadie los leía (P2).
+    respuesta      = models.TextField(blank=True, verbose_name='Respuesta')
+    resuelto_por   = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        blank=True, related_name='tickets_resueltos')
+    resuelto_at    = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -32,3 +39,7 @@ class SupportTicket(models.Model):
 
     def __str__(self):
         return f'#{self.pk} {self.get_tipo_display()} — {self.reporter}'
+
+    @property
+    def abierto(self):
+        return self.estado in (self.Estado.ABIERTO, self.Estado.EN_REVISION)

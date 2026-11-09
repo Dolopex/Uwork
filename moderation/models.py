@@ -50,6 +50,14 @@ class Reporte(models.Model):
         related_name='reportes')
     trabajo_titulo = models.CharField(
         max_length=200, blank=True, verbose_name='Título del trabajo reportado')
+    # Autor del contenido reportado. Se guarda aparte del trabajo porque, si
+    # el moderador retira la publicación, `trabajo` queda en NULL y sin esta
+    # referencia no había a quién sancionar (P0-4: AttributeError en el
+    # panel de moderación).
+    contenido_autor = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        blank=True, related_name='contenidos_reportados',
+        verbose_name='Autor del contenido reportado')
     reportante = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
         related_name='reportes_realizados')
@@ -98,9 +106,17 @@ class Sancion(models.Model):
         TEMPORAL = 'temporal', 'Baneo temporal'
         PERMANENTE = 'permanente', 'Baneo permanente'
 
+    # SET_NULL + snapshot: la bitácora es un registro de auditoría. Con
+    # CASCADE, el sancionado que borraba su cuenta desaparecía también de
+    # la bitácora (P1-6). Ahora la fila sobrevive y conserva una copia del
+    # username y del correo a quien se sancionó.
     usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name='sanciones_recibidas')
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        blank=True, related_name='sanciones_recibidas')
+    usuario_username = models.CharField(
+        max_length=150, blank=True, verbose_name='Usuario (copia)')
+    usuario_email = models.CharField(
+        max_length=254, blank=True, verbose_name='Correo (copia)')
     aplicada_por = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
         related_name='sanciones_aplicadas')
@@ -124,7 +140,14 @@ class Sancion(models.Model):
 
     def __str__(self):
         return '{} a {} ({})'.format(
-            self.get_tipo_display(), self.usuario, self.created_at.date())
+            self.get_tipo_display(), self.usuario_nombre, self.created_at.date())
+
+    @property
+    def usuario_nombre(self):
+        """Nombre del sancionado, aunque su cuenta ya no exista."""
+        if self.usuario_id and self.usuario:
+            return self.usuario.get_username()
+        return self.usuario_username or '(cuenta eliminada)'
 
     @property
     def vigente(self):
@@ -142,9 +165,13 @@ class Apelacion(models.Model):
 
     sancion = models.ForeignKey(
         Sancion, on_delete=models.CASCADE, related_name='apelaciones')
+    # SET_NULL + snapshot, igual que en Sancion: la apelación es parte de la
+    # bitácora y no puede desaparecer porque el apelante borró su cuenta.
     usuario = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
-        related_name='apelaciones')
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True,
+        blank=True, related_name='apelaciones')
+    usuario_username = models.CharField(
+        max_length=150, blank=True, verbose_name='Usuario (copia)')
     motivo = models.TextField(verbose_name='Por qué solicitas la revisión')
     estado = models.CharField(
         max_length=20, choices=Estado.choices, default=Estado.PENDIENTE)
@@ -161,7 +188,14 @@ class Apelacion(models.Model):
         verbose_name_plural = 'Apelaciones'
 
     def __str__(self):
-        return 'Apelación de {}'.format(self.usuario)
+        return 'Apelación de {}'.format(self.usuario_nombre)
+
+    @property
+    def usuario_nombre(self):
+        """Nombre del apelante, aunque su cuenta ya no exista."""
+        if self.usuario_id and self.usuario:
+            return self.usuario.get_username()
+        return self.usuario_username or '(cuenta eliminada)'
 
     @property
     def pendiente(self):

@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Avg
+from django.urls import reverse
 from jobs.models import Job
+from notifications.models import Notification
 from .models import Review
 from .forms import ReviewForm
 
@@ -35,10 +36,16 @@ def create_review(request, job_pk):
             review.receptor = receptor
             review.trabajo = job
             review.save()
-            # Actualizar calificación promedio del receptor
-            avg = Review.objects.filter(receptor=receptor).aggregate(Avg('puntuacion'))['puntuacion__avg']
-            receptor.calificacion_promedio = avg or 0
-            receptor.save(update_fields=['calificacion_promedio'])
+            # El promedio del receptor lo recalcula la señal post_save de
+            # reviews.signals (también cuando se borra una reseña).
+            # Aviso al usuario calificado.
+            Notification.objects.create(
+                usuario=receptor,
+                tipo=Notification.Tipo.RESENA,
+                mensaje='Recibiste una nueva calificación por "{}".'.format(
+                    job.titulo),
+                link=reverse('jobs:job_detail', args=[job.pk]),
+            )
             messages.success(request, '¡Calificación enviada!')
             return redirect('jobs:job_detail', pk=job_pk)
     else:

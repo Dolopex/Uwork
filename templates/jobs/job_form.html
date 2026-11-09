@@ -1,406 +1,431 @@
 {% extends 'base.html' %}
-{% load form_tags %}
-{% block title %}{{ titulo_pagina }} — U-Work{% endblock %}
+{% load form_tags static %}
+{% block title %}{{ titulo_pagina }} · U-Work{% endblock %}
 {% block extra_css %}
 <style>
-    .form-section {
-        background: var(--card-bg);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        border: 1px solid var(--card-border);
-        border-radius: 16px;
-        padding: 20px;
-        margin-bottom: 16px;
+    .content-wrapper { max-width: 1080px !important; }
+
+    .job-head { margin-bottom: var(--space-5); }
+    .job-head h1 {
+        font-size: var(--fs-2xl);
+        font-weight: 800;
+        letter-spacing: -.025em;
+        color: var(--text);
+        margin: 0 0 var(--space-2);
     }
-    .form-section-header {
+    .job-head p {
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        margin: 0;
+        max-width: 58ch;
+        line-height: 1.55;
+    }
+
+    .job-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: var(--space-5);
+    }
+
+    .job-aside { align-self: start; }
+    @media (min-width: 992px) {
+        .job-layout {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 288px;
+            gap: var(--space-6);
+            align-items: start;
+        }
+        .job-aside { position: sticky; top: var(--space-6); }
+    }
+    .aside-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        margin-bottom: var(--space-3);
+    }
+    .aside-card__title {
+        font-size: var(--fs-xs);
+        font-weight: 700;
+        color: var(--text-secondary);
+        margin: 0 0 var(--space-3);
+        display: flex; align-items: center; gap: 6px;
+    }
+    .aside-card__title i { color: var(--text-muted); }
+    .aside-item {
+        display: flex; gap: var(--space-2); align-items: flex-start;
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        line-height: 1.45;
+        margin-bottom: var(--space-3);
+    }
+    .aside-item:last-child { margin-bottom: 0; }
+    .aside-item i { color: var(--primary); line-height: 1.5; flex-shrink: 0; }
+
+    .job-note {
+        display: flex; gap: var(--space-2); align-items: flex-start;
+        font-size: var(--fs-xs);
+        color: var(--text-secondary);
+        line-height: 1.5;
+        margin: var(--space-4) 0 0;
+    }
+    .job-note i { color: var(--state-success); flex-shrink: 0; }
+
+    .urgent-toggle {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 18px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid var(--border);
+        gap: var(--space-3);
+        background: var(--surface-alt);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: var(--space-3) var(--space-4);
+        cursor: pointer;
+        transition: border-color .18s ease, background-color .18s ease;
     }
-    .form-section-header .icon-circle {
-        width: 36px; height: 36px;
-        border-radius: 10px;
+    .urgent-toggle:hover { border-color: var(--border-strong); }
+    .urgent-toggle:has(input:checked) {
+        border-color: var(--state-warning);
+        background: var(--state-warning-soft);
+    }
+    /* El control real no se oculta con display:none: lo dejaba fuera del
+       orden de tabulación y del árbol de accesibilidad. Se mantiene
+       focusable y se marca el estado con :has(). */
+    .urgent-toggle input {
+        position: absolute;
+        width: 1px; height: 1px;
+        opacity: 0;
+        margin: 0;
+    }
+    .urgent-toggle:has(input:focus-visible) {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+    .urgent-toggle__icon {
+        width: 32px; height: 32px;
+        border-radius: var(--radius-sm);
+        background: var(--state-warning-soft);
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.1rem;
+        font-size: .95rem;
+        color: var(--state-warning);
         flex-shrink: 0;
     }
-    .form-section-header h6 {
-        font-weight: 700;
-        font-size: 0.95rem;
-        margin: 0;
-        color: var(--text);
-    }
-    .form-section-header small {
-        display: block;
-        font-size: 0.75rem;
-        color: var(--text-secondary);
-        font-weight: 400;
-        margin-top: 2px;
-    }
-    .form-field label {
-        font-weight: 600;
-        font-size: 0.85rem;
-        color: var(--text);
-        margin-bottom: 6px;
-        display: block;
-    }
-    .form-field .form-control,
-    .form-field .form-select {
-        border: 1px solid var(--input-border);
-        border-radius: 12px;
-        padding: 12px 14px;
-        font-size: 0.9rem;
-        transition: all 0.2s;
-        background: var(--input-bg);
-        color: var(--text);
-    }
-    .form-field .form-control:focus,
-    .form-field .form-select:focus {
-        border-color: var(--primary-light);
-        box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
-        background: var(--input-bg);
-        outline: none;
-        color: var(--text);
-    }
-    .form-field .form-control::placeholder { color: var(--input-placeholder); }
-    .form-field textarea.form-control { resize: vertical; min-height: 90px; }
-    .form-field .form-select option { background: var(--select-option-bg); color: var(--text); }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    @media (max-width: 400px) { .form-row { grid-template-columns: 1fr; } }
-    .urgente-toggle {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        background: rgba(245,158,11,0.08);
-        border: 1px solid rgba(245,158,11,0.2);
-        border-radius: 12px;
-        padding: 14px 16px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    .urgente-toggle:has(input:checked) {
-        background: rgba(245,158,11,0.15);
-        border-color: rgba(245,158,11,0.4);
-    }
-    .urgente-toggle input { display: none; }
-    .urgente-toggle .toggle-icon {
-        width: 40px; height: 40px;
-        border-radius: 10px;
-        background: rgba(245,158,11,0.2);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem;
-        color: #FCD34D;
-        transition: background 0.2s;
-    }
-    .urgente-toggle:has(input:checked) .toggle-icon { background: rgba(245,158,11,0.35); }
-    .urgente-toggle .toggle-text { font-weight: 600; font-size: 0.9rem; color: #FCD34D; }
-    .urgente-toggle .toggle-hint { font-size: 0.75rem; color: rgba(245,158,11,0.7); }
-    .upload-area {
-        border: 2px dashed var(--input-border);
-        border-radius: 14px;
-        padding: 24px 16px;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        background: var(--surface);
-        position: relative;
-    }
-    .upload-area:hover { border-color: var(--primary-light); background: rgba(79,70,229,0.08); }
-    .upload-area input[type="file"] {
+    .urgent-toggle__text { font-weight: 600; font-size: var(--fs-sm); color: var(--text); }
+    .urgent-toggle__hint { font-size: var(--fs-xs); color: var(--text-secondary); }
+
+    .pago-wrap { position: relative; }
+    .pago-wrap__prefix {
         position: absolute;
-        inset: 0;
-        opacity: 0;
-        cursor: pointer;
-    }
-    .upload-area .upload-icon { font-size: 2rem; color: var(--text-secondary); margin-bottom: 8px; }
-    .upload-area .upload-text { font-size: 0.85rem; color: var(--text-secondary); font-weight: 500; }
-    .upload-area .upload-hint { font-size: 0.75rem; color: var(--text-secondary); margin-top: 4px; }
-    .step-progress {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 20px;
-    }
-    .step-bar {
-        flex: 1;
-        height: 4px;
-        border-radius: 2px;
-        background: var(--surface-alt);
-    }
-    .step-bar.active { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
-    .pago-input-wrap {
-        position: relative;
-    }
-    .pago-input-wrap .currency-prefix {
-        position: absolute;
-        left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-weight: 700;
-        color: var(--money);
-        font-size: 1rem;
+        left: 14px; top: 50%; transform: translateY(-50%);
+        font-weight: 700; color: var(--money);
         pointer-events: none;
     }
-    .pago-input-wrap .form-control {
-        padding-left: 32px;
-        font-weight: 700;
-        font-size: 1.1rem;
+    .pago-wrap .form-control { padding-left: 30px; font-weight: 700; }
+    .pago-valor {
+        font-size: var(--fs-xs);
         color: var(--money);
-    }
-    @media (min-width: 992px) {
-        .content-wrapper { max-width: 1100px !important; }
-        .form-layout { display: grid; grid-template-columns: 1fr 280px; gap: 24px; align-items: start; }
-        .form-aside { position: sticky; top: 80px; }
-        .form-aside .tips-card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 18px; margin-bottom: 12px; }
-        .form-aside .tips-card .tip-title { font-weight: 700; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-secondary); margin-bottom: 12px; }
-        .form-aside .tips-card .tip-item { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 10px; font-size: 0.82rem; color: var(--text-secondary); line-height: 1.4; }
-        .form-aside .tips-card .tip-item:last-child { margin-bottom: 0; }
-        .form-aside .tips-card .tip-icon { width: 24px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
     }
 </style>
 {% endblock %}
+
 {% block content %}
-<div class="form-layout">
-<div>
+<div class="job-head">
+    <h1>{{ titulo_pagina }}</h1>
+    <p>
+        Completa la información para que los estudiantes puedan encontrar tu
+        trabajo. Son cuatro pasos y puedes volver atrás en cualquiera.
+    </p>
+</div>
 
-<!-- Header -->
-<div style="text-align:center; margin-bottom: 20px;">
-    <div style="width:56px; height:56px; border-radius:16px; background:linear-gradient(135deg,var(--primary),var(--primary-light)); display:inline-flex; align-items:center; justify-content:center; margin-bottom:10px;">
-        <i class="bi bi-{% if 'Editar' in titulo_pagina %}pencil-square{% else %}megaphone-fill{% endif %}" style="color:#fff; font-size:1.5rem;"></i>
+{% if form.errors %}
+<div class="auth-alert" role="alert" tabindex="-1" id="error-summary" style="margin-bottom:var(--space-5);">
+    <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+    <div>
+        <strong>Revisa {{ form.errors|length }} campo(s).</strong>
+        <ul style="margin:8px 0 0; padding-left:18px;">
+            {% for field in form %}
+                {% if field.errors %}
+                <li><a href="#{{ field.id_for_label }}" data-error-link style="color:inherit;">{{ field.label }}: {{ field.errors.0 }}</a></li>
+                {% endif %}
+            {% endfor %}
+        </ul>
     </div>
-    <h5 style="font-weight:800; margin:0;">{{ titulo_pagina }}</h5>
-    <p style="font-size:0.8rem; color:var(--text-secondary); margin-top:4px;">Completa la información para que los estudiantes puedan encontrar tu trabajo</p>
 </div>
+{% endif %}
 
-<!-- Progress indicators -->
-<div class="step-progress">
-    <div class="step-bar active"></div>
-    <div class="step-bar active"></div>
-    <div class="step-bar active"></div>
-    <div class="step-bar active"></div>
-</div>
-
-<form method="post" enctype="multipart/form-data">
+<div class="job-layout">
+<div>
+<form method="post" enctype="multipart/form-data" data-wizard novalidate>
     {% csrf_token %}
 
-    <!-- Section 1: Información básica -->
-    <div class="form-section">
-        <div class="form-section-header">
-            <div class="icon-circle" style="background:var(--icon-purple-bg); color:#A78BFA;">
-                <i class="bi bi-info-circle-fill"></i>
-            </div>
-            <div>
-                <h6>Información básica</h6>
-                <small>Título y descripción del trabajo</small>
-            </div>
-        </div>
+    <ol class="stepper" style="--pasos: 4;">
+        <li class="stepper__item is-current">
+            <button type="button" class="stepper__btn" data-step-target="1">
+                <span class="stepper__dot" aria-hidden="true">1</span>
+                <span class="stepper__label">Descripción</span>
+            </button>
+        </li>
+        <li class="stepper__item">
+            <button type="button" class="stepper__btn" data-step-target="2">
+                <span class="stepper__dot" aria-hidden="true">2</span>
+                <span class="stepper__label">Clasificación</span>
+            </button>
+        </li>
+        <li class="stepper__item">
+            <button type="button" class="stepper__btn" data-step-target="3">
+                <span class="stepper__dot" aria-hidden="true">3</span>
+                <span class="stepper__label">Pago y plazo</span>
+            </button>
+        </li>
+        <li class="stepper__item">
+            <button type="button" class="stepper__btn" data-step-target="4">
+                <span class="stepper__dot" aria-hidden="true">4</span>
+                <span class="stepper__label">Extras</span>
+            </button>
+        </li>
+    </ol>
 
-        <div class="form-field mb-3">
-            <label for="id_titulo"><i class="bi bi-type-h1"></i> {{ form.titulo.label }}</label>
-            {{ form.titulo|add_class:"form-control" }}
-            {% if form.titulo.errors %}<div class="text-danger small mt-1" role="alert">{{ form.titulo.errors.0 }}</div>{% endif %}
-        </div>
+    <p class="stepper__meta" data-step-meta aria-live="polite"></p>
 
-        <div class="form-field mb-3">
-            <label for="id_descripcion"><i class="bi bi-text-paragraph"></i> {{ form.descripcion.label }}</label>
-            {{ form.descripcion|add_class:"form-control" }}
-            {% if form.descripcion.errors %}<div class="text-danger small mt-1" role="alert">{{ form.descripcion.errors.0 }}</div>{% endif %}
-        </div>
+    <div class="job-panel">
 
-        <div class="form-field">
-            <label for="id_requisitos"><i class="bi bi-list-check"></i> {{ form.requisitos.label }}</label>
-            {{ form.requisitos|add_class:"form-control" }}
-            <div class="form-text" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">Opcional — detalla qué necesitas del candidato</div>
-            {% if form.requisitos.errors %}<div class="text-danger small mt-1" role="alert">{{ form.requisitos.errors.0 }}</div>{% endif %}
-        </div>
-    </div>
+        <!-- Paso 1: descripción -->
+        <section class="step-panel is-active" data-step-panel="1" aria-labelledby="j1-titulo">
+            <h2 class="step-panel__title" id="j1-titulo" data-step-heading data-step-title="1">Descripción del trabajo</h2>
+            <p class="step-panel__hint">
+                Un título claro y una descripción concreta son lo que más ayudan a
+                que el trabajo encaje con el perfil correcto.
+            </p>
 
-    <!-- Section 2: Categorización -->
-    <div class="form-section">
-        <div class="form-section-header">
-            <div class="icon-circle" style="background:var(--icon-blue-bg); color:var(--badge-blue-text);">
-                <i class="bi bi-tags-fill"></i>
-            </div>
-            <div>
-                <h6>Categorización</h6>
-                <small>Categoría, modalidad y habilidades</small>
-            </div>
-        </div>
-
-        <div class="form-row mb-3">
-            <div class="form-field">
-                <label for="id_categoria"><i class="bi bi-bookmark"></i> {{ form.categoria.label }}</label>
-                {{ form.categoria|add_class:"form-select" }}
-                {% if form.categoria.errors %}<div class="text-danger small mt-1" role="alert">{{ form.categoria.errors.0 }}</div>{% endif %}
-            </div>
-            <div class="form-field">
-                <label for="id_modalidad"><i class="bi bi-geo-alt"></i> {{ form.modalidad.label }}</label>
-                {{ form.modalidad|add_class:"form-select" }}
-                {% if form.modalidad.errors %}<div class="text-danger small mt-1" role="alert">{{ form.modalidad.errors.0 }}</div>{% endif %}
-            </div>
-        </div>
-
-        <div class="form-field mb-3">
-            <label for="id_ubicacion"><i class="bi bi-pin-map"></i> {{ form.ubicacion.label }}</label>
-            {{ form.ubicacion|add_class:"form-control" }}
-            <div class="form-text" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">Opcional — relevante si es presencial o híbrido</div>
-            {% if form.ubicacion.errors %}<div class="text-danger small mt-1" role="alert">{{ form.ubicacion.errors.0 }}</div>{% endif %}
-        </div>
-
-        <div class="form-field">
-            <label for="id_habilidades_requeridas"><i class="bi bi-lightning"></i> {{ form.habilidades_requeridas.label }}</label>
-            {{ form.habilidades_requeridas|add_class:"form-control" }}
-            <div class="form-text" style="font-size:0.75rem; color:var(--text-secondary); margin-top:4px;">Separadas por comas</div>
-            {% if form.habilidades_requeridas.errors %}<div class="text-danger small mt-1" role="alert">{{ form.habilidades_requeridas.errors.0 }}</div>{% endif %}
-        </div>
-    </div>
-
-    <!-- Section 3: Pago y tiempo -->
-    <div class="form-section">
-        <div class="form-section-header">
-            <div class="icon-circle" style="background:var(--icon-green-bg); color:var(--badge-green-text);">
-                <i class="bi bi-cash-stack"></i>
-            </div>
-            <div>
-                <h6>Pago y plazo</h6>
-                <small>Compensación y tiempos del trabajo</small>
-            </div>
-        </div>
-
-        <div class="form-row mb-3">
-            <div class="form-field">
-                <label for="id_pago"><i class="bi bi-currency-dollar"></i> {{ form.pago.label }}</label>
-                <div class="pago-input-wrap">
-                    <span class="currency-prefix">$</span>
-                    {{ form.pago|add_class:"form-control" }}
+            <div class="step-panel__body">
+                <div class="field">
+                    <label class="field__label" for="{{ form.titulo.id_for_label }}">{{ form.titulo.label }}</label>
+                    {{ form.titulo|accessible:"form-control" }}
+                    <div class="counter" data-counter><span data-counter-text></span></div>
+                    {% field_error form.titulo %}
                 </div>
-                {% if form.pago.errors %}<div class="text-danger small mt-1" role="alert">{{ form.pago.errors.0 }}</div>{% endif %}
-            </div>
-            <div class="form-field">
-                <label for="id_duracion_estimada"><i class="bi bi-hourglass-split"></i> {{ form.duracion_estimada.label }}</label>
-                {{ form.duracion_estimada|add_class:"form-control" }}
-                {% if form.duracion_estimada.errors %}<div class="text-danger small mt-1" role="alert">{{ form.duracion_estimada.errors.0 }}</div>{% endif %}
-            </div>
-        </div>
 
-        <div class="form-field">
-            <label for="id_fecha_limite"><i class="bi bi-calendar-event"></i> {{ form.fecha_limite.label }}</label>
-            {{ form.fecha_limite|add_class:"form-control" }}
-            {% if form.fecha_limite.errors %}<div class="text-danger small mt-1" role="alert">{{ form.fecha_limite.errors.0 }}</div>{% endif %}
-        </div>
+                <div class="field">
+                    <label class="field__label" for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+                    {{ form.descripcion|accessible:"form-control" }}
+                    <div class="counter" data-counter><span data-counter-text></span></div>
+                    {% field_error form.descripcion %}
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="{{ form.requisitos.id_for_label }}">{{ form.requisitos.label }}</label>
+                    {{ form.requisitos|accessible:"form-control" }}
+                    <span class="field__hint">Opcional. Detalla qué necesitas del candidato.</span>
+                    <div class="counter" data-counter><span data-counter-text></span></div>
+                    {% field_error form.requisitos %}
+                </div>
+            </div>
+
+            <div class="step-nav">
+                <button type="button" class="step-nav__next" data-step-next>
+                    Continuar <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Paso 2: clasificación -->
+        <section class="step-panel" data-step-panel="2" aria-labelledby="j2-titulo" hidden>
+            <h2 class="step-panel__title" id="j2-titulo" data-step-heading data-step-title="2">Clasificación</h2>
+            <p class="step-panel__hint">
+                La categoría, la modalidad y las habilidades son lo que el estudiante
+                filtra cuando busca.
+            </p>
+
+            <div class="step-panel__body">
+                <div class="step-panel__grid">
+                    <div class="field">
+                        <label class="field__label" for="{{ form.categoria.id_for_label }}">{{ form.categoria.label }}</label>
+                        {{ form.categoria|accessible:"form-select" }}
+                        {% field_error form.categoria %}
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="{{ form.modalidad.id_for_label }}">{{ form.modalidad.label }}</label>
+                        {{ form.modalidad|accessible:"form-select" }}
+                        {% field_error form.modalidad %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="{{ form.ubicacion.id_for_label }}">{{ form.ubicacion.label }}</label>
+                    {{ form.ubicacion|accessible:"form-control" }}
+                    <span class="field__hint">Opcional. Relevante si la modalidad es presencial o híbrida.</span>
+                    {% field_error form.ubicacion %}
+                </div>
+
+                <div class="field">
+                    <span class="field__label" id="habilidades-label">{{ form.habilidades_requeridas.label }}</span>
+                    <div class="tag-list" data-tag-list>
+                        <span class="tag-list__empty" data-tag-empty>Sin habilidades todavía.</span>
+                    </div>
+                    <input type="text" class="tag-entry" id="entrada-habilidad"
+                           data-tag-entry placeholder="Python, diseño gráfico, Excel"
+                           aria-labelledby="habilidades-label">
+                    <span class="field__hint">Pulsa Enter después de cada habilidad.</span>
+                    <span style="display:none;" aria-hidden="true">{{ form.habilidades_requeridas }}</span>
+                    {% field_error form.habilidades_requeridas %}
+                </div>
+            </div>
+
+            <div class="step-nav">
+                <button type="button" class="step-nav__back" data-step-back>
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i> Atrás
+                </button>
+                <button type="button" class="step-nav__next" data-step-next>
+                    Continuar <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Paso 3: pago y plazo -->
+        <section class="step-panel" data-step-panel="3" aria-labelledby="j3-titulo" hidden>
+            <h2 class="step-panel__title" id="j3-titulo" data-step-heading data-step-title="3">Pago y plazo</h2>
+            <p class="step-panel__hint">
+                El pago se registra en la plataforma y se acuerda directamente con
+                el estudiante.
+            </p>
+
+            <div class="step-panel__body">
+                <div class="step-panel__grid">
+                    <div class="field">
+                        <label class="field__label" for="{{ form.pago.id_for_label }}">{{ form.pago.label }}</label>
+                        <div class="pago-wrap">
+                            <span class="pago-wrap__prefix" aria-hidden="true">$</span>
+                            {{ form.pago|accessible:"form-control" }}
+                        </div>
+                        <span class="pago-valor" data-money-text></span>
+                        {% field_error form.pago %}
+                    </div>
+                    <div class="field">
+                        <label class="field__label" for="{{ form.duracion_estimada.id_for_label }}">{{ form.duracion_estimada.label }}</label>
+                        {{ form.duracion_estimada|accessible:"form-control" }}
+                        {% field_error form.duracion_estimada %}
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="field__label" for="{{ form.fecha_limite.id_for_label }}">{{ form.fecha_limite.label }}</label>
+                    {{ form.fecha_limite|accessible:"form-control" }}
+                    <span class="field__hint">Es la fecha en que la publicación deja de aceptar postulaciones.</span>
+                    {% field_error form.fecha_limite %}
+                </div>
+            </div>
+
+            <div class="step-nav">
+                <button type="button" class="step-nav__back" data-step-back>
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i> Atrás
+                </button>
+                <button type="button" class="step-nav__next" data-step-next>
+                    Continuar <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- Paso 4: extras -->
+        <section class="step-panel" data-step-panel="4" aria-labelledby="j4-titulo" hidden>
+            <h2 class="step-panel__title" id="j4-titulo" data-step-heading data-step-title="4">Extras</h2>
+            <p class="step-panel__hint">
+                Marcar la publicación como urgente y añadir una imagen de referencia
+                son opcionales.
+            </p>
+
+            <div class="step-panel__body">
+                <label for="{{ form.urgente.id_for_label }}" class="urgent-toggle">
+                    {{ form.urgente }}
+                    <span class="urgent-toggle__icon" aria-hidden="true"><i class="bi bi-lightning-charge-fill"></i></span>
+                    <span>
+                        <span class="urgent-toggle__text">{{ form.urgente.label }}</span>
+                        <span class="urgent-toggle__hint">Se mostrará con una etiqueta destacada</span>
+                    </span>
+                </label>
+
+                <div class="field">
+                    <span class="field__label" id="imagen-label">{{ form.imagen.label }}</span>
+                    {% if form.instance.imagen %}
+                    <div id="imgPreviewWrap" style="margin-bottom:var(--space-3); border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--border);">
+                        <img id="imgPreview" src="{{ form.instance.imagen.url }}" alt="Imagen actual" style="width:100%; max-height:220px; object-fit:cover; display:block;">
+                    </div>
+                    {% else %}
+                    <div id="imgPreviewWrap" style="display:none; margin-bottom:var(--space-3); border-radius:var(--radius-md); overflow:hidden; border:1px solid var(--border);">
+                        <img id="imgPreview" src="" alt="Vista previa de la imagen" style="width:100%; max-height:220px; object-fit:cover; display:block;">
+                    </div>
+                    {% endif %}
+                    <div class="upload-zone" data-upload-zone>
+                        <input type="file" name="{{ form.imagen.html_name }}" id="{{ form.imagen.id_for_label }}"
+                               accept="image/jpeg,image/png" aria-labelledby="imagen-label">
+                        <span class="upload-zone__icon" data-upload-icon aria-hidden="true"><i class="bi bi-cloud-arrow-up"></i></span>
+                        <span class="upload-zone__title">{% if form.instance.imagen %}Cambiar la imagen{% else %}Arrastra una imagen o haz clic para elegirla{% endif %}</span>
+                        <span class="upload-zone__hint">JPG o PNG, hasta 5 MB</span>
+                        <span class="field__error" data-upload-error hidden></span>
+                        <span class="upload-zone__preview" data-upload-preview>
+                            <img src="" alt="">
+                            <span style="min-width:0;">
+                                <span class="upload-zone__name" data-upload-name></span>
+                                <span class="upload-zone__meta" data-upload-meta></span>
+                            </span>
+                        </span>
+                    </div>
+                    {% field_error form.imagen %}
+                </div>
+            </div>
+
+            <div class="step-nav">
+                <button type="button" class="step-nav__back" data-step-back>
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i> Atrás
+                </button>
+                <button type="submit" class="step-nav__next" data-submit-btn data-submit-pending="Enviando...">
+                    <span data-submit-label>{% if 'Editar' in titulo_pagina %}Guardar cambios{% else %}Publicar trabajo{% endif %}</span>
+                    <i class="bi bi-check-lg" aria-hidden="true"></i>
+                </button>
+            </div>
+        </section>
     </div>
-
-    <!-- Section 4: Extras -->
-    <div class="form-section">
-        <div class="form-section-header">
-            <div class="icon-circle" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);">
-                <i class="bi bi-stars"></i>
-            </div>
-            <div>
-                <h6>Extras</h6>
-                <small>Prioridad e imagen de referencia</small>
-            </div>
-        </div>
-
-        <!-- Urgente toggle -->
-        <label class="urgente-toggle mb-3">
-            {{ form.urgente }}
-            <div class="toggle-icon">
-                <i class="bi bi-lightning-charge-fill"></i>
-            </div>
-            <div>
-                <div class="toggle-text">{{ form.urgente.label }}</div>
-                <div class="toggle-hint">Se mostrará con una etiqueta destacada</div>
-            </div>
-        </label>
-
-        <!-- Image upload -->
-        <div class="form-field">
-            <label><i class="bi bi-image"></i> {{ form.imagen.label }}</label>
-            <!-- Current image (edit mode) -->
-            {% if form.instance.imagen %}
-            <div id="imgPreviewWrap" style="margin-bottom:10px; border-radius:12px; overflow:hidden; border:1px solid var(--border);">
-                <img id="imgPreview" src="{{ form.instance.imagen.url }}" style="width:100%; max-height:200px; object-fit:cover; display:block;">
-            </div>
-            {% else %}
-            <div id="imgPreviewWrap" style="display:none; margin-bottom:10px; border-radius:12px; overflow:hidden; border:1px solid var(--border);">
-                <img id="imgPreview" src="" style="width:100%; max-height:200px; object-fit:cover; display:block;" alt="Vista previa">
-            </div>
-            {% endif %}
-            <div class="upload-area">
-                {{ form.imagen }}
-                <div class="upload-icon"><i class="bi bi-cloud-arrow-up" id="uploadIcon"></i></div>
-                <div class="upload-text" id="uploadText">{% if form.instance.imagen %}Cambiar imagen{% else %}Toca para subir una imagen{% endif %}</div>
-                <div class="upload-hint">JPG, PNG — máximo 5 MB</div>
-            </div>
-            {% if form.imagen.errors %}<div class="text-danger small mt-1" role="alert">{{ form.imagen.errors.0 }}</div>{% endif %}
-        </div>
-    </div>
-
-    <!-- Submit -->
-    <button type="submit" class="btn btn-lg w-100 py-3" style="background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; font-weight:700; border:none; border-radius:14px; font-size:1rem; box-shadow:0 4px 16px rgba(79,70,229,0.35);">
-        <i class="bi bi-{% if 'Editar' in titulo_pagina %}check-circle{% else %}rocket-takeoff-fill{% endif %}"></i>
-        {% if 'Editar' in titulo_pagina %}Guardar cambios{% else %}Publicar trabajo{% endif %}
-    </button>
-
-    <p style="text-align:center; font-size:0.75rem; color:var(--text-secondary); margin-top:12px; margin-bottom:0;">
-        <i class="bi bi-shield-check"></i> Tu publicación será visible para todos los estudiantes
-    </p>
 </form>
-</div>{# end form main column #}
 
-<aside class="form-aside">
-    <div class="tips-card">
-        <div class="tip-title"><i class="bi bi-lightbulb-fill" style="color:#F59E0B;"></i> Consejos</div>
-        <div class="tip-item">
-            <div class="tip-icon" style="background:var(--icon-blue-bg); color:var(--badge-blue-text);"><i class="bi bi-type-h1"></i></div>
+<p class="job-note">
+    <i class="bi bi-shield-check" aria-hidden="true"></i>
+    <span>Tu publicación pasa por revisión de moderación: se hará visible para todos los estudiantes cuando un moderador la apruebe.</span>
+</p>
+</div>
+
+<aside class="job-aside">
+    <div class="aside-card">
+        <p class="aside-card__title"><i class="bi bi-lightbulb" aria-hidden="true"></i> Consejos</p>
+        <div class="aside-item">
+            <i class="bi bi-type" aria-hidden="true"></i>
             <span>Usa un título claro y específico para atraer más candidatos.</span>
         </div>
-        <div class="tip-item">
-            <div class="tip-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-currency-dollar"></i></div>
+        <div class="aside-item">
+            <i class="bi bi-cash-coin" aria-hidden="true"></i>
             <span>Establece un pago justo y competitivo para el trabajo.</span>
         </div>
-        <div class="tip-item">
-            <div class="tip-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-list-check"></i></div>
-            <span>Detalla los requisitos para recibir candidatos más calificados.</span>
+        <div class="aside-item">
+            <i class="bi bi-list-check" aria-hidden="true"></i>
+            <span>Detalla los requisitos para recibir candidatos mejor calificados.</span>
         </div>
-        <div class="tip-item">
-            <div class="tip-icon" style="background:var(--icon-purple-bg); color:#C4B5FD;"><i class="bi bi-lightning"></i></div>
+        <div class="aside-item">
+            <i class="bi bi-lightning" aria-hidden="true"></i>
             <span>Marca como urgente si necesitas a alguien lo antes posible.</span>
         </div>
     </div>
-    <div class="tips-card">
-        <div class="tip-title"><i class="bi bi-shield-check" style="color:#10B981;"></i> Garantía</div>
-        <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.5;">
-            Tu publicación será revisada por nuestra comunidad. Establece condiciones claras para una buena experiencia.
+    <div class="aside-card">
+        <p class="aside-card__title"><i class="bi bi-shield-check" aria-hidden="true"></i> Revisión</p>
+        <div class="aside-item" style="margin-bottom:0;">
+            <i class="bi bi-eye" aria-hidden="true"></i>
+            <span>Establece condiciones claras para una buena experiencia con el estudiante que contracte.</span>
         </div>
     </div>
 </aside>
-</div>{# end form-layout #}
+</div>
 {% endblock %}
+
 {% block extra_js %}
-<script>
-const imgInput = document.getElementById('id_imagen');
-if (imgInput) {
-    imgInput.addEventListener('change', function () {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const preview = document.getElementById('imgPreview');
-                const wrap = document.getElementById('imgPreviewWrap');
-                const text = document.getElementById('uploadText');
-                const icon = document.getElementById('uploadIcon');
-                preview.src = e.target.result;
-                wrap.style.display = 'block';
-                text.textContent = this.files[0].name;
-                icon.className = 'bi bi-check-circle-fill';
-                icon.style.color = 'var(--money)';
-            };
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-}
-</script>
+<script src="{% static 'js/wizard.js' %}" defer></script>
 {% endblock %}

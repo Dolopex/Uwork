@@ -1,0 +1,11 @@
+{% comment %}
+Interruptor de tema para las pantallas que no tienen barra superior.
+
+El boton es fijo en la esquina superior derecha y usa la clase
+.theme-toggle-float, definida en static/css/style.css. El icono y el
+nombre accesible los pone static/js/theme.js.
+{% endcomment %}
+<button type="button" data-theme-toggle class="theme-toggle-float"
+        title="Cambiar tema" aria-label="Cambiar tema">
+    <i class="bi bi-moon-fill" aria-hidden="true"></i>
+</button>

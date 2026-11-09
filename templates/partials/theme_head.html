@@ -1,0 +1,11 @@
+{% comment %}
+Aplica el tema guardado antes de pintar la pagina.
+
+Va en el <head> y es sincronico a proposito: si se aplaza, el navegador
+pinta primero el tema claro y despues cambia a oscuro, que es el destello
+que se ve al recargar en tema oscuro.
+
+Este fragmento es el unico lugar donde se lee localStorage. Todas las
+pantallas lo incluyen, incluidas las que no heredan de base.html.
+{% endcomment %}
+<script nonce="{{ csp_nonce }}">(function(){var t=localStorage.getItem('uwork-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})();</script>

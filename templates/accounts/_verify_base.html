@@ -1,3 +1,4 @@
+{% load static %}
 {% comment %}
 Standalone shell for the R11 email-verification screens.
 Dark mode is read from localStorage before paint, same as login.html.
@@ -6,101 +7,78 @@ Dark mode is read from localStorage before paint, same as login.html.
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Verifica tu correo — U-Work{% endblock %}</title>
+    <title>{% block title %}Verifica tu correo · U-Work{% endblock %}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>(function(){var t=localStorage.getItem('uwork-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
+    {% include 'partials/theme_head.html' %}
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-            --v-bg: #F4F7FF;
-            --v-card: #FFFFFF;
-            --v-border: #DBEAFE;
-            --v-shadow: 0 4px 16px rgba(37,99,235,0.06);
-            --v-text: #0F172A;
-            --v-muted: #64748B;
-            --v-link: #1D4ED8;
-            --v-input-bg: #F8FAFC;
-            --v-input-border: #CBD5E1;
-            --v-ok: #059669;
-            --v-err: #DC2626;
-            --v-warn: #D97706;
-        }
-        [data-theme="dark"] {
-            --v-bg: #101C2C;
-            --v-card: #16243A;
-            --v-border: #223A5E;
-            --v-shadow: 0 4px 16px rgba(16,28,44,0.15);
-            --v-text: #E3F6FF;
-            --v-muted: #7FB7C9;
-            --v-link: #38BDF8;
-            --v-input-bg: #132033;
-            --v-input-border: #223A5E;
-            --v-ok: #34D399;
-            --v-err: #FCA5A5;
-            --v-warn: #FBBF24;
-        }
         body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            min-height: 100vh;
-            background: var(--v-bg);
             display: flex; align-items: center; justify-content: center;
-            padding: 24px 16px;
-            -webkit-font-smoothing: antialiased;
-            color: var(--v-text);
+            padding: var(--space-6) var(--space-4);
         }
         .v-card {
-            background: var(--v-card);
-            border: 1px solid var(--v-border);
-            border-radius: 20px;
-            box-shadow: var(--v-shadow);
-            padding: 32px 28px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: var(--space-6);
             max-width: 440px; width: 100%;
             text-align: center;
         }
         .v-icon {
-            width: 64px; height: 64px; border-radius: 18px;
+            width: 64px; height: 64px; border-radius: var(--radius-lg);
             display: inline-flex; align-items: center; justify-content: center;
             font-size: 1.7rem; margin-bottom: 18px;
         }
-        .v-icon.ok    { background: rgba(5,150,105,0.12);  color: var(--v-ok); }
-        .v-icon.err   { background: rgba(220,38,38,0.12);   color: var(--v-err); }
-        .v-icon.warn  { background: rgba(217,119,6,0.12);   color: var(--v-warn); }
-        .v-icon.info  { background: rgba(37,99,235,0.12);  color: var(--v-link); }
-        h1 { font-size: 1.3rem; font-weight: 800; margin-bottom: 8px; }
-        p  { font-size: 0.88rem; color: var(--v-muted); line-height: 1.6; }
+        .v-icon.ok    { background: var(--state-success-soft); color: var(--state-success); }
+        .v-icon.err   { background: var(--state-danger-soft);  color: var(--state-danger); }
+        .v-icon.warn  { background: var(--state-warning-soft); color: var(--state-warning); }
+        .v-icon.info  { background: var(--brand-soft);        color: var(--brand-ink); }
+        h1 { font-size: var(--fs-xl); font-weight: 800; margin-bottom: var(--space-2); }
+        p  { font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.6; }
         .v-mail {
             display: inline-block; margin: 14px 0 4px; padding: 8px 16px;
-            border-radius: 10px; background: var(--v-input-bg);
-            border: 1px solid var(--v-input-border);
+            border-radius: var(--radius-sm); background: var(--input-bg);
+            border: 1px solid var(--input-border);
             font-weight: 700; font-size: 0.85rem; word-break: break-all;
         }
         .v-actions { margin-top: 22px; display: grid; gap: 10px; }
         .btn-v {
-            display: block; padding: 13px 20px; border-radius: 12px;
+            display: block; padding: 13px 20px; border-radius: var(--radius-md);
             font-weight: 700; font-size: 0.88rem; text-decoration: none;
             border: none; cursor: pointer; text-align: center;
         }
-        .btn-v-primary { background: linear-gradient(135deg,#4F46E5,#818CF8); color:#fff; }
-        .btn-v-ghost   { background: transparent; color: var(--v-muted); border: 1px solid var(--v-border); }
-        label { display: block; font-size: 0.75rem; font-weight: 700;
-                text-transform: uppercase; letter-spacing: 0.5px;
-                color: var(--v-muted); margin-bottom: 6px; text-align: left; }
+        .btn-v-primary { background: var(--primary-solid); color:#fff; }
+        .btn-v-ghost   { background: transparent; color: var(--text-secondary); border: 1px solid var(--border); }
+        label { display: block; font-size: var(--fs-sm); font-weight: 600;
+                color: var(--text-secondary); margin-bottom: 6px; text-align: left; }
         input[type="email"] {
-            width: 100%; padding: 12px 14px; font-size: 0.9rem;
-            border-radius: 12px; border: 1px solid var(--v-input-border);
-            background: var(--v-input-bg); color: var(--v-text);
+            width: 100%; padding: 12px 14px; font-size: 1rem;
+            border-radius: var(--radius-md); border: 1px solid var(--input-border);
+            background: var(--input-bg); color: var(--text);
         }
         input[type="email"]:focus {
-            outline: none; border-color: var(--v-link);
-            box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px var(--brand-soft);
         }
-        .v-note { margin-top: 18px; font-size: 0.75rem; color: var(--v-muted); }
-        .v-flash { margin-bottom: 20px; font-size: 0.82rem; border-radius: 12px; }
+        /* _verify_base.html es standalone: define su propio indicador de
+           foco en vez de anular el contorno del navegador. */
+        input[type="email"]:focus-visible,
+        .v-btn:focus-visible,
+        a:focus-visible {
+            outline: 2px solid var(--primary);
+            outline-offset: 2px;
+        }
+        .v-note { margin-top: var(--space-4); font-size: var(--fs-xs); color: var(--text-secondary); }
+        .v-flash { margin-bottom: 20px; font-size: 0.82rem; border-radius: var(--radius-md); }
     </style>
 </head>
-<body>
+<body class="sin-navegacion">
+    {% include 'partials/theme_toggle.html' %}
     <div class="v-card">
         {% if messages %}
         {% for message in messages %}
@@ -111,5 +89,6 @@ Dark mode is read from localStorage before paint, same as login.html.
         {% endif %}
         {% block content %}{% endblock %}
     </div>
+    <script src="{% static 'js/theme.js' %}" defer></script>
 </body>
 </html>

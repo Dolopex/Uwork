@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Tickets de soporte · U-Work{% endblock %}
+{% block content %}
+<div style="max-width:1000px; margin:0 auto;">
+
+    <div class="d-flex justify-content-between align-items-center mb-3" style="flex-wrap:wrap; gap:10px;">
+        <div>
+            <h4 style="font-weight:800; color:var(--text); margin:0 0 4px;">
+                <i class="bi bi-inbox"></i> Tickets de soporte
+            </h4>
+            <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+                Cola de reportes enviados por los usuarios.
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'support:panel_tickets' %}?estado=abiertos" class="btn btn-sm"
+               style="border:1.5px solid var(--border); border-radius: var(--radius-sm); font-weight:700; color:var(--text); padding:8px 14px;">
+                Abiertos ({{ abiertos }})
+            </a>
+            <a href="{% url 'support:panel_tickets' %}?estado=todos" class="btn btn-sm"
+               style="border:1.5px solid var(--border); border-radius: var(--radius-sm); font-weight:700; color:var(--text); padding:8px 14px;">
+                Todos
+            </a>
+        </div>
+    </div>
+
+    {% if not tickets %}
+    <div class="card"><div class="card-body text-center" style="padding:44px 16px;">
+        <i class="bi bi-inbox" style="font-size:2rem; color:var(--text-secondary); opacity:0.5;"></i>
+        <p style="font-size:0.88rem; font-weight:700; color:var(--text); margin:12px 0 4px;">
+            No hay tickets en esta vista
+        </p>
+        <p style="font-size:0.78rem; color:var(--text-secondary); margin:0;">
+            {{ resueltos }} resueltos en total.
+        </p>
+    </div></div>
+    {% endif %}
+
+    {% for t in tickets %}
+    <div class="card mb-3" {% if t.abierto %}style="border-color:rgba(217,119,6,0.35);"{% endif %}>
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start mb-2" style="gap:12px;">
+                <div style="min-width:0;">
+                    <div style="font-size:var(--fs-xs); font-weight:700; font-size:0.9rem; color:var(--text);">
+                        #{{ t.pk }} · {{ t.get_tipo_display }}
+                        <span class="badge"
+                              style="background:{% if t.estado == 'resuelto' %}rgba(5,150,105,0.15);color:var(--state-success){% elif t.estado == 'en_revision' %}rgba(217,119,6,0.15);color:var(--state-warning){% else %}rgba(107,114,128,0.15);color:var(--state-neutral){% endif %};">
+                            {{ t.get_estado_display }}
+                        </span>
+                    </div>
+                    <div style="font-size:0.78rem; color:var(--text-secondary); margin-top:3px;">
+                        <i class="bi bi-person"></i> {{ t.reporter }}
+                        {% if t.usuario_reportado %} · sobre {{ t.usuario_reportado }}{% endif %}
+                        · {{ t.created_at|date:"d/m/Y H:i" }}
+                    </div>
+                </div>
+            </div>
+
+            <div style="font-size:0.83rem; color:var(--text); padding:11px 13px; background:var(--surface-alt); border-radius: var(--radius-sm); margin-bottom:8px;">
+                <strong style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">
+                    Descripción del usuario</strong>
+                {{ t.descripcion }}
+            </div>
+
+            {% if t.respuesta %}
+            <div style="font-size:0.82rem; color:var(--text); padding:11px 13px; background:rgba(5,150,105,0.08); border-radius: var(--radius-sm); margin-bottom:10px;">
+                <strong style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">
+                    Respuesta enviada</strong>
+                {{ t.respuesta }}
+            </div>
+            {% endif %}
+
+            <form method="post" action="{% url 'support:resolver_ticket' t.pk %}">
+                {% csrf_token %}
+                <label for="respuesta_{{ t.pk }}" style="font-size:0.75rem; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">
+                    Respuesta al usuario
+                </label>
+                <textarea name="respuesta" id="respuesta_{{ t.pk }}" rows="2"
+                          placeholder="Escribe la respuesta (obligatoria para resolver)"
+                          style="width:100%; padding:10px 12px; font-size:0.85rem; border-radius: var(--radius-sm);
+                                 border:1px solid var(--input-border); background:var(--input-bg); color:var(--text); margin-bottom:8px;">{{ t.respuesta }}</textarea>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" name="estado" value="resuelto" class="btn btn-sm"
+                            style="background:var(--state-success); color:#fff; border:none; border-radius: var(--radius-sm); font-weight:700; padding:9px 16px;">
+                        <i class="bi bi-check-lg"></i> Resolver y avisar
+                    </button>
+                    <button type="submit" name="estado" value="en_revision" class="btn btn-sm btn-outline-secondary"
+                            style="border-radius: var(--radius-sm); font-weight:700; padding:9px 16px;">
+                        Marcar en revisión
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

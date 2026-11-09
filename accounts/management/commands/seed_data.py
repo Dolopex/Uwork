@@ -5,6 +5,7 @@ calificaciones, notificaciones y tickets de soporte.
 """
 import datetime
 import random
+import sys
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
@@ -213,6 +214,37 @@ JOBS_DATA = [
          ubicacion='Bucaramanga, Colombia', duracion_estimada='2 semanas', urgente=False,
          fecha_limite=past(20), estado='finalizado', emp='redacpro',
          asignado_to='juan_perez'),
+
+    # ── Finalizados de las dos cuentas de demo ──
+    # Las cuentas que se Deliveran para probar (ana_garcia y techcorp)
+    # necesitan historico repartido en varios meses: con un solo trabajo
+    # el grafico de ingresos del balance mostraba una sola barra.
+    dict(titulo='Auditoría de accesibilidad del panel',
+         descripcion='Revisión completa de la accesibilidad del panel administrativo: navegación por teclado, contraste, lectores de pantalla y avisos de error en los formularios.',
+         requisitos='Experiencia con WCAG 2.1 AA. Manejo de axe o Lighthouse. Informe con hallazgos priorizados e integración.',
+         habilidades_requeridas='Accesibilidad, WCAG, Auditoría, HTML',
+         pago=240000, categoria='tecnologia', modalidad='remoto',
+         ubicacion='Remoto', duracion_estimada='1 semana', urgente=False,
+         fecha_limite=past(28), estado='finalizado', emp='techcorp',
+         asignado_to='ana_garcia'),
+
+    dict(titulo='Migración de base de datos a PostgreSQL',
+         descripcion='Migración de una aplicación Django a PostgreSQL: esquemas, índices, consultas lentas y plan de reversa para el despliegue.',
+         requisitos='Experiencia real con PostgreSQL y Django. Manejo de migraciones de datos sin perder información.',
+         habilidades_requeridas='Django, PostgreSQL, SQL, Migraciones',
+         pago=420000, categoria='tecnologia', modalidad='remoto',
+         ubicacion='Remoto', duracion_estimada='2 semanas', urgente=False,
+         fecha_limite=past(45), estado='finalizado', emp='techcorp',
+         asignado_to='ana_garcia'),
+
+    dict(titulo='Manual de usuario con capturas de pantalla',
+         descripcion='Manual de usuario de 40 páginas para un software de inventario, con capturas, diagramas de flujo y guías de tarea paso a paso.',
+         requisitos='Redacción técnica. Manejo de la herramienta de capturas. Diagramas en Draw.io o similar.',
+         habilidades_requeridas='Redacción, Manual, Documentación, Draw.io',
+         pago=195000, categoria='redaccion', modalidad='remoto',
+         ubicacion='Remoto', duracion_estimada='10 días', urgente=False,
+         fecha_limite=past(35), estado='finalizado', emp='redacpro',
+         asignado_to='maria_mtz'),
 ]
 
 REVIEW_COMMENTS = [
@@ -243,6 +275,16 @@ class Command(BaseCommand):
                             help='Elimina todos los datos existentes primero')
 
     def handle(self, *args, **options):
+        # La consola de Windows usa cp1252 por defecto y no puede
+        # representar todos los caracteres de los titulos de prueba
+        # (la flecha de "ingles -> espanol"). Sin esto, el comando se
+        # cae al final de la primera lista de trabajos.
+        for flujo in (sys.stdout, sys.stderr):
+            try:
+                flujo.reconfigure(encoding='utf-8', errors='replace')
+            except (AttributeError, ValueError):
+                pass
+
         if options['flush']:
             self.stdout.write('Eliminando datos existentes...')
             Review.objects.all().delete()
@@ -286,7 +328,8 @@ class Command(BaseCommand):
         # finalizados: 2-5 months ago
         created_ago_months = [0, 0, 1, 1, 0, 1,   # disponibles (indices 0-5)
                                2, 2, 3, 3,          # en_proceso  (indices 6-9)
-                               4, 3, 5, 4, 5]       # finalizados (indices 10-14)
+                               4, 3, 5, 4, 5,        # finalizados (indices 10-14)
+                               2, 1, 3]              # finalizados de las cuentas de demo
 
         job_objs = []
         for idx, d in enumerate(JOBS_DATA):
@@ -310,11 +353,15 @@ class Command(BaseCommand):
                     asignado=asignado,
                 ),
             )
-            # Backdate created_at (bypass auto_now_add with update())
+            # Backdate created_at (bypass auto_now_add with update()).
+            # Tambien updated_at: el balance agrupa el dinero por esa fecha
+            # (el modelo Job no guarda cuando se finalizo un trabajo), y sin
+            # ella todo el dinero cae en el mes en que se corre el seed.
             months_back = created_ago_months[idx] if idx < len(created_ago_months) else 0
             backdated = timezone.now() - datetime.timedelta(days=months_back * 30 + random.randint(0, 12))
-            Job.objects.filter(pk=job.pk).update(created_at=backdated)
+            Job.objects.filter(pk=job.pk).update(created_at=backdated, updated_at=backdated)
             job.created_at = backdated
+            job.updated_at = backdated
             job_objs.append(job)
             self.stdout.write(f'  Trabajo: {job.titulo[:50]} [{job.estado}] ({"creado" if created else "ya existía"})')
 
@@ -372,17 +419,25 @@ class Command(BaseCommand):
         random.shuffle(comment_pool)
         for i, job in enumerate(finished_jobs):
             puntuacion, comentario = comment_pool[i % len(comment_pool)]
-            # Employer → Student
-            Review.objects.get_or_create(
+            # La calificacion se escribe despues de que el trabajo se
+            # finalizo: sin fecha, todas las resenas de la demo tienen la
+            # misma fecha.
+            fecha_resena = job.created_at + datetime.timedelta(
+                days=random.randint(2, 10))
+
+            # Employer hacia Student
+            resena, _ = Review.objects.get_or_create(
                 autor=job.creador, receptor=job.asignado, trabajo=job,
                 defaults=dict(puntuacion=puntuacion, comentario=comentario)
             )
-            # Student → Employer
+            Review.objects.filter(pk=resena.pk).update(created_at=fecha_resena)
+            # Student hacia Employer
             puntuacion2, comentario2 = comment_pool[(i + 1) % len(comment_pool)]
-            Review.objects.get_or_create(
+            resena2, _ = Review.objects.get_or_create(
                 autor=job.asignado, receptor=job.creador, trabajo=job,
                 defaults=dict(puntuacion=puntuacion2, comentario=comentario2)
             )
+            Review.objects.filter(pk=resena2.pk).update(created_at=fecha_resena)
 
         # Update calificacion_promedio for all users
         from django.db.models import Avg
@@ -460,8 +515,10 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(self.style.SUCCESS(
-            '\n✅ Datos de prueba creados exitosamente.\n'
-            '   Credenciales: usuario / demo1234\n'
-            '   Empleadores: techcorp, creativestudio, redacpro\n'
-            '   Estudiantes: ana_garcia, carlos_lopez, maria_mtz, juan_perez, sofia_ramirez'
+            '\nDatos de prueba creados.\n'
+            '\n  Para probar las dos vistas:\n'
+            '    Estudiante   ana_garcia / demo1234\n'
+            '    Empleador    techcorp   / demo1234\n'
+            '\n  Otros empleadores: creativestudio, redacpro\n'
+            '  Otros estudiantes: carlos_lopez, maria_mtz, juan_perez, sofia_ramirez'
         ))

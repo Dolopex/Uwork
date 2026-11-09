@@ -42,6 +42,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    # §6.5.3 — Content-Security-Policy con nonce por request.
+    # Va por fuera de WhiteNoise/Session para que también rotule las
+    # respuestas de redirección (login forzado, 429, etc.).
+    'uwork.middleware.CSPNonceMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -68,6 +72,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'notifications.context_processors.notif_count',
+                # §6.5.3 — nonce de la CSP, disponible en toda plantilla
+                'uwork.context_processors.csp_nonce',
             ],
         },
     },
@@ -128,6 +134,17 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# Documentos legales (R14, R15).
+#
+# El anexo de los documentos lista las decisiones que todavia no ha
+# tomado la institucion (identificacion del responsable, tabla de
+# sanciones, estrategia de respaldos, canal de reclamaciones). El texto
+# principal esta redactado y se publica; el anexo se puede ocultar
+# mientras se cierra esa definicion, sin editar las plantillas.
+#
+# Se activa por entorno: LEGAL_MOSTRAR_ANEXO=True lo vuelve a mostrar.
+LEGAL_MOSTRAR_ANEXO = os.environ.get('LEGAL_MOSTRAR_ANEXO', 'False') == 'True'
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
@@ -171,11 +188,27 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    # P0-1 — Vercel termina TLS en el edge y reenvía la petición por HTTP
+    # interno con la cabecera X-Forwarded-Proto: https. Sin esto,
+    # request.is_secure() devuelve False, SECURE_SSL_REDIRECT responde 301 a
+    # https://... y el navegador repite el ciclo: 301 -> 301 -> 301.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Orígenes de confianza para el token CSRF. En Vercel el dominio de
+# producción cambia por previsualización, así que se configuran por entorno.
+_csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in _csrf_origins.split(',') if o.strip()]
 
 # Content-Security-Policy.
 # 'unsafe-inline' en style-src es necesario porque las plantillas del proyecto
 # usan bloques <style> y atributos style=; en script-src no se permite, por lo
 # que no puede ejecutarse JavaScript inyectado como etiqueta <script>.
+#
+# P0-2 — script-src no lleva 'unsafe-inline': el único origen de script
+# propio es el nonce que emite CSPNonceMiddleware en cada request. Los
+# manejadores inline (onclick/onsubmit/onchange) quedan bloqueados, que es
+# justo lo que evita la inyección de HTML en las publicaciones.
+CSP_ENABLED = True
 CSP_DEFAULT_SRC = ["'self'"]
 CSP_SCRIPT_SRC = ["'self'", 'https://cdn.jsdelivr.net']
 CSP_STYLE_SRC = ["'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net',

@@ -3,7 +3,7 @@
 Panel de moderación (§6.5.4). Solo para staff: la modalidad declarada es
 "moderación manual desde panel de administración".
 {% endcomment %}
-{% block title %}Moderación — U-Work{% endblock %}
+{% block title %}Moderación · U-Work{% endblock %}
 {% block content %}
 <div style="max-width:1000px; margin:0 auto;">
 
@@ -18,11 +18,11 @@ Panel de moderación (§6.5.4). Solo para staff: la modalidad declarada es
         </div>
         <div class="d-flex gap-2">
             <a href="{% url 'moderation:bitacora' %}" class="btn btn-sm"
-               style="border:1.5px solid var(--border); border-radius:10px; font-weight:700; color:var(--text); padding:8px 14px;">
+               style="border:1.5px solid var(--border); border-radius: var(--radius-sm); font-weight:700; color:var(--text); padding:8px 14px;">
                 <i class="bi bi-journal-text"></i> Bitácora
             </a>
             <a href="{% url 'moderation:apelaciones' %}" class="btn btn-sm"
-               style="border:1.5px solid var(--border); border-radius:10px; font-weight:700; color:var(--text); padding:8px 14px;">
+               style="border:1.5px solid var(--border); border-radius: var(--radius-sm); font-weight:700; color:var(--text); padding:8px 14px;">
                 <i class="bi bi-chat-square-text"></i> Apelaciones
             </a>
         </div>
@@ -30,15 +30,15 @@ Panel de moderación (§6.5.4). Solo para staff: la modalidad declarada es
 
     <div class="d-flex gap-2 mb-3">
         <a href="?estado=abiertos" class="btn btn-sm {% if filtro == 'abiertos' %}btn-dark{% else %}btn-outline-secondary{% endif %}"
-           style="border-radius:10px; font-weight:700; padding:7px 14px;">Abiertos</a>
+           style="border-radius: var(--radius-sm); font-weight:700; padding:7px 14px;">Abiertos</a>
         <a href="?estado=vencidos" class="btn btn-sm {% if filtro == 'vencidos' %}btn-dark{% else %}btn-outline-secondary{% endif %}"
-           style="border-radius:10px; font-weight:700; padding:7px 14px;">SLA vencido</a>
+           style="border-radius: var(--radius-sm); font-weight:700; padding:7px 14px;">SLA vencido</a>
         <a href="?estado=todos" class="btn btn-sm {% if filtro == 'todos' %}btn-dark{% else %}btn-outline-secondary{% endif %}"
-           style="border-radius:10px; font-weight:700; padding:7px 14px;">Todos</a>
+           style="border-radius: var(--radius-sm); font-weight:700; padding:7px 14px;">Todos</a>
     </div>
 
     {% if reportes_vencidos %}
-    <div class="alert alert-danger mb-3" style="border-radius:14px; font-size:0.83rem;">
+    <div class="alert alert-danger mb-3" style="border-radius: var(--radius-lg); font-size:0.83rem;">
         <i class="bi bi-exclamation-triangle-fill"></i>
         <strong>{{ reportes_vencidos|length }} reporte(s) con SLA vencido.</strong>
     </div>
@@ -55,7 +55,7 @@ Panel de moderación (§6.5.4). Solo para staff: la modalidad declarada es
     {% if not reportes_vencidos and not reportes_en_curso %}
     <div class="card">
         <div class="card-body text-center" style="padding:44px 16px;">
-            <div style="width:56px;height:56px;border-radius:16px;background:var(--surface-alt);display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--text-secondary);margin-bottom:12px;">
+            <div style="width:56px;height:56px;border-radius: var(--radius-lg);background:var(--surface-alt);display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--text-secondary);margin-bottom:12px;">
                 <i class="bi bi-check2-circle"></i>
             </div>
             <p style="font-size:0.88rem; font-weight:700; color:var(--text); margin:0 0 4px;">Sin reportes pendientes</p>

@@ -1,1 +1,1206 @@
-/* U-Work custom styles - placeholder */
+/* ═══════════════════════════════════════════════════════════════════════
+   U-Work — Sistema de diseño "Cauce Claro"
+   Ver design/FILOSOFIA.md
+
+   Este archivo es la única fuente de tokens y primitivas. Lo cargan tanto
+   las plantillas que heredan base.html como las independientes (login,
+   selección de rol, verificación de correo), de modo que el radio, la
+   sombra y el espaciado sean los mismos en toda la aplicación.
+
+   Reglas que gobiernan el archivo:
+   1. UN acento (índigo). El color de estado solo codifica estado.
+   2. UNA escala de radios, UNA de elevación, UNA tipográfica.
+   3. Sombras neutras teñidas al fondo. Nunca halo de color.
+   4. El color nunca se usa para decorar: dice qué está pasando.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+:root {
+    /* --- Marca: un solo acento ---
+       --primary es el acento como TEXTO (el que se lee sobre la superficie).
+       --primary-solid es el acento como RELLENO (el que lleva texto blanco).
+       En tema oscuro el texto necesita ser claro y el relleno saturado:
+       es el mismo color de marca con dos Papers distintos. */
+    --primary: #4F46E5;
+    --primary-solid: #4F46E5;
+    --primary-solid-hover: #4338CA;
+    --primary-light: #818CF8;
+    --primary-dark: #4338CA;
+    --brand-soft: #EEF2FF;
+    --brand-ink: #3730A3;
+    --accent: #F59E0B;
+
+    /* --- Neutros: una sola familia --- */
+    --ink-50:  #F8FAFC;
+    --ink-100: #F1F5F9;
+    --ink-200: #E2E8F0;
+    --ink-300: #CBD5E1;
+    --ink-400: #94A3B8;
+    --ink-500: #64748B;
+    --ink-600: #475569;
+    --ink-700: #334155;
+    --ink-900: #0F172A;
+
+    /* --- Superficies (tema claro) --- */
+    --bg: #F6F7F9;
+    --bg-secondary: #EDEFF3;
+    --surface: #FFFFFF;
+    --surface-alt: #F8FAFC;
+    --surface-sunken: #F1F5F9;
+    --text: var(--ink-900);
+    --text-secondary: var(--ink-500);
+    --text-muted: var(--ink-400);
+    --border: var(--ink-200);
+    --border-light: var(--ink-100);
+    --border-strong: var(--ink-300);
+
+    /* --- Controles de formulario ---
+       El borde del input es la unica frontera perceptible: el campo es
+       blanco sobre una tarjeta blanca. WCAG 1.4.11 exige 3:1, asi que el
+       borde es mas oscuro de lo que dicta la costumbre. */
+    --input-bg: #FFFFFF;
+    --input-border: #8290A5;
+    --input-placeholder: var(--ink-500);
+    --select-option-bg: #FFFFFF;
+
+    /* --- Estado: el color dice qué está pasando --- */
+    --state-success: #047857;
+    --state-success-soft: #ECFDF5;
+    --state-warning: #B45309;
+    --state-warning-soft: #FEF3C7;
+    --state-danger:  #B91C1C;
+    --state-danger-soft: #FEE2E2;
+    --state-info:    #1D4ED8;
+    --state-info-soft: #DBEAFE;
+    --state-neutral: var(--ink-600);
+    --state-neutral-soft: var(--ink-100);
+    --money: var(--state-success);
+    --star-active: #F59E0B;
+    --star-inactive: var(--ink-400);
+
+    /* --- Rellenos de estado ---
+       Son los que llevan texto blanco encima. No cambian con el tema: un
+       relleno que se aclara en oscuro dejaria el texto sin contraste. */
+    --fill-success: #047857;
+    --fill-warning: #B45309;
+    --fill-danger: #B91C1C;
+
+    /* --- Radios: UNA escala --- */
+    --radius-xs: 6px;
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+    --radius-full: 999px;
+
+    /* --- Espaciado: escala de 4 --- */
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-12: 48px;
+
+    /* --- Tipografía: UNA escala --- */
+    --fs-2xs: .6875rem;
+    --fs-xs: .75rem;
+    --fs-sm: .8125rem;
+    --fs-base: .875rem;
+    --fs-md: 1rem;
+    --fs-lg: 1.125rem;
+    --fs-xl: 1.375rem;
+    --fs-2xl: 1.75rem;
+    --fs-3xl: 2.25rem;
+
+    /* --- Elevación: neutra, teñida al fondo --- */
+    --shadow-xs: 0 1px 2px rgba(15,23,42,.06);
+    --shadow-sm: 0 1px 3px rgba(15,23,42,.08), 0 1px 2px rgba(15,23,42,.04);
+    --shadow-md: 0 6px 16px rgba(15,23,42,.09), 0 2px 4px rgba(15,23,42,.04);
+    --shadow-lg: 0 16px 40px rgba(15,23,42,.13), 0 4px 10px rgba(15,23,42,.05);
+    --shadow-brand: 0 1px 2px rgba(79,70,229,.24);
+
+    /* --- Contenedores: un ancho por nivel --- */
+    --w-content: 600px;
+    --w-wide: 960px;
+    --w-panel: 320px;
+
+    /* --- Gradientes: una familia por estado, nunca por adorno --- */
+    --grad-brand:   linear-gradient(135deg, var(--primary-solid) 0%, var(--primary-solid-hover) 100%);
+    --grad-success: linear-gradient(135deg, #10B981 0%, #059669 100%);
+    --grad-warning: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+    --grad-info:    linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+
+    /* --- Navegación --- */
+    --nav-bg: rgba(255,255,255,0.88);
+    --nav-border: var(--ink-200);
+    --nav-text: var(--ink-600);
+    --nav-text-hover: var(--ink-900);
+    --nav-height: 60px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --sidebar-width: 248px;
+    --topbar-height: 52px;
+
+    /* --- Alias: nombres antiguos -> sistema nuevo --- */
+    --card-bg: var(--surface);
+    --card-border: var(--border);
+    --card-shadow: var(--shadow-sm);
+    --badge-indigo-bg: var(--brand-soft); --badge-indigo-text: var(--brand-ink);
+    --badge-blue-bg: var(--state-info-soft); --badge-blue-text: var(--state-info);
+    --badge-amber-bg: var(--state-warning-soft); --badge-amber-text: var(--state-warning);
+    --badge-red-bg: var(--state-danger-soft); --badge-red-text: var(--state-danger);
+    --badge-green-bg: var(--state-success-soft); --badge-green-text: var(--state-success);
+    --badge-gray-bg: var(--state-neutral-soft); --badge-gray-text: var(--state-neutral);
+    --icon-indigo-bg: var(--brand-soft);
+    --icon-blue-bg: var(--state-info-soft);
+    --icon-amber-bg: var(--state-warning-soft);
+    --icon-green-bg: var(--state-success-soft);
+    --icon-red-bg: var(--state-danger-soft);
+    --icon-purple-bg: var(--brand-soft); --icon-purple-text: var(--brand-ink);
+
+    --toast-bg: rgba(255,255,255,0.96);
+    --toast-text: var(--ink-900);
+    --scrollbar-thumb: rgba(15,23,42,.14);
+    --scrollbar-hover: rgba(15,23,42,.24);
+    --close-filter: none;
+}
+
+[data-theme="dark"] {
+    --bg: #0B1220;
+    --bg-secondary: #16203A;
+    --surface: #131C2E;
+    --surface-alt: #1A2436;
+    --surface-sunken: #0F172A;
+    --text: #E8EEF7;
+    --text-secondary: #9AAAC2;
+    --text-muted: #6E819C;
+    --border: #26334A;
+    --border-light: #1E293F;
+    --border-strong: #36455F;
+
+    --input-bg: #0F172A;
+    --input-border: #5C6E8A;
+    --input-placeholder: #8395AF;
+    --select-option-bg: var(--surface);
+
+    --brand-soft: #1E2A55;
+    --brand-ink: #C7D2FE;
+    /* En oscuro el acento como texto se aclara; el relleno se mantiene
+       saturado para que el texto blanco encima siga teniendo contraste. */
+    --primary: #A5B4FC;
+    --primary-solid: #4F46E5;
+    --primary-solid-hover: #6366F1;
+    --primary-light: #C7D2FE;
+    --primary-dark: #6366F1;
+    --state-success: #34D399;
+    --state-success-soft: #06342A;
+    --state-warning: #FBBF24;
+    --state-warning-soft: #3E2A06;
+    --state-danger: #F87171;
+    --state-danger-soft: #3F1414;
+    --state-info: #60A5FA;
+    --state-info-soft: #152A55;
+    --state-neutral: #9AAAC2;
+    --state-neutral-soft: #1E293F;
+    --money: #34D399;
+    --star-active: #FBBF24;
+    --star-inactive: #4A5B78;
+
+    --nav-bg: rgba(19,28,46,0.88);
+    --nav-border: #26334A;
+    --nav-text: #9AAAC2;
+    --nav-text-hover: #E8EEF7;
+
+    --shadow-xs: 0 1px 2px rgba(0,0,0,.30);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,.34), 0 1px 2px rgba(0,0,0,.22);
+    --shadow-md: 0 6px 16px rgba(0,0,0,.38), 0 2px 4px rgba(0,0,0,.24);
+    --shadow-lg: 0 16px 40px rgba(0,0,0,.46), 0 4px 10px rgba(0,0,0,.28);
+    --shadow-brand: 0 1px 2px rgba(0,0,0,.40);
+
+    --toast-bg: rgba(19,28,46,0.96);
+    --toast-text: #E8EEF7;
+    --scrollbar-thumb: #26334A;
+    --scrollbar-hover: #36455F;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   PRIMITIVAS
+   Las piezas que se repiten en toda la app viven aquí, no en cada
+   plantilla. Jerarquía: acción > estado > contenido > metadato.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+* { box-sizing: border-box; }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   CUERPO
+   El fondo, el color del texto y la tipografia viven aqui, no en el
+   <style> de base.html: las pantallas independientes (login, seleccion
+   de rol, verificacion de correo) no heredan de esa plantilla. Con la
+   regla en base.html, esas pantallas se quedaban con el fondo blanco
+   del navegador y el tema oscuro no se veia.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    /* 100dvh sigue a la barra de direcciones en iOS: con 100vh fijo el
+       contenido queda detras de la barra al hacer scroll. */
+    min-height: 100dvh;
+    margin: 0;
+    padding-bottom: calc(var(--nav-height) + var(--safe-bottom) + 12px);
+    -webkit-font-smoothing: antialiased;
+    /* Evita el flash azul/gris al tocar un control en Android. */
+    -webkit-tap-highlight-color: transparent;
+}
+/* Las pantallas sin barra de navegacion no necesitan el hueco inferior
+   que deja la barra movil. */
+body.sin-navegacion { padding-bottom: 0; }
+
+/* --- Superficie: la única tarjeta --- */
+.surface {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+}
+
+/* --- Encabezado de página: un solo patrón --- */
+.page-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-bottom: var(--space-5);
+}
+.page-head__title {
+    font-size: var(--fs-xl);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--text);
+    margin: 0;
+}
+.page-head__sub {
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    margin: var(--space-1) 0 0;
+    max-width: 60ch;
+    line-height: 1.5;
+}
+.page-head__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    flex-shrink: 0;
+}
+/* Alias: los títulos que ya existían heredan el mismo patrón. */
+.section-title {
+    font-weight: 800;
+    font-size: var(--fs-xl);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin: 0 0 var(--space-5);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+/* El icono del encabezado es neutro: el acento se reserva para actuar. */
+.section-title i { color: var(--text-secondary); }
+
+/* --- Chip de estado --- */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 3px 9px;
+    border-radius: var(--radius-full);
+    font-size: var(--fs-2xs);
+    font-weight: 700;
+    line-height: 1.5;
+    letter-spacing: .01em;
+    white-space: nowrap;
+}
+.chip--brand   { background: var(--brand-soft); color: var(--brand-ink); }
+.chip--neutral { background: var(--state-neutral-soft); color: var(--state-neutral); }
+.chip--success { background: var(--state-success-soft); color: var(--state-success); }
+.chip--warning { background: var(--state-warning-soft); color: var(--state-warning); }
+.chip--danger  { background: var(--state-danger-soft); color: var(--state-danger); }
+.chip--info    { background: var(--state-info-soft); color: var(--state-info); }
+
+/* --- Tile de icono: el patrón se repite 40+ veces en la app --- */
+.icon-tile {
+    width: 32px; height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex; align-items: center; justify-content: center;
+    font-size: .9rem;
+    flex-shrink: 0;
+}
+.icon-tile--lg { width: 38px; height: 38px; border-radius: var(--radius-md); font-size: 1.05rem; }
+.icon-tile--brand   { background: var(--brand-soft); color: var(--brand-ink); }
+.icon-tile--info    { background: var(--state-info-soft); color: var(--state-info); }
+.icon-tile--success { background: var(--state-success-soft); color: var(--state-success); }
+.icon-tile--warning { background: var(--state-warning-soft); color: var(--state-warning); }
+.icon-tile--danger  { background: var(--state-danger-soft); color: var(--state-danger); }
+.icon-tile--neutral { background: var(--surface-alt); color: var(--text-secondary); }
+
+/* --- Etiqueta micro: un rótulo pequeño, no un eyebrow ---
+   Antes eran versalitas con tracking amplio repetidas en 30 style=
+   distintos. Ahora son un rótulo sobrio: pequeño, negrita, sin
+   versalitas. El acento queda reservado para actuar. */
+.label-xs {
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    letter-spacing: -.005em;
+    color: var(--text-secondary);
+}
+
+/* --- Fila de metadatos --- */
+.meta-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+}
+
+/* --- Estados vacíos: uno solo, que dice cómo llenarse --- */
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: var(--space-10) var(--space-5);
+    gap: var(--space-1);
+}
+.empty__icon {
+    width: 52px; height: 52px;
+    border-radius: var(--radius-md);
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.35rem;
+    margin-bottom: var(--space-2);
+}
+.empty__title { font-size: var(--fs-base); font-weight: 700; color: var(--text); margin: 0; }
+.empty__text { font-size: var(--fs-sm); color: var(--text-secondary); margin: 0; max-width: 44ch; }
+
+/* --- Utilidades de espaciado --- */
+.stack-2 > * + * { margin-top: var(--space-2); }
+.stack-3 > * + * { margin-top: var(--space-3); }
+.stack-4 > * + * { margin-top: var(--space-4); }
+.stack-5 > * + * { margin-top: var(--space-5); }
+.stack-6 > * + * { margin-top: var(--space-6); }
+
+/* --- Datos tabulares: las columnas de dinero se alinean solas --- */
+.tnum { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+
+/* --- Botones: acento, neutro, peligro --- */
+.btn {
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: background-color .18s ease, border-color .18s ease,
+                color .18s ease, transform .12s ease, box-shadow .18s ease;
+}
+.btn-accent {
+    background: var(--primary-solid);
+    color: #fff;
+    border: 1px solid var(--primary-solid);
+    box-shadow: var(--shadow-brand);
+}
+.btn-accent:hover, .btn-accent:focus-visible {
+    background: var(--primary-solid-hover);
+    border-color: var(--primary-solid-hover);
+    color: #fff;
+}
+.btn-accent:active { transform: translateY(1px); box-shadow: none; }
+.btn-quiet {
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+.btn-quiet:hover { background: var(--surface-alt); border-color: var(--border-strong); color: var(--text); }
+.btn-quiet:active { transform: translateY(1px); }
+.btn-danger {
+    background: transparent;
+    color: var(--state-danger);
+    border: 1px solid var(--state-danger-soft);
+}
+.btn-danger:hover { background: var(--state-danger-soft); border-color: var(--state-danger); color: var(--state-danger); }
+/* Botones de estado: relleno sólido con texto blanco. Un degradado de dos
+   tonos sobre un botón se lee como adorno; un relleno sólido se lee como
+   una acción. */
+.btn-fill-success {
+    background: var(--fill-success);
+    color: #fff;
+    border: 1px solid var(--fill-success);
+    font-weight: 600;
+}
+.btn-fill-success:hover, .btn-fill-success:focus-visible {
+    background: #065F46; border-color: #065F46; color: #fff;
+}
+.btn-fill-warning {
+    background: var(--fill-warning);
+    color: #fff;
+    border: 1px solid var(--fill-warning);
+    font-weight: 600;
+}
+.btn-fill-warning:hover, .btn-fill-warning:focus-visible {
+    background: #92400E; border-color: #92400E; color: #fff;
+}
+
+/* --- Foco visible: el mismo anillo en todo control de toda pantalla ---
+   El anillo usa el acento como texto, que es el unico que garantiza 3:1
+   contra la superficie en los dos temas. Se usa :focus-visible para no
+   molestar al puntero, y outline (no box-shadow) porque se respeta en el
+   modo de alto contraste de Windows. Nunca se elimina el contorno del
+   navegador sin sustituirlo por un indicador visible. */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ACCESO, FORMULARIO Y DOCUMENTO
+   Primitivas que comparten la pantalla de acceso, la seleccion de rol,
+   los formularios de registro y los documentos legales.
+
+   Antes cada plantilla repetia su propio bloque <style> con su propia
+   paleta: el acento cambiaba de indigo a azul, los botones llevaban
+   degradados de dos colores y cada radio era distinto. La consecuencia
+   era una app que no se parecia a si misma de pantalla a pantalla.
+   Ahora hay un solo lugar donde vive esto.
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* --- Marco de acceso: panel de marca y panel de formulario --- */
+.auth-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--bg);
+}
+.auth-brand {
+    display: none;
+    position: relative;
+    overflow: hidden;
+    padding: var(--space-10);
+    background: var(--surface-sunken);
+    border-right: 1px solid var(--border);
+}
+/* El contenido del panel va en una columna centrada. Antes se pegaba al
+   borde izquierdo de un panel de 820 px y la pagina se veía vacia a la
+   derecha. */
+.auth-brand__inner {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 470px;
+    margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: var(--space-8);
+}
+/* Un lavado del mismo acento. No es decoracion: separa el panel de
+   marca del panel de formulario y fija el color de la casa. */
+.auth-brand::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(115% 85% at 8% 0%, rgba(79, 70, 229, .16) 0%, transparent 60%),
+        radial-gradient(85% 65% at 100% 100%, rgba(79, 70, 229, .08) 0%, transparent 58%);
+}
+[data-theme="dark"] .auth-brand::before {
+    background:
+        radial-gradient(115% 85% at 8% 0%, rgba(79, 70, 229, .26) 0%, transparent 62%),
+        radial-gradient(85% 65% at 100% 100%, rgba(79, 70, 229, .12) 0%, transparent 58%);
+}
+.auth-brand > * { position: relative; z-index: 1; }
+
+.auth-brand__mark {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    color: var(--text);
+}
+.auth-brand__glyph {
+    width: 38px; height: 38px;
+    border-radius: var(--radius-md);
+    background: var(--primary-solid);
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: 1rem;
+    flex-shrink: 0;
+}
+.auth-brand__name { font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
+.auth-brand__sub {
+    display: block;
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0;
+}
+
+.auth-brand__title {
+    font-size: var(--fs-2xl);
+    font-weight: 800;
+    line-height: 1.16;
+    letter-spacing: -.025em;
+    color: var(--text);
+    margin: 0 0 var(--space-3);
+    max-width: 20ch;
+}
+.auth-brand__text {
+    font-size: var(--fs-md);
+    line-height: 1.55;
+    color: var(--text-secondary);
+    margin: 0;
+    max-width: 46ch;
+}
+.auth-brand__list {
+    list-style: none;
+    margin: var(--space-8) 0 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-4);
+}
+.auth-brand__item { display: flex; gap: var(--space-3); align-items: flex-start; }
+.auth-brand__item strong { display: block; font-size: var(--fs-base); font-weight: 700; color: var(--text); }
+.auth-brand__item span { display: block; font-size: var(--fs-sm); color: var(--text-secondary); line-height: 1.45; }
+.auth-brand__foot {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* --- Panel del formulario --- */
+@media (min-width: 992px) {
+    .auth-shell {
+        grid-template-columns: minmax(0, 1fr) minmax(420px, 460px);
+    }
+    .auth-brand { display: flex; }
+}
+.auth-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--space-8) var(--space-5) var(--space-12);
+}
+.auth-panel__inner { width: 100%; max-width: 430px; margin: 0 auto; }
+.auth-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-6) var(--space-5);
+}
+.auth-title {
+    font-size: var(--fs-2xl);
+    font-weight: 800;
+    letter-spacing: -.025em;
+    color: var(--text);
+    margin: 0 0 var(--space-2);
+}
+.auth-sub {
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-6);
+    line-height: 1.5;
+}
+.auth-note {
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+    text-align: center;
+    margin: var(--space-5) 0 0;
+}
+.auth-note a { color: var(--brand-ink); font-weight: 600; text-decoration: none; }
+.auth-note a:hover { text-decoration: underline; }
+.auth-sep {
+    display: flex; align-items: center; gap: var(--space-3);
+    margin: var(--space-5) 0;
+    color: var(--text-muted); font-size: var(--fs-xs);
+}
+.auth-sep::before, .auth-sep::after {
+    content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* --- Acciones del panel de acceso --- */
+.auth-submit {
+    width: 100%;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: var(--space-2);
+    background: var(--primary-solid);
+    color: #fff;
+    border: 1px solid var(--primary-solid);
+    border-radius: var(--radius-md);
+    padding: 13px var(--space-5);
+    font-family: inherit;
+    font-size: var(--fs-base);
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-brand);
+    transition: background-color .18s ease, border-color .18s ease,
+                transform .12s ease, box-shadow .18s ease;
+}
+.auth-submit:hover { background: var(--primary-solid-hover); border-color: var(--primary-solid-hover); }
+.auth-submit:active { transform: translateY(1px); box-shadow: none; }
+.auth-submit[disabled] { opacity: .72; cursor: progress; transform: none; }
+
+.auth-secondary {
+    display: block; width: 100%; text-align: center;
+    padding: 12px var(--space-5);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: var(--fs-sm);
+    text-decoration: none;
+    transition: background-color .18s ease, border-color .18s ease, color .18s ease;
+}
+.auth-secondary:hover {
+    background: var(--surface-alt);
+    border-color: var(--primary-light);
+    color: var(--brand-ink);
+}
+.auth-secondary:active { transform: translateY(1px); }
+
+.auth-links {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2) var(--space-4);
+    margin-top: var(--space-5);
+    font-size: var(--fs-xs);
+}
+.auth-links a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    display: inline-flex; align-items: center; gap: 5px;
+    transition: color .16s ease;
+}
+.auth-links a:hover { color: var(--brand-ink); text-decoration: underline; }
+
+/* --- Campo con icono: el icono marca el campo, no lo decora --- */
+.auth-input { position: relative; }
+.auth-input__icon {
+    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 1rem;
+    pointer-events: none;
+    transition: color .18s ease;
+}
+.auth-input .form-control { padding-left: 42px; }
+.auth-input:has(.form-control:focus) .auth-input__icon { color: var(--primary); }
+.auth-input__action {
+    position: absolute; right: 7px; top: 50%; transform: translateY(-50%);
+    width: 34px; height: 34px;
+    display: inline-flex; align-items: center; justify-content: center;
+    border: none; background: none;
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: color .18s ease, background-color .18s ease;
+}
+.auth-input__action:hover { color: var(--text); background: var(--surface-alt); }
+
+/* --- Aviso de error en línea --- */
+.auth-alert {
+    display: flex; align-items: flex-start; gap: var(--space-2);
+    background: var(--state-danger-soft);
+    border: 1px solid var(--state-danger);
+    border-left-width: 3px;
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    font-size: var(--fs-sm);
+    color: var(--state-danger);
+    margin-bottom: var(--space-4);
+}
+.auth-alert i { line-height: 1.5; }
+
+/* --- Campo de formulario: etiqueta arriba, ayuda debajo, error al pie --- */
+.form-control, .form-select {
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    border: 1px solid var(--input-border);
+    /* 16px (1rem) mínimo: iOS Safari hace zoom automático al enfocar un
+       campo con menos de 16px y eso rompe el formulario en el punto de
+       mayor abandono, el registro. */
+    font-size: 1rem;
+    transition: border-color .18s ease, box-shadow .18s ease, background-color .18s ease;
+    background: var(--input-bg);
+    color: var(--text);
+}
+textarea.form-control { font-size: 1rem; }
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+    background: var(--input-bg);
+    color: var(--text);
+}
+.form-control::placeholder { color: var(--input-placeholder); }
+.form-select { color: var(--text); }
+.form-select option { background: var(--select-option-bg); color: var(--text); }
+.form-label {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.field { display: flex; flex-direction: column; gap: var(--space-2); }
+.field__label {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text);
+}
+.field__hint { font-size: var(--fs-xs); color: var(--text-secondary); line-height: 1.45; }
+.field__error {
+    display: flex; align-items: flex-start; gap: 6px;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    color: var(--state-danger);
+    line-height: 1.4;
+}
+.field__error i { line-height: 1.4; }
+.form-control.is-invalid, .form-select.is-invalid {
+    border-color: var(--state-danger);
+}
+
+/* --- Asistente por pasos --- */
+.stepper {
+    list-style: none;
+    margin: 0 0 var(--space-5);
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--pasos, 5), minmax(0, 1fr));
+    gap: var(--space-1);
+}
+.stepper__item { position: relative; min-width: 0; }
+.stepper__item:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 21px;
+    left: calc(50% + 16px);
+    right: calc(-50% + 16px);
+    height: 2px;
+    background: var(--border);
+    transition: background-color .25s ease;
+}
+.stepper__item.is-done:not(:last-child)::after { background: var(--primary-light); }
+.stepper__btn {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    width: 100%;
+    padding: var(--space-2) 4px var(--space-3);
+    background: none; border: none; cursor: pointer;
+    font-family: inherit; color: var(--text-muted);
+    border-radius: var(--radius-sm);
+}
+.stepper__btn:disabled { cursor: default; }
+.stepper__dot {
+    width: 28px; height: 28px;
+    border-radius: var(--radius-full);
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text-muted);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: var(--fs-xs); font-weight: 700;
+    position: relative; z-index: 1;
+    transition: background-color .22s ease, border-color .22s ease, color .22s ease;
+}
+.stepper__item.is-current .stepper__dot {
+    background: var(--primary-solid);
+    border-color: var(--primary-solid);
+    color: #fff;
+    box-shadow: var(--shadow-brand);
+}
+.stepper__item.is-done .stepper__dot {
+    background: var(--brand-soft);
+    border-color: var(--primary-light);
+    color: var(--brand-ink);
+}
+.stepper__label {
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.25;
+}
+.stepper__item.is-current .stepper__label { color: var(--text); }
+.stepper__item.is-done .stepper__label { color: var(--text-secondary); }
+
+.stepper__meta {
+    display: flex; align-items: center; gap: var(--space-2);
+    font-size: var(--fs-xs);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+}
+.stepper__meta strong { color: var(--text); font-weight: 700; }
+.stepper__meta .tnum { font-variant-numeric: tabular-nums; }
+/* En pantalla angosta no caben cinco etiquetas: el numero del paso y la
+   linea "Paso N de M" ya dicen donde esta uno. */
+@media (max-width: 639.98px) {
+    .stepper__label { display: none; }
+}
+
+/* --- Panel de un paso --- */
+.step-panel { display: none; }
+.step-panel.is-active { display: block; animation: stepIn .28s cubic-bezier(.16, 1, .3, 1); }
+@keyframes stepIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.step-panel__title {
+    font-size: var(--fs-lg);
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: var(--text);
+    margin: 0 0 var(--space-1);
+}
+.step-panel__hint {
+    font-size: var(--fs-sm);
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-5);
+    line-height: 1.5;
+    max-width: 58ch;
+}
+/* El titulo del paso es el punto de partida de la lectura tras cambiar de
+   paso: recibe el foco para que el teclado quede ahi. No es un control,
+   asi que el anillo de foco se veria como un error de estilo. */
+.step-panel__title:focus,
+.step-panel__title:focus-visible { outline: none; }
+.step-panel__body { display: grid; gap: var(--space-4); }
+.step-panel__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+}
+.step-panel__grid--1 { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 575.98px) {
+    .step-panel__grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+.step-nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+}
+.step-nav__back {
+    display: inline-flex; align-items: center; gap: var(--space-2);
+    padding: 12px var(--space-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit; font-size: var(--fs-sm); font-weight: 600;
+    cursor: pointer;
+    transition: background-color .18s ease, border-color .18s ease, transform .12s ease;
+}
+.step-nav__back:hover { background: var(--surface-alt); border-color: var(--primary-light); }
+.step-nav__back:active { transform: translateY(1px); }
+.step-nav__back[hidden] { display: none; }
+.step-nav__next {
+    flex: 1;
+    display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+    padding: 12px var(--space-5);
+    background: var(--primary-solid);
+    color: #fff;
+    border: 1px solid var(--primary-solid);
+    border-radius: var(--radius-md);
+    font-family: inherit; font-size: var(--fs-sm); font-weight: 700;
+    cursor: pointer;
+    box-shadow: var(--shadow-brand);
+    transition: background-color .18s ease, border-color .18s ease, transform .12s ease, box-shadow .18s ease;
+}
+.step-nav__next:hover { background: var(--primary-solid-hover); border-color: var(--primary-solid-hover); }
+.step-nav__next:active { transform: translateY(1px); box-shadow: none; }
+
+/* --- Medidor de fortaleza de contrasena --- */
+.meter { display: flex; flex-direction: column; gap: 6px; }
+.meter__track { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.meter__seg {
+    height: 4px; border-radius: 2px;
+    background: var(--border);
+    transition: background-color .22s ease;
+}
+.meter__seg.is-on-weak { background: var(--state-danger); }
+.meter__seg.is-on-fair { background: var(--state-warning); }
+.meter__seg.is-on-good { background: var(--state-info); }
+.meter__seg.is-on-strong { background: var(--state-success); }
+.meter__text { font-size: var(--fs-xs); color: var(--text-secondary); font-weight: 600; }
+
+/* --- Zona de carga de archivos --- */
+.upload-zone {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: var(--space-2);
+    padding: var(--space-6) var(--space-4);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-md);
+    background: var(--surface-alt);
+    cursor: pointer;
+    text-align: center;
+    transition: border-color .18s ease, background-color .18s ease;
+}
+.upload-zone:hover, .upload-zone.is-drag {
+    border-color: var(--primary);
+    background: var(--brand-soft);
+}
+.upload-zone input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+.upload-zone__icon { font-size: 1.6rem; color: var(--text-muted); line-height: 1; }
+.upload-zone__title { font-size: var(--fs-sm); font-weight: 600; color: var(--text); }
+.upload-zone__hint { font-size: var(--fs-xs); color: var(--text-secondary); }
+.upload-zone__preview {
+    display: none;
+    align-items: center; gap: var(--space-3);
+    margin-top: var(--space-3);
+    padding: var(--space-3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    width: 100%;
+}
+.upload-zone__preview.is-visible { display: flex; }
+.upload-zone__preview img {
+    width: 44px; height: 44px; border-radius: var(--radius-sm);
+    object-fit: cover; flex-shrink: 0;
+}
+.upload-zone__name {
+    font-size: var(--fs-sm); font-weight: 600; color: var(--text);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.upload-zone__meta { font-size: var(--fs-xs); color: var(--text-secondary); }
+
+/* --- Contador de caracteres --- */
+.counter {
+    display: flex; justify-content: flex-end; gap: 4px;
+    font-size: var(--fs-xs); color: var(--text-muted);
+}
+.counter.is-over { color: var(--state-danger); font-weight: 700; }
+
+/* --- Documento legal --- */
+.doc-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-6);
+}
+@media (min-width: 992px) {
+    .doc-shell { grid-template-columns: 236px minmax(0, 1fr); gap: var(--space-8); align-items: start; }
+}
+.doc-aside {
+    align-self: start;
+    order: 2;
+}
+@media (min-width: 992px) {
+    .doc-aside {
+        order: 0;
+        position: sticky;
+        top: var(--space-6);
+    }
+}
+.doc-toc { border-left: 2px solid var(--border); }
+.doc-toc__title {
+    font-size: var(--fs-xs);
+    font-weight: 700;
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-3);
+    padding-left: var(--space-4);
+}
+.doc-toc ol { list-style: none; margin: 0; padding: 0; }
+.doc-toc a {
+    display: block;
+    padding: 6px var(--space-3) 6px var(--space-4);
+    margin-left: -2px;
+    border-left: 2px solid transparent;
+    font-size: var(--fs-sm);
+    line-height: 1.4;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color .16s ease, border-color .16s ease;
+}
+.doc-toc a:hover { color: var(--text); }
+.doc-toc a.is-active {
+    color: var(--brand-ink);
+    border-left-color: var(--primary);
+    font-weight: 600;
+}
+.doc-toc__meta {
+    margin-top: var(--space-5);
+    padding-left: var(--space-4);
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+/* Barra de lectura. Se dibuja con la linea de tiempo de scroll del
+   navegador: no hace falta ningun listener de scroll. Donde no existe,
+   la barra no aparece y el documento se lee igual. */
+.doc-progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px; width: 100%;
+    background: var(--primary-solid);
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+    z-index: 1100;
+}
+@supports (animation-timeline: scroll()) {
+    .doc-progress {
+        animation: docProgress linear both;
+        animation-timeline: scroll(root block);
+    }
+}
+@keyframes docProgress {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+/* --- Entrada de etiquetas: habilidades, palabras clave --- */
+.tag-list {
+    display: flex; flex-wrap: wrap; gap: var(--space-2);
+    margin-bottom: var(--space-2);
+}
+.tag-list:empty { display: none; }
+.tag-list__empty {
+    font-size: var(--fs-xs);
+    color: var(--text-muted);
+}
+.tag-remove {
+    border: none; background: none; padding: 0 0 0 2px;
+    color: inherit; cursor: pointer; line-height: 1;
+    opacity: .65;
+    transition: opacity .16s ease;
+}
+.tag-remove:hover { opacity: 1; }
+.tag-entry {
+    width: 100%;
+    border: 1px solid var(--input-border);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    font-size: 1rem;
+    font-family: inherit;
+    background: var(--input-bg);
+    color: var(--text);
+}
+.tag-entry:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.tag-entry::placeholder { color: var(--input-placeholder); }
+
+/* --- Control de tema de las pantallas sin barra superior --- */
+.auth-theme-toggle {
+    position: absolute;
+    top: var(--space-4);
+    right: var(--space-4);
+    z-index: 5;
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    box-shadow: var(--shadow-xs);
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+}
+.auth-theme-toggle:hover { color: var(--text); background: var(--surface-alt); border-color: var(--border-strong); }
+.auth-theme-toggle:active { transform: translateY(1px); }
+
+/* --- Interruptor de tema de las pantallas sin barra superior --- */
+.theme-toggle-float {
+    position: fixed;
+    top: var(--space-4);
+    right: var(--space-4);
+    z-index: 1100;
+    width: 38px; height: 38px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    cursor: pointer;
+    box-shadow: var(--shadow-xs);
+    transition: color .18s ease, background-color .18s ease, border-color .18s ease;
+}
+.theme-toggle-float:hover {
+    color: var(--text);
+    background: var(--surface-alt);
+    border-color: var(--border-strong);
+}
+.theme-toggle-float:active { transform: translateY(1px); }
+
+/* --- Marca compacta para el panel de formulario en movil --- */
+.auth-compact {
+    display: flex; align-items: center; gap: var(--space-3);
+    margin-bottom: var(--space-6);
+    text-decoration: none; color: var(--text);
+}
+.auth-compact__glyph {
+    width: 34px; height: 34px;
+    border-radius: var(--radius-sm);
+    background: var(--primary-solid);
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 900; font-size: .9rem;
+    flex-shrink: 0;
+}
+.auth-compact__name { font-weight: 800; letter-spacing: -.02em; }
+/* En escritorio el panel de marca ya lleva la marca: repetirla en el
+   panel del formulario sobra. */
+@media (min-width: 992px) {
+    .auth-compact { display: none; }
+}
+
+/* --- Nota institucional pendiente --- */
+.nota-pendiente {
+    display: block;
+    background: var(--state-warning-soft);
+    border: 1px solid var(--state-warning);
+    border-radius: var(--radius-md);
+    padding: var(--space-3) var(--space-4);
+    margin: var(--space-4) 0;
+    font-size: var(--fs-sm);
+    color: var(--text);
+    line-height: 1.55;
+}
+.nota-pendiente strong { color: var(--state-warning); }
+[data-theme="dark"] .nota-pendiente strong { color: #FCD34D; }
+.pendiente {
+    display: inline-block;
+    font-size: var(--fs-2xs);
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--state-warning);
+    background: var(--state-warning-soft);
+    border-radius: var(--radius-xs);
+    padding: 2px 7px;
+}
+[data-theme="dark"] .pendiente { color: #FCD34D; }
+
+/* --- Movimiento reducido: una sola regla para toda la app --- */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .doc-progress { display: none; }
+}

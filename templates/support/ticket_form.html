@@ -1,128 +1,253 @@
 {% extends 'base.html' %}
-{% block title %}Soporte — U-Work{% endblock %}
+{% load static form_tags %}
+{% block title %}Soporte · U-Work{% endblock %}
 {% block extra_css %}
 <style>
+    .content-wrapper { max-width: 820px !important; }
+
+    .support-head { margin-bottom: var(--space-5); }
+    .support-head h1 {
+        font-size: var(--fs-2xl);
+        font-weight: 800;
+        letter-spacing: -.025em;
+        color: var(--text);
+        margin: 0 0 var(--space-2);
+    }
+    .support-head p {
+        font-size: var(--fs-sm);
+        color: var(--text-secondary);
+        margin: 0;
+        max-width: 58ch;
+        line-height: 1.55;
+    }
+
+    .support-panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: var(--space-5);
+        margin-bottom: var(--space-4);
+    }
+
+    /* --- Opciones de tipo: el icono va al lado del texto, no encima ---
+       Antes el icono ocupaba su propia fila sobre la etiqueta y las
+       tarjetas quedaban con una mancha de espacio en medio. */
     .tipo-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-bottom: 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-2);
+    }
+    @media (max-width: 575.98px) {
+        .tipo-grid { grid-template-columns: minmax(0, 1fr); }
     }
     .tipo-card {
-        border: 2px solid var(--card-border);
-        border-radius: 14px;
-        padding: 14px 12px;
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
         cursor: pointer;
-        text-align: center;
-        transition: all 0.2s;
-        background: var(--card-bg);
+        background: var(--surface);
+        transition: border-color .18s ease, background-color .18s ease;
     }
-    .tipo-card:hover, .tipo-card.selected {
-        border-color: var(--primary-light);
-        background: rgba(79,70,229,0.08);
+    .tipo-card:hover { border-color: var(--border-strong); background: var(--surface-alt); }
+    /* El radio real sigue siendo un control alcanzable con el teclado y
+       el lector de pantalla: solo se oculta a la vista. */
+    .tipo-radio {
+        position: absolute;
+        width: 1px; height: 1px;
+        opacity: 0;
+        margin: 0;
     }
-    .tipo-card i { font-size: 1.6rem; display: block; margin-bottom: 6px; }
-    .tipo-card span { font-size: 0.8rem; font-weight: 600; color: var(--text); }
-    .tipo-card.t-bug     i { color: #EF4444; }
-    .tipo-card.t-usuario i { color: #F59E0B; }
-    .tipo-card.t-pago    i { color: #10B981; }
-    .tipo-card.t-otro    i { color: var(--primary-light); }
-    .reported-user-banner {
-        background: rgba(245,158,11,0.12);
-        border: 1px solid rgba(245,158,11,0.3);
-        border-radius: 12px;
-        padding: 12px 14px;
-        margin-bottom: 16px;
-        font-size: 0.88rem;
+    .tipo-card:has(.tipo-radio:checked) {
+        border-color: var(--primary);
+        background: var(--brand-soft);
+    }
+    .tipo-card:has(.tipo-radio:focus-visible) {
+        outline: 2px solid var(--primary);
+        outline-offset: 2px;
+    }
+    .tipo-card__icon {
+        width: 32px; height: 32px;
+        border-radius: var(--radius-sm);
+        background: var(--surface-alt);
+        color: var(--text-secondary);
+        display: flex; align-items: center; justify-content: center;
+        font-size: .95rem;
+        flex-shrink: 0;
+        transition: background-color .18s ease, color .18s ease;
+    }
+    .tipo-card:has(.tipo-radio:checked) .tipo-card__icon {
+        background: var(--primary-solid);
+        color: #fff;
+    }
+    .tipo-card__text { min-width: 0; }
+    .tipo-card__title {
+        display: block;
+        font-size: var(--fs-sm);
+        font-weight: 600;
         color: var(--text);
-        display: flex; align-items: center; gap: 10px;
+        line-height: 1.3;
     }
+    .tipo-card__hint {
+        display: block;
+        font-size: var(--fs-xs);
+        color: var(--text-secondary);
+        margin-top: 2px;
+        line-height: 1.35;
+    }
+
+    /* --- Aviso de usuario reportado --- */
+    .reported-banner {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-3);
+        background: var(--state-warning-soft);
+        border: 1px solid var(--state-warning);
+        border-radius: var(--radius-md);
+        padding: var(--space-3) var(--space-4);
+        margin-bottom: var(--space-4);
+        font-size: var(--fs-sm);
+        color: var(--text);
+        line-height: 1.5;
+    }
+    .reported-banner i { color: var(--state-warning); flex-shrink: 0; }
+
+    .support-foot {
+        text-align: center;
+        font-size: var(--fs-sm);
+        margin-top: var(--space-5);
+    }
+    .support-foot a { color: var(--brand-ink); font-weight: 600; text-decoration: none; }
+    .support-foot a:hover { text-decoration: underline; }
 </style>
 {% endblock %}
 {% block content %}
-<div class="section-title"><i class="bi bi-headset" style="color:var(--primary-light);"></i> Soporte</div>
+<div class="support-head">
+    <h1>Soporte</h1>
+    <p>
+        Reporta un error de la plataforma, un inconveniente con un pago o una
+        conducta que quieras que revisemos. Tu reporte es confidencial.
+    </p>
+</div>
 
-<div class="card mb-3">
-    <div class="card-body">
-        <div style="font-weight:600; font-size:0.95rem; margin-bottom:4px; color:var(--text);">
-            <i class="bi bi-shield-check" style="color:#10B981;"></i> ¿Cómo podemos ayudarte?
-        </div>
-        <div style="font-size:0.83rem; color:var(--text-secondary); margin-bottom:18px;">
-            Reporta errores de la app o inconvenientes con otros usuarios. Tu reporte es confidencial.
-        </div>
+<div class="support-panel">
+    <form method="post" id="supportForm" novalidate>
+        {% csrf_token %}
+        {{ form.usuario_reportado }}
 
-        {% if form.usuario_reportado.value %}
-        <div class="reported-user-banner">
-            <i class="bi bi-exclamation-triangle-fill" style="color:#F59E0B; font-size:1.2rem; flex-shrink:0;"></i>
-            <span>Estás reportando a un usuario. Describe con detalle lo ocurrido para que podamos investigar.</span>
+        {% if reportado %}
+        <div class="reported-banner">
+            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+            <span>
+                Estás reportando a <strong>{{ reportado.get_full_name|default:reportado.username }}</strong>.
+                Describe con detalle lo ocurrido para que podamos investigar.
+            </span>
         </div>
         {% endif %}
 
-        <form method="post">
-            {% csrf_token %}
-            {{ form.usuario_reportado }}
+        <div class="field">
+            <span class="field__label" id="tipo-label">Tipo de reporte</span>
+            <div class="tipo-grid" role="radiogroup" aria-labelledby="tipo-label">
+                <label class="tipo-card" for="id_tipo_bug">
+                    <input type="radio" name="tipo" value="bug" id="id_tipo_bug" class="tipo-radio"
+                           {% if form.tipo.value == 'bug' %}checked{% endif %} required>
+                    <span class="tipo-card__icon" aria-hidden="true"><i class="bi bi-bug"></i></span>
+                    <span class="tipo-card__text">
+                        <span class="tipo-card__title">Error en la app</span>
+                        <span class="tipo-card__hint">Algo no funciona como debería</span>
+                    </span>
+                </label>
 
-            <!-- Tipo selector visual -->
-            <div style="font-size:0.85rem; font-weight:600; color:var(--text-secondary); margin-bottom:10px;">Tipo de reporte</div>
-            <div class="tipo-grid" id="tipoGrid">
-                <div class="tipo-card t-bug" data-value="bug" onclick="selectTipo(this,'bug')">
-                    <i class="bi bi-bug-fill"></i>
-                    <span>Error en la app</span>
-                </div>
-                <div class="tipo-card t-usuario" data-value="usuario" onclick="selectTipo(this,'usuario')">
-                    <i class="bi bi-person-fill-exclamation"></i>
-                    <span>Reportar usuario</span>
-                </div>
-                <div class="tipo-card t-pago" data-value="pago" onclick="selectTipo(this,'pago')">
-                    <i class="bi bi-cash-coin"></i>
-                    <span>Problema con pago</span>
-                </div>
-                <div class="tipo-card t-otro" data-value="otro" onclick="selectTipo(this,'otro')">
-                    <i class="bi bi-chat-dots-fill"></i>
-                    <span>Otro</span>
-                </div>
-            </div>
-            <!-- Hidden select for form submission -->
-            <div style="display:none;">{{ form.tipo }}</div>
+                <label class="tipo-card" for="id_tipo_usuario">
+                    <input type="radio" name="tipo" value="usuario" id="id_tipo_usuario" class="tipo-radio"
+                           {% if form.tipo.value == 'usuario' %}checked{% endif %} required>
+                    <span class="tipo-card__icon" aria-hidden="true"><i class="bi bi-person-exclamation"></i></span>
+                    <span class="tipo-card__text">
+                        <span class="tipo-card__title">Reportar usuario</span>
+                        <span class="tipo-card__hint">Conducta que incumple las reglas</span>
+                    </span>
+                </label>
 
-            <div class="mb-3">
-                <label class="form-label">{{ form.descripcion.label }}</label>
-                {{ form.descripcion }}
-                {% if form.descripcion.errors %}
-                <div class="text-danger small mt-1" role="alert">{{ form.descripcion.errors.0 }}</div>
-                {% endif %}
+                <label class="tipo-card" for="id_tipo_pago">
+                    <input type="radio" name="tipo" value="pago" id="id_tipo_pago" class="tipo-radio"
+                           {% if form.tipo.value == 'pago' %}checked{% endif %} required>
+                    <span class="tipo-card__icon" aria-hidden="true"><i class="bi bi-cash-coin"></i></span>
+                    <span class="tipo-card__text">
+                        <span class="tipo-card__title">Problema con pago</span>
+                        <span class="tipo-card__hint">Cobro, saldo o acuerdo incumplido</span>
+                    </span>
+                </label>
+
+                <label class="tipo-card" for="id_tipo_otro">
+                    <input type="radio" name="tipo" value="otro" id="id_tipo_otro" class="tipo-radio"
+                           {% if form.tipo.value == 'otro' %}checked{% endif %} required>
+                    <span class="tipo-card__icon" aria-hidden="true"><i class="bi bi-chat-dots"></i></span>
+                    <span class="tipo-card__text">
+                        <span class="tipo-card__title">Otro</span>
+                        <span class="tipo-card__hint">Cualquier cosa que no encaje arriba</span>
+                    </span>
+                </label>
             </div>
-            {% if form.non_field_errors %}
-            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% if form.tipo.errors %}
+            <div class="field__error" role="alert">
+                <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                <span>{{ form.tipo.errors.0 }}</span>
+            </div>
             {% endif %}
+        </div>
 
-            <button type="submit" class="btn btn-primary w-100" style="padding:13px;">
-                <i class="bi bi-send-fill"></i> Enviar reporte
-            </button>
-        </form>
-    </div>
+        <div class="field" style="margin-top:var(--space-5);">
+            <label class="field__label" for="{{ form.descripcion.id_for_label }}">{{ form.descripcion.label }}</label>
+            {{ form.descripcion|accessible:"form-control" }}
+            <div class="counter" data-counter><span data-counter-text></span></div>
+            <span class="field__hint">
+                Cuanta más detalle des, más rápido lo resolvemos: qué estabas
+                haciendo, qué pasó y qué esperabas.
+            </span>
+            {% field_error form.descripcion %}
+        </div>
+
+        {% if form.non_field_errors %}
+        <div class="auth-alert" role="alert" style="margin-top:var(--space-4);">
+            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+            <div>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</div>
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-accent w-100" style="padding:13px; margin-top:var(--space-5);"
+                data-submit-btn data-submit-pending="Enviando...">
+            <span data-submit-label><i class="bi bi-send" aria-hidden="true"></i> Enviar reporte</span>
+        </button>
+    </form>
 </div>
 
-<div style="text-align:center; margin-top:8px;">
-    <a href="{% url 'support:my_tickets' %}" style="font-size:0.85rem; color:var(--primary-light); text-decoration:none;">
-        <i class="bi bi-clock-history"></i> Ver mis reportes anteriores
+<p class="support-foot">
+    <a href="{% url 'support:my_tickets' %}">
+        <i class="bi bi-clock-history" aria-hidden="true"></i> Ver mis reportes anteriores
     </a>
-</div>
+</p>
 {% endblock %}
+
 {% block extra_js %}
-<script>
-function selectTipo(el, value) {
-    document.querySelectorAll('.tipo-card').forEach(c => c.classList.remove('selected'));
-    el.classList.add('selected');
-    document.getElementById('id_tipo').value = value;
-}
-// Pre-select current value
-(function(){
-    var current = document.getElementById('id_tipo').value;
-    if (current) {
-        var card = document.querySelector('.tipo-card[data-value="' + current + '"]');
-        if (card) card.classList.add('selected');
-    }
+<script src="{% static 'js/wizard.js' %}" defer></script>
+<script nonce="{{ csp_nonce }}">
+// El tipo se elige con radios reales: no hay manejadores inline.
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        var formulario = document.getElementById('supportForm');
+        if (!formulario) return;
+        formulario.addEventListener('submit', function (evento) {
+            var elegido = formulario.querySelector('input[name="tipo"]:checked');
+            if (!elegido) {
+                evento.preventDefault();
+                var tarjetas = formulario.querySelectorAll('.tipo-card');
+                tarjetas[0].querySelector('input').focus();
+            }
+        });
+    });
 })();
 </script>
 {% endblock %}

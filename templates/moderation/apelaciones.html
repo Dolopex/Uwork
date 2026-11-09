@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Apelaciones — U-Work{% endblock %}
+{% block title %}Apelaciones · U-Work{% endblock %}
 {% block content %}
 <div style="max-width:1000px; margin:0 auto;">
 
@@ -13,7 +13,7 @@
             </p>
         </div>
         <a href="{% url 'moderation:bitacora' %}" class="btn btn-sm"
-           style="border:1.5px solid var(--border); border-radius:10px; font-weight:700; color:var(--text); padding:8px 14px;">
+           style="border:1.5px solid var(--border); border-radius: var(--radius-sm); font-weight:700; color:var(--text); padding:8px 14px;">
             <i class="bi bi-journal-text"></i> Bitácora
         </a>
     </div>
@@ -30,10 +30,10 @@
         <div class="card-body">
             <div class="d-flex justify-content-between align-items-start mb-2" style="gap:12px;">
                 <div style="min-width:0;">
-                    <div style="font-weight:700; font-size:0.9rem; color:var(--text);">
-                        {{ a.usuario }}
+                    <div style="font-size:var(--fs-xs); font-weight:700; font-size:0.9rem; color:var(--text);">
+                        {{ a.usuario_nombre }}
                         <span class="badge"
-                              style="background:{% if a.pendiente %}rgba(217,119,6,0.15);color:#D97706{% else %}rgba(5,150,105,0.15);color:#059669{% endif %};">
+                              style="background:{% if a.pendiente %}rgba(217,119,6,0.15);color:var(--state-warning){% else %}rgba(5,150,105,0.15);color:var(--state-success){% endif %};">
                             {{ a.get_estado_display }}
                         </span>
                     </div>
@@ -44,8 +44,8 @@
                 </div>
             </div>
 
-            <div style="font-size:0.83rem; color:var(--text); padding:11px 13px; background:var(--surface-alt); border-radius:10px; margin-bottom:8px;">
-                <strong style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-secondary); display:block; margin-bottom:4px;">
+            <div style="font-size:0.83rem; color:var(--text); padding:11px 13px; background:var(--surface-alt); border-radius: var(--radius-sm); margin-bottom:8px;">
+                <strong style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">
                     Motivo del usuario</strong>
                 {{ a.motivo }}
             </div>
@@ -55,8 +55,8 @@
             </div>
 
             {% if a.respuesta %}
-            <div style="font-size:0.82rem; color:var(--text); padding:11px 13px; background:rgba(5,150,105,0.08); border-radius:10px; margin-bottom:10px;">
-                <strong style="font-size:0.72rem; text-transform:uppercase; letter-spacing:0.4px; color:var(--text-secondary); display:block; margin-bottom:4px;">
+            <div style="font-size:0.82rem; color:var(--text); padding:11px 13px; background:rgba(5,150,105,0.08); border-radius: var(--radius-sm); margin-bottom:10px;">
+                <strong style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary); display:block; margin-bottom:4px;">
                     Respuesta</strong>
                 {{ a.respuesta }}
             </div>
@@ -67,20 +67,20 @@
                 {% csrf_token %}
                 <textarea name="respuesta" rows="2" required
                           placeholder="Escribe la respuesta al usuario"
-                          style="width:100%; padding:10px 12px; font-size:0.82rem; border-radius:10px;
+                          style="width:100%; padding:10px 12px; font-size:0.82rem; border-radius: var(--radius-sm);
                                  border:1px solid var(--input-border); background:var(--input-bg); color:var(--text); margin-bottom:10px;"></textarea>
                 <div class="d-flex gap-2">
                     <button type="submit" name="decision" value="aceptar" class="btn btn-sm"
-                            style="background:#059669; color:#fff; border:none; border-radius:10px; font-weight:700; padding:9px 16px;">
+                            style="background:var(--state-success); color:#fff; border:none; border-radius: var(--radius-sm); font-weight:700; padding:9px 16px;">
                         <i class="bi bi-check-lg"></i> Aceptar y levantar baneo
                     </button>
                     <button type="submit" name="decision" value="rechazar" class="btn btn-sm btn-outline-secondary"
-                            style="border-radius:10px; font-weight:700; padding:9px 16px;">Rechazar</button>
+                            style="border-radius: var(--radius-sm); font-weight:700; padding:9px 16px;">Rechazar</button>
                 </div>
             </form>
             {% else %}
             <div style="font-size:0.75rem; color:var(--text-secondary);">
-                Resuelta el {{ a.resuelta_at|date:"d/m/Y H:i" }} por {{ a.resuelta_por|default:"—" }}
+                Resuelta el {{ a.resuelta_at|date:"d/m/Y H:i" }} por {{ a.resuelta_por|default:"sin registro" }}
             </div>
             {% endif %}
         </div>

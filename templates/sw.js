@@ -1,7 +1,14 @@
-const CACHE_NAME = 'uwork-v1';
+// La version sube cuando cambian los recursos que se cachean: el
+// estrategia es cache-first para /static/, asi que sin este cambio los
+// usuarios con la PWA instalada seguirian viendo la hoja de estilos y el
+// modulo de formularios anteriores.
+const CACHE_NAME = 'uwork-v4';
 const STATIC_ASSETS = [
   '/',
-  '/static/css/styles.css',
+  // El archivo real es style.css (no styles.css): el precache fallaba en
+  // silencio y la PWA no funcionaba sin conexión.
+  '/static/css/style.css',
+  '/static/js/wizard.js',
 ];
 
 // Install: pre-cache shell

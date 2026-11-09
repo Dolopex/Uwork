@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% load form_tags %}
-{% block title %}Postulantes — {{ job.titulo }} — U-Work{% endblock %}
+{% block title %}Postulantes de {{ job.titulo }} · U-Work{% endblock %}
 {% block extra_css %}
 <style>
     @media (min-width: 992px) {
@@ -27,7 +27,7 @@
             <div style="flex:1;">
                 <a href="{% url 'accounts:user_detail' app.usuario.pk %}" class="fw-bold text-decoration-none" style="color:var(--text); font-size:0.95rem;">{{ app.usuario }}</a>
                 <div>
-                    <span style="color: #F59E0B; font-weight:600; font-size:0.8rem;">
+                    <span style="color: var(--star-active); font-weight:600; font-size:0.8rem;">
                         <i class="bi bi-star-fill"></i> {{ app.usuario.calificacion_promedio }}
                     </span>
                     <span class="text-muted" style="font-size:0.75rem;"> · {{ app.created_at|date:"d M" }}</span>
@@ -36,14 +36,14 @@
             {% if app.estado == 'pendiente' and job.estado == 'disponible' %}
             <form method="post" action="{% url 'jobs:accept_applicant' job.pk app.pk %}">
                 {% csrf_token %}
-                <button class="btn btn-sm" style="background:linear-gradient(135deg,#10B981,#059669); color:#fff; font-weight:600; padding:8px 16px;">
+                <button class="btn btn-sm btn-fill-success" style="padding:8px 16px;">
                     <i class="bi bi-check-lg"></i> Aceptar
                 </button>
             </form>
             {% elif app.estado == 'aceptada' %}
-            <span class="badge" style="background:#D1FAE5; color:#065F46;">Aceptado</span>
+            <span class="badge" style="background:var(--state-success-soft); color:var(--state-success);">Aceptado</span>
             {% else %}
-            <span class="badge" style="background:#E5E7EB; color:#374151;">{{ app.get_estado_display }}</span>
+            <span class="badge" style="background:var(--ink-200); color:var(--ink-700);">{{ app.get_estado_display }}</span>
             {% endif %}
         </div>
         {% if app.mensaje %}
@@ -68,7 +68,7 @@
 <aside class="applicants-sidebar">
     <div class="card mb-3">
         <div class="card-body">
-            <div style="font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:10px;"><i class="bi bi-briefcase-fill"></i> Trabajo</div>
+            <div style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary); margin-bottom:10px;"><i class="bi bi-briefcase-fill"></i> Trabajo</div>
             <h6 style="font-weight:800; color:var(--text); margin-bottom:8px;">{{ job.titulo }}</h6>
             <div class="d-flex flex-wrap gap-1 mb-3">
                 {% if job.urgente %}<span class="badge" style="background:var(--badge-red-bg); color:var(--badge-red-text); font-size:0.7rem;"><i class="bi bi-lightning-charge-fill"></i> Urgente</span>{% endif %}
@@ -80,7 +80,7 @@
             {% if job.fecha_limite %}<div style="font-size:0.8rem; color:var(--text-secondary);"><i class="bi bi-calendar"></i> Límite: {{ job.fecha_limite|date:"d M Y" }}</div>{% endif %}
         </div>
     </div>
-    <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-outline-primary w-100 py-2" style="border-radius:12px;">
+    <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-outline-primary w-100 py-2" style="border-radius: var(--radius-md);">
         <i class="bi bi-arrow-left"></i> Volver al trabajo
     </a>
 </aside>

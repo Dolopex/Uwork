@@ -424,6 +424,145 @@ class ApelaciónTests(TestCase):
         self.assertTrue(apelacion.pendiente)
 
 
+class CanalDeApelacionTests(TestCase):
+    """P0-3 — el canal de apelación existía en el modelo pero no tenía vista.
+
+    Y el sancionado no alcanzaba ninguna: el middleware le cerraba la sesión
+    en cada request, así que quedaba en un callejón sin salida.
+    """
+
+    def setUp(self):
+        self.moderador = User.objects.create_user(
+            username='mod2', email='mod2@x.com', password='Aa12345678xyz!',
+            is_staff=True, is_email_verified=True)
+        self.usuario = User.objects.create_user(
+            username='sanc2', email='sanc2@x.com', password='Aa12345678xyz!',
+            is_email_verified=True)
+        self.sancion = Sancion.objects.create(
+            usuario=self.usuario, usuario_username=self.usuario.username,
+            aplicada_por=self.moderador, tipo=Sancion.Tipo.PERMANENTE,
+            motivo='Contenido prohibido')
+        self.usuario.aplicar_baneo('Contenido prohibido')
+
+    def test_el_sancionado_alcanza_el_canal_de_apelacion(self):
+        """El middleware no le cierra la sesión en la ruta de apelación."""
+        self.client.force_login(self.usuario)
+        respuesta = self.client.get(reverse('moderation:apelacion_crear'))
+        self.assertEqual(respuesta.status_code, 200)
+
+    def test_el_sancionado_registra_la_apelacion(self):
+        self.client.force_login(self.usuario)
+        self.client.post(reverse('moderation:apelacion_crear'), {
+            'sancion': self.sancion.pk,
+            'motivo': 'La publicación no es mía, alguien más la publicó.',
+        })
+        apelacion = Apelacion.objects.get()
+        self.assertEqual(apelacion.usuario, self.usuario)
+        self.assertEqual(apelacion.sancion, self.sancion)
+        self.assertTrue(apelacion.pendiente)
+
+    def test_en_el_resto_de_la_plataforma_el_sancionado_sigue_sin_acceso(self):
+        self.client.force_login(self.usuario)
+        respuesta = self.client.get(reverse('jobs:job_list'))
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertIn('/login/', respuesta.headers['Location'])
+
+    def test_el_usuario_ve_sus_apelaciones(self):
+        Apelacion.objects.create(
+            sancion=self.sancion, usuario=self.usuario,
+            usuario_username=self.usuario.username, motivo='Error')
+        self.client.force_login(self.usuario)
+        respuesta = self.client.get(reverse('moderation:mis_apelaciones'))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertEqual(len(list(respuesta.context['apelaciones'])), 1)
+
+    def test_quien_no_tiene_sancion_no_ve_el_formulario(self):
+        otro = User.objects.create_user(
+            username='otro2', email='otro2@x.com', password='Aa12345678xyz!',
+            is_email_verified=True)
+        self.client.force_login(otro)
+        respuesta = self.client.get(reverse('moderation:apelacion_crear'))
+        self.assertEqual(respuesta.status_code, 200)
+        self.assertTrue(respuesta.context['sin_sancion'])
+
+
+class SancionarSinTrabajoTests(TestCase):
+    """P0-4 — panel de moderación devolvía 500 al sancionar sin trabajo.
+
+    `reporte.trabajo.creador` reventaba con AttributeError cuando el
+    contenido ya había sido retirado (trabajo = NULL).
+    """
+
+    def setUp(self):
+        self.moderador = User.objects.create_user(
+            username='mod3', email='mod3@x.com', password='Aa12345678xyz!',
+            is_staff=True, is_email_verified=True)
+        self.autor = User.objects.create_user(
+            username='autor', email='autor@x.com', password='Aa12345678xyz!',
+            is_email_verified=True)
+        self.reportante = User.objects.create_user(
+            username='rep', email='rep@x.com', password='Aa12345678xyz!',
+            is_email_verified=True)
+
+    def test_sancionar_tras_retirar_el_contenido_no_da_500(self):
+        reporte = Reporte.objects.create(
+            trabajo=None, trabajo_titulo='Publicación retirada',
+            contenido_autor=self.autor, reportante=self.reportante,
+            motivo='ilegal')
+        self.client.force_login(self.moderador)
+
+        respuesta = self.client.post(
+            reverse('moderation:resolver_reporte', args=[reporte.pk]),
+            {'accion': 'sancionar', 'tipo_sancion': 'permanente',
+             'motivo_sancion': 'Contenido ilegal'})
+
+        self.assertEqual(respuesta.status_code, 302)
+        sancion = Sancion.objects.get()
+        self.assertEqual(sancion.usuario, self.autor)
+        self.assertEqual(sancion.usuario_username, self.autor.username)
+        self.autor.refresh_from_db()
+        self.assertTrue(self.autor.is_banned)
+
+    def test_sin_autor_identificado_no_hay_500(self):
+        reporte = Reporte.objects.create(
+            trabajo=None, trabajo_titulo='Publicación sin autor',
+            contenido_autor=None, reportante=self.reportante,
+            motivo='ilegal')
+        self.client.force_login(self.moderador)
+
+        respuesta = self.client.post(
+            reverse('moderation:resolver_reporte', args=[reporte.pk]),
+            {'accion': 'sancionar', 'tipo_sancion': 'permanente',
+             'motivo_sancion': 'Contenido ilegal'})
+
+        self.assertEqual(respuesta.status_code, 302)
+        self.assertFalse(Sancion.objects.exists())
+
+
+class BitacoraImmutableTests(TestCase):
+    """La bitácora sobrevive a la eliminación de la cuenta del sancionado."""
+
+    def test_la_sancion_sobrevive_si_el_usuario_borra_su_cuenta(self):
+        autor = User.objects.create_user(
+            username='borra', email='borra@x.com', password='Aa12345678xyz!',
+            is_email_verified=True)
+        moderador = User.objects.create_user(
+            username='mod4', email='mod4@x.com', password='Aa12345678xyz!',
+            is_staff=True, is_email_verified=True)
+        sancion = Sancion.objects.create(
+            usuario=autor, usuario_username=autor.username,
+            usuario_email=autor.email, aplicada_por=moderador,
+            tipo=Sancion.Tipo.PERMANENTE, motivo='Prueba')
+
+        autor.delete()
+
+        sancion.refresh_from_db()
+        self.assertIsNone(sancion.usuario)
+        self.assertEqual(sancion.usuario_username, 'borra')
+        self.assertEqual(sancion.usuario_email, 'borra@x.com')
+        self.assertEqual(sancion.usuario_nombre, 'borra')
+
+
 class PasswordResetTests(TestCase):
     """§6.5.3 — vistas de 'Olvidé mi contraseña' y cambio de contraseña.
 

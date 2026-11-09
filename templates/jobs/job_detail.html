@@ -1,54 +1,54 @@
 {% extends 'base.html' %}
 {% load form_tags %}
-{% block title %}{{ job.titulo }} — U-Work{% endblock %}
+{% block title %}{{ job.titulo }} · U-Work{% endblock %}
 {% block extra_css %}
 <style>
     .content-wrapper { max-width: 1140px !important; }
 
     /* Header card */
-    .detail-header { background:var(--card-bg); border:1px solid var(--card-border); border-radius:20px; overflow:hidden; margin-bottom:14px; }
-    .detail-accent { height:4px; background:linear-gradient(90deg,var(--primary),var(--primary-light),#10B981); }
+    .detail-header { background:var(--card-bg); border:1px solid var(--card-border); border-radius: var(--radius-xl); overflow:hidden; margin-bottom:14px; }
+    .detail-accent { height:4px; background:linear-gradient(90deg,var(--primary),var(--primary-light),var(--state-success)); }
     .detail-header-body { padding:20px; }
 
     /* Section cards */
-    .detail-section { background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px; padding:18px 20px; margin-bottom:12px; }
+    .detail-section { background:var(--card-bg); border:1px solid var(--card-border); border-radius: var(--radius-lg); padding:18px 20px; margin-bottom:12px; }
     .sec-label { display:flex; align-items:center; gap:8px; font-weight:700; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border); }
-    .sec-icon { width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; }
+    .sec-icon { width:26px; height:26px; border-radius: var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0; }
 
     /* Creator row */
-    .creator-row { display:flex; align-items:center; gap:12px; padding:12px; background:var(--surface-alt); border-radius:12px; text-decoration:none; margin-bottom:14px; border:1px solid var(--border); transition:border-color 0.2s; }
+    .creator-row { display:flex; align-items:center; gap:12px; padding:12px; background:var(--surface-alt); border-radius: var(--radius-md); text-decoration:none; margin-bottom:14px; border:1px solid var(--border); transition:border-color 0.2s; }
     .creator-row:hover { border-color:var(--primary-light); }
-    .creator-av { width:44px; height:44px; border-radius:12px; object-fit:cover; flex-shrink:0; }
-    .creator-av-ph { width:44px; height:44px; border-radius:12px; background:linear-gradient(135deg,var(--primary),var(--primary-light)); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.2rem; flex-shrink:0; }
+    .creator-av { width:44px; height:44px; border-radius: var(--radius-md); object-fit:cover; flex-shrink:0; }
+    .creator-av-ph { width:44px; height:44px; border-radius: var(--radius-md); background:var(--grad-brand); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.2rem; flex-shrink:0; }
 
     /* Meta pill */
-    .meta-pill { display:inline-flex; align-items:center; gap:6px; background:var(--surface-alt); border:1px solid var(--border); border-radius:20px; padding:5px 12px; font-size:0.8rem; color:var(--text); font-weight:500; }
+    .meta-pill { display:inline-flex; align-items:center; gap:6px; background:var(--surface-alt); border:1px solid var(--border); border-radius: var(--radius-xl); padding:5px 12px; font-size:0.8rem; color:var(--text); font-weight:500; }
 
     /* Req box */
-    .req-box { background:#FEF9C3; border:1px solid #FDE047; border-radius:12px; padding:14px; }
+    .req-box { background:var(--state-warning-soft); border:1px solid #FDE047; border-radius: var(--radius-md); padding:14px; }
     .req-box .req-body { font-size:0.88rem; color:#78350F; line-height:1.6; }
-    [data-theme="dark"] .req-box { background:#1C1200; border-color:#92400E; }
+    [data-theme="dark"] .req-box { background:#1C1200; border-color:var(--state-warning); }
     [data-theme="dark"] .req-box .req-body { color:#FDE68A; }
 
     /* Skill chip */
-    .skill-chip { display:inline-block; background:var(--badge-indigo-bg); color:var(--badge-indigo-text); padding:5px 13px; border-radius:20px; font-size:0.78rem; font-weight:600; margin:2px; }
+    .skill-chip { display:inline-block; background:var(--badge-indigo-bg); color:var(--badge-indigo-text); padding:5px 13px; border-radius: var(--radius-xl); font-size:0.78rem; font-weight:600; margin:2px; }
 
     /* Asignado box */
-    .asignado-box { display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface-alt); border:1px solid var(--border); border-radius:12px; }
+    .asignado-box { display:flex; align-items:center; gap:12px; padding:12px 14px; background:var(--surface-alt); border:1px solid var(--border); border-radius: var(--radius-md); }
 
     /* Pago hero */
-    .pago-hero { background:linear-gradient(135deg,#065F46,#059669,#10B981); border-radius:18px; padding:22px; text-align:center; margin-bottom:12px; position:relative; overflow:hidden; }
-    .pago-hero::before { content:''; position:absolute; top:-20px; right:-20px; width:80px; height:80px; border-radius:50%; background:rgba(255,255,255,0.08); }
-    .pago-hero::after  { content:''; position:absolute; bottom:-15px; left:-15px; width:60px; height:60px; border-radius:50%; background:rgba(255,255,255,0.06); }
+    .pago-hero { background:linear-gradient(135deg,var(--state-success),var(--state-success),var(--state-success)); border-radius: var(--radius-lg); padding:22px; text-align:center; margin-bottom:12px; position:relative; overflow:hidden; }
+    .pago-hero::before { content:''; position:absolute; top:-20px; right:-20px; width:80px; height:80px; border-radius: var(--radius-full); background:rgba(255,255,255,0.08); }
+    .pago-hero::after  { content:''; position:absolute; bottom:-15px; left:-15px; width:60px; height:60px; border-radius: var(--radius-full); background:rgba(255,255,255,0.06); }
     .pago-hero .ph-label { font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:rgba(255,255,255,0.7); margin-bottom:4px; }
     .pago-hero .ph-amount { font-size:2.2rem; font-weight:900; color:#fff; line-height:1.1; }
     .pago-hero .ph-estado { font-size:0.75rem; color:rgba(255,255,255,0.75); margin-top:6px; }
 
     /* Aside card */
-    .aside-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:16px; padding:16px; margin-bottom:12px; }
+    .aside-card { background:var(--card-bg); border:1px solid var(--card-border); border-radius: var(--radius-lg); padding:16px; margin-bottom:12px; }
     .aside-meta-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); }
     .aside-meta-row:last-child { border-bottom:none; padding-bottom:0; }
-    .aside-meta-icon { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; }
+    .aside-meta-icon { width:32px; height:32px; border-radius: var(--radius-sm); display:flex; align-items:center; justify-content:center; font-size:0.85rem; flex-shrink:0; }
 
     @media (min-width: 992px) {
         .content-wrapper { max-width: 1140px !important; }
@@ -61,15 +61,38 @@
 <div class="detail-layout">
 <div class="detail-main">
 
+{% if job.estado == 'pendiente_revision' and user == job.creador %}
+<div class="detail-section" style="background:var(--badge-amber-bg);border-color:transparent;color:var(--badge-amber-text);">
+    <div style="display:flex;gap:10px;align-items:flex-start;">
+        <i class="bi bi-hourglass-split" style="font-size:1.1rem;"></i>
+        <div>
+            <strong>Tu publicación está pendiente de revisión.</strong>
+            <div style="font-size:0.85rem;margin-top:4px;line-height:1.5;">Todavía no es pública: un moderador tiene que aprobarla antes de que aparezca en el listado.</div>
+        </div>
+    </div>
+</div>
+{% elif job.estado == 'rechazado' and user == job.creador %}
+<div class="detail-section" style="background:var(--badge-red-bg);border-color:transparent;color:var(--badge-red-text);">
+    <div style="display:flex;gap:10px;align-items:flex-start;">
+        <i class="bi bi-x-octagon" style="font-size:1.1rem;"></i>
+        <div>
+            <strong>La moderación rechazó esta publicación.</strong>
+            {% if job.motivo_rechazo %}<div style="font-size:0.85rem;margin-top:4px;line-height:1.5;">Motivo: {{ job.motivo_rechazo }}</div>{% endif %}
+            <div style="font-size:0.85rem;margin-top:4px;line-height:1.5;">Corrige el contenido y vuelve a enviarla a revisión.</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Mobile: price + action at top -->
 <div class="d-lg-none aside-card d-flex align-items-center justify-content-between mb-3" style="padding:14px 16px;">
     <div>
-        <div style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-secondary);">Pago</div>
+        <div style="color:var(--text-secondary);">Pago</div>
         <div style="font-size:1.5rem; font-weight:900; color:var(--money);">{{ job.pago|cop }}</div>
     </div>
-    {% if user.is_authenticated and user.es_estudiante and job.estado == 'disponible' and not user_applied %}
+    {% if user.is_authenticated and user.es_estudiante and job.estado == 'disponible' and not user_applied and not job.es_vencido %}
     <a href="{% url 'jobs:job_apply' job.pk %}" class="btn btn-primary px-4 py-2"><i class="bi bi-send-fill"></i> Postularme</a>
-    {% elif user.is_authenticated and user.es_estudiante and user_applied %}
+    {% elif user.is_authenticated and user.es_estudiante and job.estado == 'disponible' and not job.es_vencido and user_applied %}
     <span class="badge py-2 px-3" style="background:var(--badge-green-bg);color:var(--badge-green-text);font-size:0.82rem;"><i class="bi bi-check2-circle"></i> Postulado</span>
     {% elif user.is_authenticated and user == job.creador and job.estado == 'disponible' %}
     <a href="{% url 'jobs:job_applicants' job.pk %}" class="btn btn-primary px-3 py-2"><i class="bi bi-people"></i> Postulantes</a>
@@ -81,16 +104,19 @@
     <div class="detail-accent"></div>
     {% if job.imagen %}
     <div style="overflow:hidden; max-height:220px;">
-        <img src="{{ job.imagen.url }}" alt="{{ job.titulo }}" style="width:100%;object-fit:cover;display:block;">
+        <img src="{{ job.imagen.url }}" alt="{{ job.titulo }}" loading="lazy" style="width:100%;object-fit:cover;display:block;">
     </div>
     {% endif %}
     <div class="detail-header-body">
         <!-- Badges -->
         <div class="d-flex flex-wrap gap-1 mb-3">
             {% if job.urgente %}<span class="badge" style="background:var(--badge-red-bg);color:var(--badge-red-text);"><i class="bi bi-lightning-charge-fill"></i> Urgente</span>{% endif %}
-            {% if job.estado == 'disponible' %}<span class="badge" style="background:var(--badge-blue-bg);color:var(--badge-blue-text);">Disponible</span>
+            {% if job.estado == 'pendiente_revision' %}<span class="badge" style="background:var(--badge-amber-bg);color:var(--badge-amber-text);"><i class="bi bi-hourglass-split"></i> Pendiente de revisión</span>
+            {% elif job.estado == 'rechazado' %}<span class="badge" style="background:var(--badge-red-bg);color:var(--badge-red-text);"><i class="bi bi-x-octagon"></i> Rechazada</span>
+            {% elif job.estado == 'disponible' %}<span class="badge" style="background:var(--badge-blue-bg);color:var(--badge-blue-text);">Disponible</span>
             {% elif job.estado == 'en_proceso' %}<span class="badge" style="background:var(--badge-amber-bg);color:var(--badge-amber-text);">En proceso</span>
             {% else %}<span class="badge" style="background:var(--badge-gray-bg);color:var(--badge-gray-text);">Finalizado</span>{% endif %}
+            {% if job.es_vencido and job.estado == 'disponible' %}<span class="badge" style="background:var(--badge-gray-bg);color:var(--badge-gray-text);"><i class="bi bi-calendar-x"></i> Postulaciones cerradas</span>{% endif %}
             <span class="badge" style="background:var(--badge-indigo-bg);color:var(--badge-indigo-text);">{{ job.get_categoria_display }}</span>
             <span class="badge" style="background:var(--badge-green-bg);color:var(--badge-green-text);">{{ job.get_modalidad_display }}</span>
         </div>
@@ -106,7 +132,7 @@
             <div class="creator-av-ph"><i class="bi bi-person-fill"></i></div>
             {% endif %}
             <div style="flex:1; min-width:0;">
-                <div style="font-weight:700; font-size:0.9rem; color:var(--text);">{{ job.creador.get_full_name|default:job.creador.username }}</div>
+                <div style="font-size:var(--fs-xs); font-weight:700; font-size:0.9rem; color:var(--text);">{{ job.creador.get_full_name|default:job.creador.username }}</div>
                 <div style="font-size:0.75rem; color:var(--text-secondary);">Empleador · Ver perfil</div>
             </div>
             <i class="bi bi-chevron-right" style="color:var(--text-secondary); font-size:0.85rem;"></i>
@@ -115,9 +141,9 @@
         <!-- Meta pills -->
         <div class="d-flex flex-wrap gap-2">
             <span class="meta-pill"><i class="bi bi-calendar-event" style="color:var(--primary-light);"></i> {{ job.fecha_limite|date:"d M Y" }}</span>
-            {% if job.ubicacion %}<span class="meta-pill"><i class="bi bi-pin-map-fill" style="color:#F87171;"></i> {{ job.ubicacion }}</span>{% endif %}
+            {% if job.ubicacion %}<span class="meta-pill"><i class="bi bi-pin-map-fill" style="color:var(--state-danger);"></i> {{ job.ubicacion }}</span>{% endif %}
             {% if job.duracion_estimada %}<span class="meta-pill"><i class="bi bi-hourglass-split" style="color:var(--star-active);"></i> {{ job.duracion_estimada }}</span>{% endif %}
-            <span class="meta-pill"><i class="bi bi-people-fill" style="color:#A78BFA;"></i> {{ job.postulaciones.count }} postulante{{ job.postulaciones.count|pluralize:"s" }}</span>
+            <span class="meta-pill"><i class="bi bi-people-fill" style="color:var(--primary-light);"></i> {{ job.postulaciones.count }} postulante{{ job.postulaciones.count|pluralize:"s" }}</span>
         </div>
     </div>
 </div>
@@ -135,7 +161,7 @@
 {% if job.requisitos %}
 <div class="detail-section">
     <div class="sec-label">
-        <div class="sec-icon" style="background:#FEF9C3;color:#92400E;"><i class="bi bi-list-check"></i></div>
+        <div class="sec-icon" style="background:var(--state-warning-soft);color:var(--state-warning);"><i class="bi bi-list-check"></i></div>
         Requisitos
     </div>
     <div class="req-box">
@@ -168,15 +194,15 @@
     </div>
     <div class="asignado-box">
         {% if job.asignado.foto %}
-        <img src="{{ job.asignado.foto.url }}" style="width:40px;height:40px;border-radius:10px;object-fit:cover;">
+        <img src="{{ job.asignado.foto.url }}" style="width:40px;height:40px;border-radius: var(--radius-sm);object-fit:cover;">
         {% else %}
-        <div style="width:40px;height:40px;border-radius:10px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;"><i class="bi bi-person-fill"></i></div>
+        <div style="width:40px;height:40px;border-radius: var(--radius-sm);background:var(--primary-solid);display:flex;align-items:center;justify-content:center;color:#fff;font-size:1rem;"><i class="bi bi-person-fill"></i></div>
         {% endif %}
         <div style="flex:1;">
-            <div style="font-weight:700;color:var(--text);font-size:0.9rem;">{{ job.asignado.get_full_name|default:job.asignado.username }}</div>
+            <div style="font-size:var(--fs-xs); font-weight:700;color:var(--text);font-size:0.9rem;">{{ job.asignado.get_full_name|default:job.asignado.username }}</div>
             <div style="font-size:0.75rem;color:var(--text-secondary);">Estudiante asignado</div>
         </div>
-        <a href="{% url 'accounts:user_detail' job.asignado.pk %}" class="btn btn-sm" style="background:var(--surface-alt);border:1px solid var(--border);color:var(--text);border-radius:9px;">Ver perfil</a>
+        <a href="{% url 'accounts:user_detail' job.asignado.pk %}" class="btn btn-sm" style="background:var(--surface-alt);border:1px solid var(--border);color:var(--text);border-radius: var(--radius-sm);">Ver perfil</a>
     </div>
 </div>
 {% endif %}
@@ -192,7 +218,9 @@
         <div class="ph-label"><i class="bi bi-cash-stack"></i> Pago</div>
         <div class="ph-amount">{{ job.pago|cop }}</div>
         <div class="ph-estado">
-            {% if job.estado == 'disponible' %}✓ Trabajo disponible
+            {% if job.estado == 'pendiente_revision' %}◷ Pendiente de revisión
+            {% elif job.estado == 'rechazado' %}✕ Rechazada
+            {% elif job.estado == 'disponible' %}{% if job.es_vencido %}◷ Postulaciones cerradas{% else %}✓ Trabajo disponible{% endif %}
             {% elif job.estado == 'en_proceso' %}⏳ En proceso
             {% else %}✓ Finalizado{% endif %}
         </div>
@@ -203,30 +231,51 @@
 {% if user.is_authenticated %}
 <div class="d-grid gap-2 mb-3">
     {% if user == job.creador %}
+        {% if job.estado == 'pendiente_revision' %}
+        <!-- Moderación previa a publicar (Términos §6) -->
+        <div class="aside-card" style="padding:16px;">
+            <div style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary);margin-bottom:8px;"><i class="bi bi-hourglass-split"></i> Estado de revisión</div>
+            <p style="font-size:0.85rem;color:var(--text);line-height:1.6;margin-bottom:12px;">
+                Tu publicación está <strong>pendiente de revisión</strong>. No se
+                hace pública hasta que un moderador la apruebe.
+            </p>
+            <a href="{% url 'jobs:job_edit' job.pk %}" class="btn btn-outline-primary w-100 py-2"><i class="bi bi-pencil"></i> Editar y reenviar</a>
+        </div>
+        {% elif job.estado == 'rechazado' %}
+        <div class="aside-card" style="padding:16px;border-color:var(--badge-red-bg);">
+            <div style="font-size:var(--fs-xs); font-weight:700; color:var(--badge-red-text);margin-bottom:8px;"><i class="bi bi-x-octagon"></i> Publicación rechazada</div>
+            {% if job.motivo_rechazo %}
+            <p style="font-size:0.85rem;color:var(--text);line-height:1.6;margin-bottom:12px;">
+                <strong>Motivo:</strong> {{ job.motivo_rechazo }}
+            </p>
+            {% endif %}
+            <a href="{% url 'jobs:job_edit' job.pk %}" class="btn btn-outline-primary w-100 py-2"><i class="bi bi-arrow-repeat"></i> Corregir y reenviar</a>
+        </div>
+        {% else %}
         <!-- Estado selector -->
         <div class="aside-card mb-1" style="padding:14px 14px 12px;">
-            <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.7px;color:var(--text-secondary);margin-bottom:10px;"><i class="bi bi-toggle2-on"></i> Estado del trabajo</div>
+            <div style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary);margin-bottom:10px;"><i class="bi bi-toggle2-on"></i> Estado del trabajo</div>
             <form method="post" action="{% url 'jobs:job_change_status' job.pk %}" id="status-form">{% csrf_token %}
                 <input type="hidden" name="estado" id="status-input" value="{{ job.estado }}">
                 <div class="d-flex gap-2">
-                    <button type="button" onclick="setStatus('disponible')"
+                    <button type="button" data-set-status="disponible"
                         class="btn flex-fill py-2 status-btn {% if job.estado == 'disponible' %}active-status{% endif %}"
-                        style="font-size:0.78rem;font-weight:700;border-radius:10px;
-                            {% if job.estado == 'disponible' %}background:#2563EB;color:#fff;border:none;
+                        style="font-size:0.78rem;font-weight:700;border-radius: var(--radius-sm);
+                            {% if job.estado == 'disponible' %}background:var(--state-info);color:#fff;border:none;
                             {% else %}background:var(--surface-alt);color:var(--text-secondary);border:1px solid var(--border);{% endif %}">
                         <i class="bi bi-circle-fill" style="font-size:0.5rem;vertical-align:middle;"></i> Disponible
                     </button>
-                    <button type="button" onclick="setStatus('en_proceso')"
+                    <button type="button" data-set-status="en_proceso"
                         class="btn flex-fill py-2 status-btn {% if job.estado == 'en_proceso' %}active-status{% endif %}"
-                        style="font-size:0.78rem;font-weight:700;border-radius:10px;
-                            {% if job.estado == 'en_proceso' %}background:#D97706;color:#fff;border:none;
+                        style="font-size:0.78rem;font-weight:700;border-radius: var(--radius-sm);
+                            {% if job.estado == 'en_proceso' %}background:var(--state-warning);color:#fff;border:none;
                             {% else %}background:var(--surface-alt);color:var(--text-secondary);border:1px solid var(--border);{% endif %}">
                         <i class="bi bi-circle-fill" style="font-size:0.5rem;vertical-align:middle;"></i> En proceso
                     </button>
-                    <button type="button" onclick="setStatus('finalizado')"
+                    <button type="button" data-set-status="finalizado"
                         class="btn flex-fill py-2 status-btn {% if job.estado == 'finalizado' %}active-status{% endif %}"
-                        style="font-size:0.78rem;font-weight:700;border-radius:10px;
-                            {% if job.estado == 'finalizado' %}background:#059669;color:#fff;border:none;
+                        style="font-size:0.78rem;font-weight:700;border-radius: var(--radius-sm);
+                            {% if job.estado == 'finalizado' %}background:var(--state-success);color:#fff;border:none;
                             {% else %}background:var(--surface-alt);color:var(--text-secondary);border:1px solid var(--border);{% endif %}">
                         <i class="bi bi-circle-fill" style="font-size:0.5rem;vertical-align:middle;"></i> Finalizado
                     </button>
@@ -237,36 +286,52 @@
         <a href="{% url 'jobs:job_edit' job.pk %}" class="btn btn-outline-primary btn-lg py-3"><i class="bi bi-pencil"></i> Editar trabajo</a>
         <a href="{% url 'jobs:job_applicants' job.pk %}" class="btn btn-primary btn-lg py-3"><i class="bi bi-people"></i> Ver postulantes ({{ job.postulaciones.count }})</a>
         <form method="post" action="{% url 'jobs:job_delete' job.pk %}"
-              onsubmit="return confirm('¿Seguro que quieres eliminar «{{ job.titulo }}»? Esta acción no se puede deshacer.')">
+              data-confirm="¿Seguro que quieres eliminar «{{ job.titulo }}»? Esta acción no se puede deshacer.">
             {% csrf_token %}
-            <button type="submit" class="btn btn-lg w-100 py-3" style="background:rgba(239,68,68,0.1);color:#EF4444;border:1px solid rgba(239,68,68,0.3);border-radius:14px;font-weight:600;">
+            <button type="submit" class="btn btn-lg w-100 py-3" style="background:rgba(239,68,68,0.1);color:var(--state-danger);border:1px solid rgba(239,68,68,0.3);border-radius: var(--radius-lg);font-weight:600;">
                 <i class="bi bi-trash3"></i> Eliminar trabajo
             </button>
         </form>
         {% elif job.estado == 'en_proceso' %}
         <a href="{% url 'jobs:job_applicants' job.pk %}" class="btn btn-outline-primary btn-lg py-3"><i class="bi bi-people"></i> Ver postulantes ({{ job.postulaciones.count }})</a>
+        {% if job.asignado %}
+        <form method="post" action="{% url 'jobs:job_finish' job.pk %}"
+              data-confirm="¿Marcar «{{ job.titulo }}» como finalizado? Después se podrán publicar las calificaciones.">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-lg w-100 py-3 btn-fill-success" style="border-radius: var(--radius-lg);">
+                <i class="bi bi-check2-circle"></i> Marcar como finalizado
+            </button>
+        </form>
+        {% endif %}
         {% endif %}
         {% if job.estado == 'finalizado' %}
-        <a href="{% url 'reviews:create_review' job.pk %}" class="btn btn-lg py-3" style="background:linear-gradient(135deg,#F59E0B,#F97316);color:#fff;font-weight:700;border:none;border-radius:14px;box-shadow:0 4px 16px rgba(245,158,11,0.3);"><i class="bi bi-star-fill"></i> Calificar</a>
+        <a href="{% url 'reviews:create_review' job.pk %}" class="btn btn-lg py-3 btn-fill-warning" style="border-radius: var(--radius-lg);"><i class="bi bi-star-fill"></i> Calificar</a>
+        {% endif %}
         {% endif %}
     {% else %}
         {% if user.es_estudiante %}
             {% if job.estado == 'disponible' and not user_applied %}
-            <a href="{% url 'jobs:job_apply' job.pk %}" class="btn btn-primary btn-lg py-3" style="border-radius:14px;box-shadow:0 4px 16px rgba(79,70,229,0.3);"><i class="bi bi-send-fill"></i> Postularme</a>
+            {% if job.es_vencido %}
+            <div class="aside-card text-center" style="background:var(--badge-amber-bg);color:var(--badge-amber-text);font-size:0.85rem;padding:14px;">
+                <i class="bi bi-calendar-x"></i> Este trabajo cerró sus postulaciones: la fecha límite ya pasó.
+            </div>
+            {% else %}
+            <a href="{% url 'jobs:job_apply' job.pk %}" class="btn btn-primary btn-lg py-3" style="border-radius: var(--radius-lg);box-shadow:var(--shadow-md);"><i class="bi bi-send-fill"></i> Postularme</a>
+            {% endif %}
             {% elif user_applied %}
-            <button class="btn btn-lg py-3 disabled" style="background:var(--surface-alt);color:var(--text-secondary);border:1px solid var(--border);border-radius:14px;cursor:default;"><i class="bi bi-check2-circle"></i> Ya te postulaste</button>
+            <button class="btn btn-lg py-3 disabled" style="background:var(--surface-alt);color:var(--text-secondary);border:1px solid var(--border);border-radius: var(--radius-lg);cursor:default;"><i class="bi bi-check2-circle"></i> Ya te postulaste</button>
             {% if user_application_pending %}
             <form method="post" action="{% url 'jobs:cancel_application' job.pk %}"
-                  onsubmit="return confirm('¿Cancelar tu postulación a «{{ job.titulo }}»?')">
+                  data-confirm="¿Cancelar tu postulación a «{{ job.titulo }}»?">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-lg w-100 py-3" style="background:rgba(239,68,68,0.1);color:#EF4444;border:1px solid rgba(239,68,68,0.3);border-radius:14px;font-weight:600;">
+                <button type="submit" class="btn btn-lg w-100 py-3" style="background:rgba(239,68,68,0.1);color:var(--state-danger);border:1px solid rgba(239,68,68,0.3);border-radius: var(--radius-lg);font-weight:600;">
                     <i class="bi bi-x-circle"></i> Cancelar postulación
                 </button>
             </form>
             {% endif %}
             {% endif %}
             {% if job.estado == 'finalizado' and user == job.asignado %}
-            <a href="{% url 'reviews:create_review' job.pk %}" class="btn btn-lg py-3" style="background:linear-gradient(135deg,#F59E0B,#F97316);color:#fff;font-weight:700;border:none;border-radius:14px;"><i class="bi bi-star-fill"></i> Calificar</a>
+            <a href="{% url 'reviews:create_review' job.pk %}" class="btn btn-lg py-3 btn-fill-warning" style="border-radius: var(--radius-lg);"><i class="bi bi-star-fill"></i> Calificar</a>
             {% endif %}
         {% else %}
         <div class="aside-card text-center" style="margin-bottom:0; color:var(--text-secondary); font-size:0.85rem; padding:14px;">
@@ -275,22 +340,22 @@
         {% endif %}
     {% endif %}
 
-    {# §6.5.4 — botón "Reportar publicación" en cada publicación #}
+    {# §6.5.4: botón "Reportar publicación" en cada publicación #}
     {% if user.is_authenticated and user != job.creador %}
     <button type="button" class="btn btn-sm w-100 mt-2"
-            style="background:transparent; color:var(--text-secondary); border:1px solid var(--border); border-radius:12px; font-size:0.78rem; font-weight:600; padding:9px;"
+            style="background:transparent; color:var(--text-secondary); border:1px solid var(--border); border-radius: var(--radius-md); font-size:0.78rem; font-weight:600; padding:9px;"
             data-bs-toggle="modal" data-bs-target="#reportarModal">
         <i class="bi bi-flag"></i> Reportar publicación
     </button>
     {% endif %}
 </div>
 {% else %}
-<a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg w-100 py-3 mb-3" style="border-radius:14px;">Inicia sesión para postularte</a>
+<a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg w-100 py-3 mb-3" style="border-radius: var(--radius-lg);">Inicia sesión para postularte</a>
 {% endif %}
 
 <!-- Job details card (desktop) -->
 <div class="aside-card d-none d-lg-block">
-    <div style="font-weight:700; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--text-secondary); margin-bottom:10px;"><i class="bi bi-info-circle-fill"></i> Detalles</div>
+    <div style="font-size:var(--fs-xs); font-weight:700; color:var(--text-secondary); margin-bottom:10px;"><i class="bi bi-info-circle-fill"></i> Detalles</div>
     <div class="aside-meta-row">
         <div class="aside-meta-icon" style="background:var(--icon-blue-bg);color:var(--badge-blue-text);"><i class="bi bi-calendar-event"></i></div>
         <div><div style="font-size:0.68rem;color:var(--text-secondary);">Fecha límite</div><div style="font-size:0.88rem;font-weight:600;color:var(--text);">{{ job.fecha_limite|date:"d M Y" }}</div></div>
@@ -320,9 +385,9 @@
 <!-- Reviews card -->
 {% if job.reviews.exists %}
 <div class="aside-card">
-    <div style="font-weight:700; font-size:0.72rem; text-transform:uppercase; letter-spacing:0.8px; color:var(--primary-light); margin-bottom:10px;"><i class="bi bi-star-fill"></i> Calificaciones</div>
+    <div style="font-size:var(--fs-xs); font-weight:700; color:var(--primary-light); margin-bottom:10px;"><i class="bi bi-star-fill"></i> Calificaciones</div>
     {% for review in job.reviews.all %}
-    <div style="background:var(--surface-alt); border:1px solid var(--border); border-radius:12px; padding:12px; margin-bottom:8px;">
+    <div style="background:var(--surface-alt); border:1px solid var(--border); border-radius: var(--radius-md); padding:12px; margin-bottom:8px;">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
             <span style="font-weight:600; font-size:0.82rem; color:var(--text);">{{ review.autor.first_name|default:review.autor.username }}</span>
             <span>{% for i in "12345" %}{% if forloop.counter <= review.puntuacion %}<i class="bi bi-star-fill" style="color:var(--star-active);font-size:0.7rem;"></i>{% else %}<i class="bi bi-star" style="color:var(--star-inactive);font-size:0.7rem;"></i>{% endif %}{% endfor %}</span>
@@ -336,11 +401,11 @@
 </div>{# end detail-aside #}
 </div>{# end detail-layout #}
 
-{# §6.5.4 — modal de reporte de publicación #}
+{# §6.5.4: modal de reporte de publicación #}
 {% if user.is_authenticated and user != job.creador %}
 <div class="modal fade" id="reportarModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius:16px; background:var(--card-bg); color:var(--text);">
+        <div class="modal-content" style="border-radius: var(--radius-lg); background:var(--card-bg); color:var(--text);">
             <form method="post" action="{% url 'moderation:reportar_trabajo' job.pk %}">
                 {% csrf_token %}
                 <div class="modal-header" style="border-color:var(--border);">
@@ -358,7 +423,7 @@
                     <label class="form-label" for="id_motivo"
                            style="font-weight:600; font-size:0.78rem; color:var(--text-secondary);">Motivo</label>
                     <select name="motivo" id="id_motivo" required
-                            style="width:100%; padding:11px 13px; font-size:0.86rem; border-radius:12px;
+                            style="width:100%; padding:11px 13px; font-size:0.86rem; border-radius: var(--radius-md);
                                    border:1px solid var(--input-border); background:var(--input-bg); color:var(--text); margin-bottom:12px;">
                         <option value="ilegal">Oferta ilegal (armas, sustancias, contenido sexual)</option>
                         <option value="discriminacion">Discriminación</option>
@@ -373,14 +438,14 @@
                            style="font-weight:600; font-size:0.78rem; color:var(--text-secondary);">Detalle (opcional)</label>
                     <textarea name="descripcion" id="id_descripcion" rows="3"
                               placeholder="Explica qué ocurre en esta publicación"
-                              style="width:100%; padding:11px 13px; font-size:0.86rem; border-radius:12px;
+                              style="width:100%; padding:11px 13px; font-size:0.86rem; border-radius: var(--radius-md);
                                      border:1px solid var(--input-border); background:var(--input-bg); color:var(--text);"></textarea>
                 </div>
                 <div class="modal-footer" style="border-color:var(--border);">
                     <button type="button" class="btn btn-outline-secondary btn-sm"
-                            data-bs-dismiss="modal" style="border-radius:10px; font-weight:600;">Cancelar</button>
+                            data-bs-dismiss="modal" style="border-radius: var(--radius-sm); font-weight:600;">Cancelar</button>
                     <button type="submit" class="btn btn-sm"
-                            style="background:#DC2626; color:#fff; border:none; border-radius:10px; font-weight:700; padding:9px 18px;">
+                            style="background:var(--state-danger); color:#fff; border:none; border-radius: var(--radius-sm); font-weight:700; padding:9px 18px;">
                         <i class="bi bi-send"></i> Enviar reporte
                     </button>
                 </div>
@@ -392,7 +457,7 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
+<script nonce="{{ csp_nonce }}">
 function setStatus(newStatus) {
     var current = "{{ job.estado }}";
     if (newStatus === current) return;
@@ -401,5 +466,11 @@ function setStatus(newStatus) {
     document.getElementById('status-input').value = newStatus;
     document.getElementById('status-form').submit();
 }
+// Sin atributos onclick: la CSP los bloquea.
+document.querySelectorAll('[data-set-status]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+        setStatus(btn.dataset.setStatus);
+    });
+});
 </script>
 {% endblock %}

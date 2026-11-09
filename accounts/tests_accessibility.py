@@ -13,6 +13,9 @@ from django.urls import reverse
 
 RAIZ = Path(__file__).resolve().parent.parent
 BASE = (RAIZ / 'templates' / 'base.html').read_text(encoding='utf-8')
+# Los tokens viven en la hoja de sistema compartida; base.html solo aporta
+# el maquetado. El contraste se mide sobre la fuente de verdad.
+SISTEMA = (RAIZ / 'static' / 'css' / 'style.css').read_text(encoding='utf-8')
 
 
 def hex_rgb(h):
@@ -36,12 +39,34 @@ def ratio(a, b):
 
 
 def tokens(bloque):
-    return dict(re.findall(r'(--[a-z0-9-]+)\s*:\s*(#[0-9A-Fa-f]{3,6})', bloque))
+    """Tokens declarados, con su valor literal (hex o referencia var())."""
+    return dict(re.findall(r'(--[a-z0-9-]+)\s*:\s*([^;]+);', bloque))
 
 
-RAIZ_TOKENS = tokens(re.search(r':root\s*\{(.*?)\n\s*\}', BASE, re.S).group(1))
-OSCURO = tokens(
-    re.search(r'\[data-theme="dark"\]\s*\{(.*?)\n\s*\}', BASE, re.S).group(1))
+def resolver(tk, nombre, visto=None):
+    """Sigue las referencias var() hasta llegar al color real.
+
+    Sin esto, un token que apunta a otro (--card-bg: var(--surface)) se
+    mediría como si no existiera y el test passaría sin comprobar nada.
+    """
+    if nombre not in tk:
+        return None
+    visto = visto or set()
+    if nombre in visto:
+        return None
+    visto = visto | {nombre}
+    valor = tk[nombre].strip()
+    m = re.fullmatch(r'var\(\s*(--[a-z0-9-]+)\s*\)', valor)
+    if m:
+        return resolver(tk, m.group(1), visto)
+    return valor if valor.startswith('#') else None
+
+
+RAIZ_TOKENS = tokens(re.search(r':root\s*\{(.*?)\n\s*\}', SISTEMA, re.S).group(1))
+# El tema oscuro hereda del claro y redefine lo que necesita.
+OSCURO = dict(RAIZ_TOKENS)
+OSCURO.update(
+    tokens(re.search(r'\[data-theme="dark"\]\s*\{(.*?)\n\s*\}', SISTEMA, re.S).group(1)))
 
 
 class ContrasteTokensTests(TestCase):
@@ -52,6 +77,7 @@ class ContrasteTokensTests(TestCase):
             ('--text', '--card-bg', 4.5),
             ('--text-secondary', '--card-bg', 4.5),
             ('--text-secondary', '--surface-alt', 4.5),
+            ('--text-secondary', '--surface', 4.5),
             ('--text', '--bg', 4.5),
             ('--nav-text', '--card-bg', 4.5),
             ('--input-placeholder', '--input-bg', 4.5),
@@ -62,14 +88,20 @@ class ContrasteTokensTests(TestCase):
             ('--badge-green-text', '--badge-green-bg', 4.5),
             ('--badge-gray-text', '--badge-gray-bg', 4.5),
             ('--primary', '--card-bg', 4.5),
-            ('--success', '--card-bg', 4.5),
+            ('--brand-ink', '--brand-soft', 4.5),
+            ('--state-success', '--card-bg', 4.5),
+            ('--state-warning', '--card-bg', 4.5),
+            ('--state-danger', '--card-bg', 4.5),
+            ('--state-info', '--card-bg', 4.5),
+            ('--money', '--card-bg', 4.5),
         ]
         fallos = []
         for fg, bg, minimo in pares:
             for etiqueta, tk in (('claro', RAIZ_TOKENS), ('oscuro', OSCURO)):
-                if fg not in tk or bg not in tk:
-                    continue  # el token no se redefine: hereda del :root
-                r = ratio(tk[fg], tk[bg])
+                c_fg, c_bg = resolver(tk, fg), resolver(tk, bg)
+                if c_fg is None or c_bg is None:
+                    continue
+                r = ratio(c_fg, c_bg)
                 if r < minimo:
                     fallos.append('{} {} sobre {} = {:.2f}:1'.format(
                         etiqueta, fg, bg, r))
@@ -78,35 +110,50 @@ class ContrasteTokensTests(TestCase):
     def test_bordes_de_control_alcanzan_3_1(self):
         """WCAG 1.4.11 — el borde del control debe ser distinguible."""
         for etiqueta, tk in (('claro', RAIZ_TOKENS), ('oscuro', OSCURO)):
-            if '--input-border' in tk and '--input-bg' in tk:
-                r = ratio(tk['--input-border'], tk['--input-bg'])
-                self.assertGreaterEqual(
-                    r, 3.0,
-                    'Borde de input {} solo alcanza {:.2f}:1'.format(etiqueta, r))
+            borde, fondo = resolver(tk, '--input-border'), resolver(tk, '--input-bg')
+            self.assertIsNotNone(borde, etiqueta)
+            self.assertIsNotNone(fondo, etiqueta)
+            r = ratio(borde, fondo)
+            self.assertGreaterEqual(
+                r, 3.0,
+                'Borde de input {} solo alcanza {:.2f}:1'.format(etiqueta, r))
 
 
 class FocoVisibleTests(TestCase):
-    """WCAG 2.4.7 — todo control interactivo muestra foco."""
+    """WCAG 2.4.7 - todo control interactivo muestra foco."""
 
     def test_define_anillo_de_foco_visible(self):
-        self.assertIn(':focus-visible', BASE)
+        """El anillo vive en la hoja de sistema.
+
+        base.html solo aporta el maquetado con barra lateral. El anillo
+        esta en static/css/style.css porque lo necesitan TODAS las
+        pantallas, incluidas las que no heredan de base.html (login,
+        seleccion de rol, verificacion de correo).
+        """
+        self.assertIn(':focus-visible', SISTEMA)
 
     def test_el_anillo_usa_outline_no_solo_box_shadow(self):
         """outline se respeta en el alto contraste de Windows."""
-        bloque = re.search(r':focus-visible\s*\{(.*?)\}', BASE, re.S)
+        bloque = re.search(r'(?m)^:focus-visible\s*\{(.*?)\}', SISTEMA, re.S)
         self.assertIsNotNone(bloque)
         self.assertIn('outline:', bloque.group(1))
 
     def test_no_se_elimina_el_contorno_en_controles(self):
         """outline:none sin alternativa es un anti-patron.
 
-        Se exceptúa el destino del skip-link: no es un control, y el anillo
-        de foco sobre todo el contenido sería ruido visual.
+        Se exceptuan los destinos que no son controles: el destino del
+        skip-link (el anillo sobre todo el contenido seria ruido visual)
+        y el titulo del paso del asistente (recibe el foco para que el
+        teclado quede ahi al cambiar de paso).
         """
-        self.assertNotIn('outline: none;', BASE.replace(
-            '#contenido-principal:focus { outline: none; }', ''))
-        self.assertNotIn('outline:none;', BASE.replace(
-            '#contenido-principal:focus { outline: none; }', ''))
+        permitidos = ('#contenido-principal:focus', '.step-panel__title:focus')
+        for nombre, texto in (('base.html', BASE), ('style.css', SISTEMA)):
+            for coincidencia in re.finditer(
+                    r'([^{}]+)\{[^{}]*outline:\s*none', texto):
+                selector = coincidencia.group(1).strip().splitlines()[-1].strip()
+                self.assertTrue(
+                    any(selector.startswith(p) for p in permitidos),
+                    'outline:none en un control de {}: {}'.format(nombre, selector))
 
 
 class SkipLinkTests(TestCase):
@@ -133,13 +180,15 @@ class MovimientoReducidoTests(TestCase):
     """prefers-reduced-motion es un pendiente declarado en §6.6."""
 
     def test_respeta_prefers_reduced_motion(self):
-        self.assertIn('prefers-reduced-motion', BASE)
-        self.assertRegex(BASE, r'@media\s*\(prefers-reduced-motion:\s*reduce\)')
+        """La regla vive en la hoja de sistema, que cargan todas las
+        pantallas: base.html solo cubre a sus propias hijas."""
+        self.assertIn('prefers-reduced-motion', SISTEMA)
+        self.assertRegex(SISTEMA, r'@media\s*\(prefers-reduced-motion:\s*reduce\)')
 
     def test_desactiva_transiciones_y_animaciones(self):
         bloque = re.search(
-            r'@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{(.*?)\n\s{8}\}',
-            BASE, re.S)
+            r'@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{(.*?)\n\}',
+            SISTEMA, re.S)
         self.assertIsNotNone(bloque)
         self.assertIn('transition-duration', bloque.group(1))
         self.assertIn('animation-duration', bloque.group(1))

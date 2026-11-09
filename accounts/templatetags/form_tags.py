@@ -36,12 +36,18 @@ def accessible(field, css_class=''):
 
 @register.simple_tag
 def field_error(field):
-    """Mensaje de error de un campo, anunciable con role=alert."""
+    """Mensaje de error de un campo, anunciable con role=alert.
+
+    Usa la clase .field__error del sistema de diseño, de modo que el
+    error se ve igual en todos los formularios: glifo, texto y color de
+    estado, con el icono marcado como decorativo para el lector de
+    pantalla.
+    """
     if not field.errors:
         return ''
     return mark_safe(
-        '<div class="text-danger small mt-1" role="alert" id="{}-error">'
-        '<i class="bi bi-exclamation-circle" aria-hidden="true"></i> {}</div>'
+        '<div class="field__error" role="alert" id="{}-error">'
+        '<i class="bi bi-exclamation-circle" aria-hidden="true"></i> <span>{}</span></div>'
         .format(field.id_for_label, conditional_escape(field.errors[0]))
     )
 
@@ -60,3 +66,31 @@ def cop(value):
         return f'${formatted}'
     except (ValueError, TypeError):
         return value
+
+
+@register.filter(name='nota')
+def nota(value):
+    """Format a rating with a decimal comma: 4,5"""
+    try:
+        valor = float(value)
+    except (ValueError, TypeError):
+        return value
+    return f'{valor:.1f}'.replace('.', ',')
+
+
+@register.filter(name='cop_corto')
+def cop_corto(value):
+    """Importe abreviado para etiquetas estrechas: $1,2M, $380K.
+
+    El formato completo ($380.000) no cabe bajo una columna de un grafico
+    con doce meses.
+    """
+    try:
+        valor = float(value)
+    except (ValueError, TypeError):
+        return value
+    if valor >= 1000000:
+        return '$' + f'{valor / 1000000:,.1f}'.replace('.', ',') + 'M'
+    if valor >= 1000:
+        return '$' + f'{valor / 1000:,.0f}' + 'K'
+    return '$' + f'{valor:,.0f}'

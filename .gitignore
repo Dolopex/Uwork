@@ -3,6 +3,10 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
 
 # Virtual environment
 venv/
@@ -11,8 +15,10 @@ env/
 
 # Django
 db.sqlite3
+db.sqlite3-journal
 *.log
 media/
+*.sqlite3
 
 # IDE
 .vscode/
@@ -26,6 +32,7 @@ Thumbs.db
 
 # Environment variables
 .env
+.env.local
 
 # Docs (local only, not deployed)
 docs/
@@ -38,3 +45,9 @@ graphify-out/
 _graphify_*.py
 _step*.py
 _write_*.py
+_tmp_*.py
+_cap_*.py
+_diag*.py
+_prueba_*.py
+_verificar*.py
+_capturas/

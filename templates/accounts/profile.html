@@ -1,354 +1,397 @@
 {% extends 'base.html' %}
-{% load form_tags %}
-{% block title %}Mi perfil — U-Work{% endblock %}
+{% load form_tags static %}
+{% block title %}Mi perfil · U-Work{% endblock %}
 {% block extra_css %}
 <style>
-    .profile-hero {
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        border-radius: 20px;
-        padding: 28px 20px 20px;
-        text-align: center;
-        position: relative;
-        margin-bottom: 16px;
-        overflow: hidden;
+    .content-wrapper { max-width: 1080px !important; }
+
+    /* --- Tarjeta de identidad --- */
+    .id-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: var(--space-5);
+        margin-bottom: var(--space-4);
     }
-    .profile-hero::before {
-        content: '';
-        position: absolute;
-        top: -30px; right: -30px;
-        width: 120px; height: 120px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.08);
+    .id-card__top {
+        display: flex; align-items: center; gap: var(--space-4);
     }
-    .profile-hero::after {
-        content: '';
-        position: absolute;
-        bottom: -20px; left: -20px;
-        width: 80px; height: 80px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.06);
-    }
-    .profile-avatar-ring {
-        width: 100px; height: 100px;
-        border-radius: 50%;
-        border: 4px solid rgba(255,255,255,0.4);
-        padding: 3px;
-        display: inline-block;
-        margin-bottom: 10px;
-    }
-    .profile-avatar-ring img,
-    .profile-avatar-ring .avatar-placeholder {
-        width: 100%; height: 100%;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-    .avatar-placeholder {
-        background: rgba(255,255,255,0.2);
+    .id-card__avatar {
+        width: 68px; height: 68px;
+        border-radius: var(--radius-lg);
+        background: var(--brand-soft);
+        color: var(--brand-ink);
         display: flex; align-items: center; justify-content: center;
-        color: rgba(255,255,255,0.8); font-size: 2.5rem;
+        font-size: 1.7rem;
+        overflow: hidden;
+        flex-shrink: 0;
     }
-    .profile-name {
-        font-weight: 800; font-size: 1.25rem;
-        color: #fff; margin: 0;
+    .id-card__avatar img {
+        width: 100%; height: 100%; object-fit: cover;
     }
-    .profile-email {
-        font-size: 0.8rem; color: rgba(255,255,255,0.7);
-        margin-top: 2px;
+    .id-card__name {
+        font-size: var(--fs-lg);
+        font-weight: 800;
+        letter-spacing: -.02em;
+        color: var(--text);
+        margin: 0 0 2px;
+        line-height: 1.25;
     }
-    .role-chip {
+    .id-card__email {
+        font-size: var(--fs-xs);
+        color: var(--text-secondary);
+        margin: 0 0 var(--space-2);
+        /* Se parte solo si no cabe: break-all lo cortaba siempre. */
+        overflow-wrap: anywhere;
+    }
+    .id-card__meta {
+        display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2);
+    }
+    .id-card__rating {
         display: inline-flex; align-items: center; gap: 4px;
-        padding: 5px 14px; border-radius: 20px;
-        font-size: 0.75rem; font-weight: 700;
-        margin-top: 8px;
+        font-size: var(--fs-xs);
+        color: var(--text-secondary);
+        font-weight: 600;
     }
-    .role-student { background: rgba(245,158,11,0.25); color: #FDE68A; }
-    .role-employer { background: rgba(16,185,129,0.25); color: #A7F3D0; }
-    .profile-stats {
+    .id-card__rating i { color: var(--star-active); }
+    .id-card__rating i.vacio { color: var(--star-inactive); }
+
+    /* --- Indicadores --- */
+    .id-stats {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        margin-bottom: 16px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: var(--space-2);
+        margin-top: var(--space-5);
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--border);
     }
-    .stat-card {
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 14px;
-        padding: 14px 10px;
-        text-align: center;
+    .id-stat__value {
+        font-size: var(--fs-xl);
+        font-weight: 800;
+        color: var(--text);
+        line-height: 1;
+        letter-spacing: -.02em;
+        font-variant-numeric: tabular-nums;
     }
-    .stat-card .stat-icon {
-        width: 36px; height: 36px;
-        border-radius: 10px;
-        display: inline-flex; align-items: center; justify-content: center;
-        font-size: 1rem; margin-bottom: 6px;
+    .id-stat__label {
+        font-size: var(--fs-xs);
+        color: var(--text-secondary);
+        font-weight: 600;
+        margin-top: 4px;
+        display: block;
     }
-    .stat-card .stat-value {
-        font-weight: 800; font-size: 1.2rem;
-        display: block; color: var(--text);
-    }
-    .stat-card .stat-label {
-        font-size: 0.65rem; color: var(--text-secondary);
-        font-weight: 600; text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
+
+    /* --- Pestañas --- */
     .profile-tabs {
         display: flex;
-        background: var(--card-bg);
-        border: 1px solid var(--card-border);
-        border-radius: 14px;
+        gap: 2px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
         padding: 4px;
-        margin-bottom: 16px;
+        margin-bottom: var(--space-4);
+        overflow-x: auto;
     }
     .profile-tab {
         flex: 1;
-        text-align: center;
-        padding: 10px 8px;
-        border-radius: 10px;
-        font-size: 0.8rem;
+        display: inline-flex; align-items: center; justify-content: center;
+        gap: 6px;
+        white-space: nowrap;
+        padding: 9px 12px;
+        border-radius: var(--radius-sm);
+        font-size: var(--fs-sm);
         font-weight: 600;
         color: var(--text-secondary);
         text-decoration: none;
-        transition: all 0.2s;
         cursor: pointer;
         border: none;
         background: none;
+        transition: background-color .16s ease, color .16s ease;
     }
+    .profile-tab i { color: var(--text-muted); transition: color .16s ease; }
+    .profile-tab:hover { background: var(--surface-alt); color: var(--text); }
     .profile-tab.active {
-        background: var(--primary);
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(79,70,229,0.3);
+        background: var(--brand-soft);
+        color: var(--brand-ink);
     }
+    .profile-tab.active i { color: var(--brand-ink); }
     .tab-content-section { display: none; }
     .tab-content-section.active { display: block; }
-    .info-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--border);
+
+    /* --- Secciones --- */
+    .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        padding: var(--space-5);
+        margin-bottom: var(--space-4);
     }
-    .info-row:last-child { border-bottom: none; }
-    .info-row .info-icon {
-        width: 36px; height: 36px;
-        border-radius: 10px;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 0.9rem; flex-shrink: 0;
+    .panel__head {
+        display: flex; align-items: center; gap: var(--space-2);
+        margin-bottom: var(--space-4);
     }
-    .info-row .info-label {
-        font-size: 0.7rem; color: var(--text-secondary);
-        font-weight: 600; text-transform: uppercase;
+    .panel__head i { color: var(--text-muted); }
+    .panel__title {
+        font-size: var(--fs-base); font-weight: 700; color: var(--text); margin: 0;
     }
-    .info-row .info-value {
-        font-size: 0.9rem; font-weight: 600; color: var(--text);
+    .panel__note {
+        margin-left: auto;
+        font-size: var(--fs-xs); color: var(--text-secondary);
     }
-    .edit-section .form-field { margin-bottom: 14px; }
-    .edit-section .form-field label {
-        font-weight: 600; font-size: 0.8rem;
-        color: var(--text-secondary); margin-bottom: 4px; display: block;
+
+    /* --- Datos de identidad --- */
+    .data-list { display: grid; gap: var(--space-3); }
+    .data-row {
+        display: grid;
+        grid-template-columns: 32px minmax(0, 1fr);
+        align-items: start;
+        gap: var(--space-3);
     }
-    .edit-section .form-control,
-    .edit-section .form-select {
-        border: 1px solid var(--input-border); border-radius: 12px;
-        padding: 11px 14px; font-size: 0.9rem;
-        background: var(--input-bg); color: var(--text);
-        transition: all 0.2s;
+    .data-row__value {
+        font-size: var(--fs-sm);
+        font-weight: 600;
+        color: var(--text);
+        line-height: 1.45;
+        word-break: break-word;
     }
-    .edit-section .form-control:focus {
-        border-color: var(--primary-light);
-        box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
-        background: var(--input-bg);
-    }
-    .skill-tag {
-        display: inline-block;
-        background: var(--badge-indigo-bg); color: var(--badge-indigo-text);
-        padding: 4px 12px; border-radius: 20px;
-        font-size: 0.75rem; font-weight: 600;
-        margin: 2px;
-    }
-    /* Custom image upload */
-    .img-upload-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-        padding: 18px;
-        background: var(--surface-alt);
-        border: 2px dashed var(--border);
-        border-radius: 16px;
-        text-align: center;
-        cursor: pointer;
-        transition: border-color 0.2s;
+    .data-row__value span {
+        display: block;
+        font-weight: 400;
+        color: var(--text-secondary);
+        font-size: var(--fs-xs);
         margin-top: 2px;
     }
-    .img-upload-wrap:hover { border-color: var(--primary-light); }
-    .img-upload-preview {
-        width: 80px; height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid var(--primary-light);
+
+    /* --- Etiquetas de habilidad --- */
+    .skill-tag {
+        display: inline-flex;
+        align-items: center;
+        background: var(--brand-soft);
+        color: var(--brand-ink);
+        padding: 5px 12px;
+        border-radius: var(--radius-full);
+        font-size: var(--fs-xs);
+        font-weight: 600;
+        margin: 0 6px 6px 0;
     }
-    .img-upload-no-foto {
-        width: 80px; height: 80px;
-        border-radius: 50%;
-        background: var(--card-bg);
-        border: 2px dashed var(--border);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 2rem; color: var(--text-secondary);
+
+    /* --- Resenas --- */
+    .review-item { padding: var(--space-4) 0; }
+    .review-item + .review-item { border-top: 1px solid var(--border-light); }
+    .review-item__head {
+        display: flex; align-items: center; gap: var(--space-2);
+        margin-bottom: var(--space-1);
     }
-    .img-upload-cta {
-        display: inline-flex; align-items: center; gap: 6px;
-        padding: 8px 20px;
-        border-radius: 20px;
-        background: linear-gradient(135deg, var(--primary), var(--primary-light));
-        color: #fff;
-        font-size: 0.82rem; font-weight: 700;
-        pointer-events: none;
+    .review-item__stars { color: var(--star-active); font-size: var(--fs-xs); }
+    .review-item__stars i.vacio { color: var(--star-inactive); }
+    .review-item__author {
+        font-size: var(--fs-sm); font-weight: 600; color: var(--text);
     }
-    .img-upload-hint { font-size: 0.72rem; color: var(--text-secondary); }
-    /* Info empty state */
-    .info-empty { text-align: center; padding: 28px 16px; }
+    .review-item__date {
+        margin-left: auto; font-size: var(--fs-2xs); color: var(--text-muted);
+    }
+    .review-item__text {
+        font-size: var(--fs-sm); color: var(--text-secondary);
+        line-height: 1.55; margin: 0;
+    }
+    .review-item__job {
+        font-size: var(--fs-xs); color: var(--text-muted);
+        margin-top: var(--space-1);
+        display: flex; align-items: center; gap: 5px;
+    }
+
+    /* --- Zona de peligro --- */
+    .panel--peligro { border-color: var(--state-danger); }
+
+    /* --- Rejilla --- */
     @media (min-width: 992px) {
-        .content-wrapper { max-width: 1100px !important; }
-        .profile-layout { display: grid; grid-template-columns: 300px 1fr; gap: 24px; align-items: start; }
-        .profile-left { position: sticky; top: 80px; }
-        .profile-stats { grid-template-columns: repeat(3, 1fr); }
+        .profile-layout {
+            display: grid;
+            grid-template-columns: 320px minmax(0, 1fr);
+            gap: var(--space-5);
+            align-items: start;
+        }
+        .profile-left { position: sticky; top: var(--space-6); }
     }
 </style>
 {% endblock %}
+
 {% block content %}
 <div class="profile-layout">
 <div class="profile-left">
 
-<!-- Hero -->
-<div class="profile-hero">
-    <div class="profile-avatar-ring">
-        {% if user.foto %}
-        <img src="{{ user.foto.url }}" alt="Foto">
-        {% else %}
-        <div class="avatar-placeholder"><i class="bi bi-person-fill"></i></div>
-        {% endif %}
-    </div>
-    <h4 class="profile-name">{{ user.get_full_name|default:user.username }}</h4>
-    <div class="profile-email">{{ user.email }}</div>
-    <span class="role-chip {% if user.es_estudiante %}role-student{% else %}role-employer{% endif %}">
-        {% if user.es_estudiante %}<i class="bi bi-mortarboard-fill"></i> Estudiante{% else %}<i class="bi bi-megaphone-fill"></i> Empleador{% endif %}
-    </span>
-    <div style="margin-top:10px;">
-        {% for i in "12345" %}
-            {% if forloop.counter <= user.calificacion_promedio %}<i class="bi bi-star-fill" style="color:var(--star-active); font-size:0.9rem;"></i>{% else %}<i class="bi bi-star" style="color:var(--star-inactive); font-size:0.9rem;"></i>{% endif %}
-        {% endfor %}
-        <span style="color:var(--text-secondary); font-size:0.75rem; margin-left:4px;">{{ user.calificacion_promedio }}</span>
-    </div>
-</div>
+    <!-- Identidad -->
+    <div class="id-card">
+        <div class="id-card__top">
+            <span class="id-card__avatar">
+                {% if user.foto %}
+                <img src="{{ user.foto.url }}" alt="Foto de {{ user.get_full_name|default:user.username }}">
+                {% else %}
+                <i class="bi bi-person-fill" aria-hidden="true"></i>
+                {% endif %}
+            </span>
+            <span style="min-width:0;">
+                <h1 class="id-card__name">{{ user.get_full_name|default:user.username }}</h1>
+                <p class="id-card__email">{{ user.email }}</p>
+            </span>
+        </div>
 
-<!-- Quick Stats -->
-<div class="profile-stats">
-    <div class="stat-card">
-        <div class="stat-icon" style="background:var(--icon-indigo-bg); color:var(--badge-indigo-text);"><i class="bi bi-briefcase-fill"></i></div>
-        <span class="stat-value">{{ user.trabajos_creados.count }}</span>
-        <span class="stat-label">Publicados</span>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-check-circle-fill"></i></div>
-        <span class="stat-value">{{ user.trabajos_creados.all|dictsort:"estado"|length }}</span>
-        <span class="stat-label">Asignados</span>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-star-fill"></i></div>
-        <span class="stat-value">{{ user.calificacion_promedio }}</span>
-        <span class="stat-label">Rating</span>
-    </div>
-</div>
+        <div class="id-card__meta">
+            <span class="chip chip--brand">
+                {% if user.es_estudiante %}
+                <i class="bi bi-mortarboard-fill" aria-hidden="true"></i> Estudiante
+                {% else %}
+                <i class="bi bi-briefcase-fill" aria-hidden="true"></i> Empleador
+                {% endif %}
+            </span>
+            {% if user.reviews_recibidas.count %}
+            <span class="id-card__rating">
+                {% for i in "12345" %}
+                    {% if forloop.counter <= user.calificacion_promedio %}
+                    <i class="bi bi-star-fill" aria-hidden="true"></i>
+                    {% else %}
+                    <i class="bi bi-star vacio" aria-hidden="true"></i>
+                    {% endif %}
+                {% endfor %}
+                <span>{{ user.calificacion_promedio|nota }}</span>
+            </span>
+            {% endif %}
+        </div>
 
-<!-- Left sidebar quick actions (desktop only) -->
-<div class="d-none d-lg-grid gap-2 mt-3">
-    <a href="{% url 'accounts:balance' %}" class="btn py-2" style="background:linear-gradient(135deg,#10B981,#059669); color:#fff; font-weight:700; border:none; border-radius:12px;">
-        <i class="bi bi-graph-up-arrow"></i> Ver mi balance
-    </a>
-    <a href="{% url 'jobs:my_jobs' %}" class="btn btn-outline-primary py-2" style="border-radius:12px;">
-        <i class="bi bi-briefcase"></i> Mis trabajos
-    </a>
-</div>
+        <div class="id-stats">
+            <div>
+                <span class="id-stat__value">{{ user.trabajos_creados.count }}</span>
+                <span class="id-stat__label">Publicados</span>
+            </div>
+            <div>
+                <span class="id-stat__value">{{ user.trabajos_asignados.count }}</span>
+                <span class="id-stat__label">Asignados</span>
+            </div>
+            <div>
+                <span class="id-stat__value">{{ user.reviews_recibidas.count }}</span>
+                <span class="id-stat__label">Reseñas</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones rapidas -->
+    <div class="d-grid gap-2 d-lg-grid">
+        <a href="{% url 'accounts:balance' %}" class="btn btn-accent" style="padding:11px;">
+            <i class="bi bi-graph-up-arrow" aria-hidden="true"></i> Ver mi balance
+        </a>
+        <a href="{% url 'jobs:my_jobs' %}" class="btn btn-quiet" style="padding:11px;">
+            <i class="bi bi-briefcase" aria-hidden="true"></i>
+            {% if user.es_estudiante %}Mis postulaciones{% else %}Mis publicaciones{% endif %}
+        </a>
+    </div>
 </div>{# end profile-left #}
 
 <div class="profile-right">
-<!-- Tabs -->
-<div class="profile-tabs">
-    <button class="profile-tab active" onclick="switchTab(event, 'info')"><i class="bi bi-person"></i> Info</button>
-    <button class="profile-tab" onclick="switchTab(event, 'edit')"><i class="bi bi-pencil"></i> Editar</button>
-    <button class="profile-tab" onclick="switchTab(event, 'reviews')"><i class="bi bi-star"></i> Reseñas</button>
-    <button class="profile-tab" onclick="switchTab(event, 'security')"><i class="bi bi-shield-lock"></i> Seguridad</button>
-</div>
 
-<!-- Tab: Info -->
-<div id="tab-info" class="tab-content-section active">
-    <div class="card mb-3">
-        <div class="card-body" style="padding:8px 16px;">
-            {% if user.telefono %}
-            <div class="info-row">
-                <div class="info-icon" style="background:var(--icon-blue-bg); color:var(--badge-blue-text);"><i class="bi bi-telephone-fill"></i></div>
-                <div>
-                    <div class="info-label">Teléfono</div>
-                    <div class="info-value">{{ user.telefono }}</div>
-                </div>
+    <!-- Pestañas -->
+    <div class="profile-tabs" role="tablist" aria-label="Secciones del perfil">
+        <button type="button" class="profile-tab active" role="tab" data-tab="info"
+                aria-controls="tab-info" aria-selected="true">
+            <i class="bi bi-person" aria-hidden="true"></i> Info
+        </button>
+        <button type="button" class="profile-tab" role="tab" data-tab="edit"
+                aria-controls="tab-edit" aria-selected="false">
+            <i class="bi bi-pencil" aria-hidden="true"></i> Editar
+        </button>
+        <button type="button" class="profile-tab" role="tab" data-tab="reviews"
+                aria-controls="tab-reviews" aria-selected="false">
+            <i class="bi bi-star" aria-hidden="true"></i> Reseñas
+        </button>
+        <button type="button" class="profile-tab" role="tab" data-tab="security"
+                aria-controls="tab-security" aria-selected="false">
+            <i class="bi bi-shield-lock" aria-hidden="true"></i> Seguridad
+        </button>
+    </div>
+
+    <!-- Info -->
+    <div id="tab-info" class="tab-content-section active" role="tabpanel">
+        <div class="panel">
+            <div class="panel__head">
+                <i class="bi bi-person-vcard" aria-hidden="true"></i>
+                <h2 class="panel__title">Datos de identidad</h2>
             </div>
-            {% endif %}
-            {% if user.direccion %}
-            <div class="info-row">
-                <div class="info-icon" style="background:var(--icon-red-bg); color:var(--badge-red-text);"><i class="bi bi-geo-alt-fill"></i></div>
-                <div>
-                    <div class="info-label">Ubicación</div>
-                    <div class="info-value">{{ user.direccion }}</div>
+
+            {% if user.telefono or user.direccion or user.cedula or user.fecha_nacimiento or user.universidad %}
+            <div class="data-list">
+                {% if user.telefono %}
+                <div class="data-row">
+                    <span class="icon-tile icon-tile--neutral" aria-hidden="true"><i class="bi bi-telephone"></i></span>
+                    <span class="data-row__value">
+                        Teléfono
+                        <span>{{ user.telefono }}</span>
+                    </span>
                 </div>
+                {% endif %}
+                {% if user.direccion %}
+                <div class="data-row">
+                    <span class="icon-tile icon-tile--neutral" aria-hidden="true"><i class="bi bi-geo-alt"></i></span>
+                    <span class="data-row__value">
+                        Ubicación
+                        <span>{{ user.direccion }}</span>
+                    </span>
+                </div>
+                {% endif %}
+                {% if user.cedula %}
+                <div class="data-row">
+                    <span class="icon-tile icon-tile--neutral" aria-hidden="true"><i class="bi bi-person-vcard"></i></span>
+                    <span class="data-row__value">
+                        Documento
+                        <span>{{ user.cedula }}</span>
+                    </span>
+                </div>
+                {% endif %}
+                {% if user.fecha_nacimiento %}
+                <div class="data-row">
+                    <span class="icon-tile icon-tile--neutral" aria-hidden="true"><i class="bi bi-calendar"></i></span>
+                    <span class="data-row__value">
+                        Fecha de nacimiento
+                        <span>{{ user.fecha_nacimiento|date:"d M Y" }}</span>
+                    </span>
+                </div>
+                {% endif %}
+                {% if user.es_estudiante and user.universidad %}
+                <div class="data-row">
+                    <span class="icon-tile icon-tile--neutral" aria-hidden="true"><i class="bi bi-bank"></i></span>
+                    <span class="data-row__value">
+                        Universidad
+                        <span>
+                            {{ user.universidad }}
+                            {% if user.carrera %}{{ user.carrera }}{% endif %}
+                            {% if user.semestre %}, semestre {{ user.semestre }}{% endif %}
+                        </span>
+                    </span>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
-            {% if user.cedula %}
-            <div class="info-row">
-                <div class="info-icon" style="background:var(--icon-amber-bg); color:var(--badge-amber-text);"><i class="bi bi-person-vcard-fill"></i></div>
-                <div>
-                    <div class="info-label">Documento</div>
-                    <div class="info-value">{{ user.cedula }}</div>
-                </div>
-            </div>
-            {% endif %}
-            {% if user.fecha_nacimiento %}
-            <div class="info-row">
-                <div class="info-icon" style="background:var(--icon-purple-bg); color:#C4B5FD;"><i class="bi bi-calendar-heart-fill"></i></div>
-                <div>
-                    <div class="info-label">Fecha de nacimiento</div>
-                    <div class="info-value">{{ user.fecha_nacimiento|date:"d M Y" }}</div>
-                </div>
-            </div>
-            {% endif %}
-            {% if user.es_estudiante and user.universidad %}
-            <div class="info-row">
-                <div class="info-icon" style="background:var(--icon-green-bg); color:var(--badge-green-text);"><i class="bi bi-bank2"></i></div>
-                <div>
-                    <div class="info-label">Universidad</div>
-                    <div class="info-value">{{ user.universidad }}{% if user.carrera %} — {{ user.carrera }}{% endif %}{% if user.semestre %} · Semestre {{ user.semestre }}{% endif %}</div>
-                </div>
-            </div>
-            {% endif %}
-            {% if not user.telefono and not user.direccion and not user.cedula and not user.fecha_nacimiento and not user.universidad %}
-            <div class="info-empty">
-                <div style="width:52px;height:52px;border-radius:16px;background:var(--surface-alt);display:inline-flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--text-secondary);margin-bottom:12px;">
-                    <i class="bi bi-person-lines-fill"></i>
-                </div>
-                <p style="font-size:0.88rem;font-weight:700;color:var(--text);margin:0 0 4px;">Sin información personal</p>
-                <p style="font-size:0.78rem;color:var(--text-secondary);margin:0 0 14px;">Añade tu teléfono, ubicación y otros datos.</p>
-                <button class="btn btn-sm" style="background:var(--primary);color:#fff;border-radius:10px;font-weight:700;padding:8px 20px;" onclick="document.querySelectorAll('.profile-tab')[1].click()">
-                    <i class="bi bi-pencil-square"></i> Completar perfil
+            {% else %}
+            <div class="empty">
+                <span class="empty__icon" aria-hidden="true"><i class="bi bi-person-lines-fill"></i></span>
+                <p class="empty__title">Sin información personal</p>
+                <p class="empty__text">
+                    Añade tu teléfono, ubicación y documento para que los empleadores
+                    puedan contactarte.
+                </p>
+                <button type="button" class="btn btn-accent" data-open-tab="edit"
+                        style="margin-top:var(--space-3); padding:10px 18px;">
+                    <i class="bi bi-pencil" aria-hidden="true"></i> Completar perfil
                 </button>
             </div>
             {% endif %}
         </div>
-    </div>
 
-    {% if user.habilidades %}
-    <div class="card mb-3">
-        <div class="card-body">
-            <div style="font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary-light); margin-bottom:8px;">
-                <i class="bi bi-lightning-fill"></i> Habilidades
+        {% if user.habilidades %}
+        <div class="panel">
+            <div class="panel__head">
+                <i class="bi bi-lightning" aria-hidden="true"></i>
+                <h2 class="panel__title">Habilidades</h2>
+                <span class="panel__note">Alimenta la búsqueda de ofertas</span>
             </div>
             <div>
                 {% for hab in user.habilidades|split:"," %}
@@ -356,208 +399,223 @@
                 {% endfor %}
             </div>
         </div>
+        {% endif %}
     </div>
-    {% endif %}
 
-    <!-- Quick actions (mobile only — desktop version is in left sidebar) -->
-    <div class="d-grid gap-2 d-lg-none">
-        <a href="{% url 'accounts:balance' %}" class="btn btn-lg py-3" style="background:linear-gradient(135deg,#10B981,#059669); color:#fff; font-weight:700; border:none; border-radius:14px; box-shadow:0 4px 16px rgba(16,185,129,0.3);">
-            <i class="bi bi-graph-up-arrow"></i> Ver mi balance
-        </a>
-        <a href="{% url 'jobs:my_jobs' %}" class="btn btn-outline-primary btn-lg py-3" style="border-radius:14px;">
-            <i class="bi bi-briefcase"></i> Mis trabajos
-        </a>
-    </div>
-</div>
+    <!-- Editar -->
+    <div id="tab-edit" class="tab-content-section" role="tabpanel">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="panel">
+                <div class="panel__head">
+                    <i class="bi bi-pencil-square" aria-hidden="true"></i>
+                    <h2 class="panel__title">Editar perfil</h2>
+                </div>
 
-<!-- Tab: Edit -->
-<div id="tab-edit" class="tab-content-section">
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="card mb-3 edit-section">
-            <div class="card-body">
-                <div style="font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary-light); margin-bottom:14px;">
-                    <i class="bi bi-pencil-square"></i> Editar perfil
-                </div>
-                {% for field in form %}
-                {% if field.name == 'foto' or field.name == 'foto_carnet' %}
-                <div class="form-field">
-                    <label>{{ field.label }}</label>
-                    <label class="img-upload-wrap" for="{{ field.id_for_label }}">
-                        {% if field.name == 'foto' %}
-                            {% if user.foto %}
-                            <img src="{{ user.foto.url }}" class="img-upload-preview" id="fotoPreview" alt="Foto actual">
-                            {% else %}
-                            <div class="img-upload-no-foto" id="fotoPreview"><i class="bi bi-person-fill"></i></div>
-                            {% endif %}
-                        {% else %}
-                            {% if user.foto_carnet %}
-                            <img src="{{ user.foto_carnet.url }}" class="img-upload-preview" id="fotoCarnetPreview" alt="Carnet actual">
-                            {% else %}
-                            <div class="img-upload-no-foto" id="fotoCarnetPreview"><i class="bi bi-card-image"></i></div>
-                            {% endif %}
-                        {% endif %}
-                        <span class="img-upload-cta"><i class="bi bi-camera-fill"></i> Cambiar foto</span>
-                        <span class="img-upload-hint">JPG, PNG · Máx. 5 MB</span>
-                    </label>
-                    <div style="display:none;">{{ field }}</div>
-                    {% if field.errors %}<div class="text-danger small mt-1" role="alert">{{ field.errors.0 }}</div>{% endif %}
-                </div>
-                {% else %}
-                <div class="form-field">
-                    <label>{{ field.label }}</label>
-                    {{ field|add_class:"form-control" }}
-                    {% if field.errors %}<div class="text-danger small mt-1" role="alert">{{ field.errors.0 }}</div>{% endif %}
-                </div>
-                {% endif %}
-                {% endfor %}
-            </div>
-        </div>
-        <button type="submit" class="btn btn-lg w-100 py-3" style="background:linear-gradient(135deg,var(--primary),var(--primary-light)); color:#fff; font-weight:700; border:none; border-radius:14px; box-shadow:0 4px 16px rgba(79,70,229,0.3);">
-            <i class="bi bi-check-circle-fill"></i> Guardar cambios
-        </button>
-    </form>
-</div>
-
-<!-- Tab: Reviews -->
-<div id="tab-reviews" class="tab-content-section">
-    <div class="card">
-        <div class="card-body">
-            <div style="font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary-light); margin-bottom:12px;">
-                <i class="bi bi-star-fill"></i> Calificaciones recibidas
-            </div>
-            {% for review in user.reviews_recibidas.all %}
-            <div style="background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; margin-bottom:10px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                    <div class="d-flex align-items-center gap-2">
-                        {% if review.autor.foto %}
-                        <img src="{{ review.autor.foto.url }}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;">
-                        {% else %}
-                        <div style="width:28px;height:28px;border-radius:50%;background:var(--surface-alt);display:flex;align-items:center;justify-content:center;font-size:0.7rem;color:var(--text-secondary);"><i class="bi bi-person-fill"></i></div>
-                        {% endif %}
-                        <span style="font-weight:600; font-size:0.85rem; color:var(--text);">{{ review.autor }}</span>
+                <div class="stack-4">
+                    {% for field in form %}
+                    {% if field.name == 'foto' or field.name == 'foto_carnet' %}
+                    <div class="field">
+                        <span class="field__label" id="{{ field.id_for_label }}-label">{{ field.label }}</span>
+                        <div class="upload-zone" data-upload-zone>
+                            <input type="file" name="{{ field.html_name }}" id="{{ field.id_for_label }}"
+                                   accept="image/jpeg,image/png" aria-labelledby="{{ field.id_for_label }}-label">
+                            <span class="upload-zone__icon" data-upload-icon aria-hidden="true"><i class="bi bi-cloud-arrow-up"></i></span>
+                            <span class="upload-zone__title">
+                                {% if field.value %}{{ field.value.name }}{% else %}Arrastra la imagen o haz clic para elegirla{% endif %}
+                            </span>
+                            <span class="upload-zone__hint">JPG o PNG, hasta 5 MB</span>
+                            <span class="field__error" data-upload-error hidden></span>
+                            <span class="upload-zone__preview" data-upload-preview>
+                                <img src="" alt="">
+                                <span style="min-width:0;">
+                                    <span class="upload-zone__name" data-upload-name></span>
+                                    <span class="upload-zone__meta" data-upload-meta></span>
+                                </span>
+                            </span>
+                        </div>
+                        {% field_error field %}
                     </div>
-                    <span>
+                    {% else %}
+                    <div class="field">
+                        {% if field.name == 'habilidades' %}
+                        <span class="field__label" id="{{ field.id_for_label }}-label">{{ field.label }}</span>
+                        <div class="tag-list" data-tag-list>
+                            <span class="tag-list__empty" data-tag-empty>Sin habilidades todavía.</span>
+                        </div>
+                        <input type="text" class="tag-entry" data-tag-entry
+                               placeholder="Python, diseño gráfico, traducción"
+                               aria-labelledby="{{ field.id_for_label }}-label">
+                        <span class="field__hint">Pulsa Enter después de cada habilidad.</span>
+                        <span style="display:none;" aria-hidden="true">{{ field }}</span>
+                        {% else %}
+                        <label class="field__label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field|accessible:"form-control" }}
+                        {% if field.help_text %}
+                        <span class="field__hint" id="{{ field.id_for_label }}-help">{{ field.help_text }}</span>
+                        {% endif %}
+                        {% endif %}
+                        {% field_error field %}
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+            <button type="submit" class="btn btn-accent w-100" style="padding:13px;">
+                <i class="bi bi-check-lg" aria-hidden="true"></i> Guardar cambios
+            </button>
+        </form>
+    </div>
+
+    <!-- Reseñas -->
+    <div id="tab-reviews" class="tab-content-section" role="tabpanel">
+        <div class="panel">
+            <div class="panel__head">
+                <i class="bi bi-star" aria-hidden="true"></i>
+                <h2 class="panel__title">Calificaciones recibidas</h2>
+                {% if user.reviews_recibidas.count %}
+                <span class="panel__note">
+                    {{ user.calificacion_promedio|nota }} de 5 en {{ user.reviews_recibidas.count }} reseña{{ user.reviews_recibidas.count|pluralize:"s" }}
+                </span>
+                {% endif %}
+            </div>
+
+            {% for review in user.reviews_recibidas.all %}
+            <div class="review-item">
+                <div class="review-item__head">
+                    <span class="review-item__stars">
                         {% for i in "12345" %}
-                            {% if forloop.counter <= review.puntuacion %}<i class="bi bi-star-fill" style="color:var(--star-active);font-size:0.75rem;"></i>{% else %}<i class="bi bi-star" style="color:var(--star-inactive);font-size:0.75rem;"></i>{% endif %}
+                            {% if forloop.counter <= review.puntuacion %}
+                            <i class="bi bi-star-fill" aria-hidden="true"></i>
+                            {% else %}
+                            <i class="bi bi-star vacio" aria-hidden="true"></i>
+                            {% endif %}
                         {% endfor %}
                     </span>
+                    <span class="review-item__author">{{ review.autor }}</span>
+                    <span class="review-item__date">{{ review.created_at|date:"d M Y" }}</span>
                 </div>
                 {% if review.comentario %}
-                <p class="mb-0" style="font-size:0.83rem; color:var(--text); line-height:1.5;">{{ review.comentario }}</p>
+                <p class="review-item__text">{{ review.comentario }}</p>
                 {% endif %}
-                <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:6px;">
-                    <i class="bi bi-briefcase"></i> {{ review.trabajo.titulo }}
+                <div class="review-item__job">
+                    <i class="bi bi-briefcase" aria-hidden="true"></i> {{ review.trabajo.titulo }}
                 </div>
             </div>
             {% empty %}
-            <div class="text-center" style="padding:30px 0;">
-                <i class="bi bi-star" style="font-size:2rem; color:var(--star-inactive);"></i>
-                <p class="small mt-2 mb-0" style="color:var(--text-secondary);">Aún no tienes calificaciones</p>
+            <div class="empty">
+                <span class="empty__icon" aria-hidden="true"><i class="bi bi-star"></i></span>
+                <p class="empty__title">Aún no tienes calificaciones</p>
+                <p class="empty__text">
+                    Aparece aquí cuando alguien califique un trabajo en el que participaste.
+                </p>
             </div>
             {% endfor %}
         </div>
     </div>
-</div>
 
-<!-- Tab: Seguridad (R11 verificacion, R16 eliminar cuenta) -->
-<div id="tab-security" class="tab-content-section">
-    <div class="card mb-3">
-        <div class="card-body">
-            <div style="font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary-light); margin-bottom:12px;">
-                <i class="bi bi-envelope-check"></i> Correo electrónico
+    <!-- Seguridad -->
+    <div id="tab-security" class="tab-content-section" role="tabpanel">
+        <div class="panel">
+            <div class="panel__head">
+                <i class="bi bi-envelope-check" aria-hidden="true"></i>
+                <h2 class="panel__title">Correo electrónico</h2>
             </div>
-            <div class="d-flex justify-content-between align-items-center">
-                <div style="min-width:0;">
-                    <div style="font-size:0.9rem; font-weight:600; color:var(--text); word-break:break-all;">{{ user.email }}</div>
-                    {% if user.is_email_verified %}
-                    <span class="badge" style="background:rgba(5,150,105,0.15); color:#059669;">
-                        <i class="bi bi-check-circle-fill"></i> Verificado
-                    </span>
-                    {% else %}
-                    <span class="badge" style="background:rgba(217,119,6,0.15); color:#D97706;">
-                        <i class="bi bi-exclamation-circle-fill"></i> Sin verificar
-                    </span>
-                    {% endif %}
-                </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:var(--space-3);">
+                <span style="font-size:var(--fs-sm); font-weight:600; color:var(--text); word-break:break-all;">{{ user.email }}</span>
+                {% if user.is_email_verified %}
+                <span class="chip chip--success"><i class="bi bi-check-circle-fill" aria-hidden="true"></i> Verificado</span>
+                {% else %}
+                <span class="chip chip--warning"><i class="bi bi-exclamation-circle-fill" aria-hidden="true"></i> Sin verificar</span>
+                {% endif %}
             </div>
             {% if not user.is_email_verified %}
-            <form method="post" action="{% url 'accounts:resend_verification_mine' %}" class="mt-3">
+            <form method="post" action="{% url 'accounts:resend_verification_mine' %}" style="margin-top:var(--space-4);">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-sm"
-                        style="background:var(--primary); color:#fff; border:none; border-radius:10px; font-weight:700; padding:8px 18px;">
-                    <i class="bi bi-send"></i> Reenviar enlace de verificación
+                <button type="submit" class="btn btn-accent" style="padding:10px 18px;">
+                    <i class="bi bi-send" aria-hidden="true"></i> Reenviar enlace de verificación
                 </button>
             </form>
             {% endif %}
         </div>
-    </div>
 
-    <div class="card mb-3">
-        <div class="card-body">
-            <div style="font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; color:var(--primary-light); margin-bottom:10px;">
-                <i class="bi bi-key-fill"></i> Contraseña
+        <div class="panel">
+            <div class="panel__head">
+                <i class="bi bi-key" aria-hidden="true"></i>
+                <h2 class="panel__title">Contraseña</h2>
             </div>
-            <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.55; margin-bottom:12px;">
+            <p style="font-size:var(--fs-sm); color:var(--text-secondary); line-height:1.55; margin:0 0 var(--space-4);">
                 Al cambiarla se cerrarán todas tus otras sesiones abiertas.
             </p>
-            <a href="{% url 'accounts:password_change' %}" class="btn"
-               style="background:transparent; color:var(--primary-light); border:1.5px solid var(--primary-light); border-radius:12px; font-weight:700; padding:10px 20px;">
-                <i class="bi bi-pencil"></i> Cambiar contraseña
+            <a href="{% url 'accounts:password_change' %}" class="btn btn-quiet" style="padding:10px 18px;">
+                <i class="bi bi-pencil" aria-hidden="true"></i> Cambiar contraseña
             </a>
         </div>
-    </div>
 
-    <div class="card mb-3" style="border-color:rgba(220,38,38,0.35);">
-        <div class="card-body">
-            <div style="font-weight:700; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.5px; color:#DC2626; margin-bottom:10px;">
-                <i class="bi bi-trash3"></i> Zona de peligro
+        <div class="panel panel--peligro">
+            <div class="panel__head">
+                <i class="bi bi-trash3" style="color:var(--state-danger);" aria-hidden="true"></i>
+                <h2 class="panel__title" style="color:var(--state-danger);">Zona de peligro</h2>
             </div>
-            <p style="font-size:0.83rem; color:var(--text-secondary); line-height:1.55; margin-bottom:14px;">
-                Puedes eliminar tu cuenta y todos tus datos personales en
-                cualquier momento, en ejercicio del derecho de supresión
-                (art. 17, Ley 1581 de 2012). Esta acción es permanente.
+            <p style="font-size:var(--fs-sm); color:var(--text-secondary); line-height:1.55; margin:0 0 var(--space-4);">
+                Puedes eliminar tu cuenta y todos tus datos personales en cualquier
+                momento, en ejercicio del derecho de supresión (art. 17, Ley 1581
+                de 2012). Esta acción es permanente.
             </p>
-            <a href="{% url 'accounts:delete_account' %}" class="btn"
-               style="background:transparent; color:#DC2626; border:1.5px solid #DC2626; border-radius:12px; font-weight:700; padding:10px 20px;">
-                <i class="bi bi-exclamation-triangle"></i> Eliminar mi cuenta
+            <a href="{% url 'accounts:delete_account' %}" class="btn btn-danger" style="padding:10px 18px;">
+                <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> Eliminar mi cuenta
             </a>
         </div>
+
+        {# El cierre de sesión vive aquí en móvil: la barra superior ya no lo lleva. #}
+        <div class="panel d-lg-none">
+            <div class="panel__head">
+                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                <h2 class="panel__title">Sesión</h2>
+            </div>
+            <form method="post" action="{% url 'accounts:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-quiet w-100" style="padding:11px 20px;">
+                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i> Cerrar sesión
+                </button>
+            </form>
+        </div>
     </div>
-</div>
 
 </div>{# end profile-right #}
 </div>{# end profile-layout #}
-{% block extra_js %}
-<script>
-function switchTab(e, tab) {
-    document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content-section').forEach(s => s.classList.remove('active'));
-    e.currentTarget.classList.add('active');
-    document.getElementById('tab-' + tab).classList.add('active');
-}
-// Live preview when a new photo is selected
-function setupImgPreview(inputId, previewId) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
-    input.addEventListener('change', function () {
-        if (this.files && this.files[0]) {
-            const reader = new FileReader();
-            reader.onload = e => {
-                const prev = document.getElementById(previewId);
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'img-upload-preview';
-                img.id = previewId;
-                img.alt = 'Vista previa';
-                prev.replaceWith(img);
-            };
-            reader.readAsDataURL(this.files[0]);
-        }
-    });
-}
-setupImgPreview('id_foto', 'fotoPreview');
-setupImgPreview('id_foto_carnet', 'fotoCarnetPreview');
-</script>
 {% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/wizard.js' %}" defer></script>
+<script nonce="{{ csp_nonce }}">
+(function () {
+    // Pestañas: sin atributos onclick, que la CSP bloquea.
+    function activar(pestana) {
+        document.querySelectorAll('.profile-tab').forEach(function (t) {
+            var activo = t === pestana;
+            t.classList.toggle('active', activo);
+            t.setAttribute('aria-selected', activo ? 'true' : 'false');
+        });
+        document.querySelectorAll('.tab-content-section').forEach(function (s) {
+            s.classList.remove('active');
+        });
+        document.getElementById('tab-' + pestana.dataset.tab).classList.add('active');
+    }
+
+    document.querySelectorAll('.profile-tab').forEach(function (pestana) {
+        pestana.addEventListener('click', function () {
+            activar(pestana);
+        });
+    });
+
+    document.querySelectorAll('[data-open-tab]').forEach(function (boton) {
+        boton.addEventListener('click', function () {
+            var destino = document.querySelector(
+                '.profile-tab[data-tab="' + boton.dataset.openTab + '"]');
+            if (destino) activar(destino);
+        });
+    });
+})();
+</script>
 {% endblock %}

@@ -192,6 +192,46 @@ def delete_account(request):
     })
 
 
+#: Abreviaturas de mes en espanol. strftime('%b') devuelve el mes del
+#: locale del proceso, que en un servidor es ingles.
+MESES_ES = ('ene', 'feb', 'mar', 'abr', 'may', 'jun',
+            'jul', 'ago', 'sep', 'oct', 'nov', 'dic')
+
+
+def _ventanas_menuales(cantidad=6):
+    """Ventanas de los ultimos N meses, de la mas antigua a la mas reciente."""
+    from django.utils import timezone
+    from datetime import timedelta
+
+    now = timezone.now()
+    ventanas = []
+    for i in range(cantidad - 1, -1, -1):
+        year = now.year
+        month = now.month - i
+        while month <= 0:
+            month += 12
+            year -= 1
+        inicio = now.replace(year=year, month=month, day=1,
+                              hour=0, minute=0, second=0, microsecond=0)
+        siguiente_mes = month + 1
+        siguiente_anio = year
+        if siguiente_mes > 12:
+            siguiente_mes = 1
+            siguiente_anio += 1
+        # El mes en curso se cierra mañana: si no, un trabajo guardado
+        # hace un segundo queda fuera del corte.
+        fin = now.replace(year=siguiente_anio, month=siguiente_mes, day=1,
+                          hour=0, minute=0, second=0, microsecond=0)
+        if i == 0:
+            fin = now + timedelta(days=1)
+        ventanas.append({
+            'inicio': inicio,
+            'fin': fin,
+            'label': MESES_ES[month - 1],
+        })
+    return ventanas
+
+
 @login_required
 def balance(request):
     from jobs.models import Job, Application
@@ -224,71 +264,143 @@ def balance(request):
     reviews_recibidas = user.reviews_recibidas.count()
     reviews_realizadas = user.reviews_hechas.count()
 
-    # Category breakdown for chart
-    categorias_data = []
+    # --- Desglose por categoria y por modalidad ---
+    # El color no codifica la categoria: la categoria no es un estado. La
+    # barra se dibuja con el acento y el nombre va al lado, asi que el
+    # grafico no se convierte en un arcoiris.
     if user.es_estudiante:
-        cat_qs = trabajos_asignados.values('categoria').annotate(total=Count('id')).order_by('-total')
+        base_desglose = trabajos_asignados
     else:
-        cat_qs = trabajos_creados.values('categoria').annotate(total=Count('id')).order_by('-total')
+        base_desglose = trabajos_creados
 
-    cat_colors = {
-        'academico': '#4F46E5', 'tecnologia': '#2563EB', 'diseno': '#7C3AED',
-        'redaccion': '#D97706', 'traduccion': '#059669', 'otro': '#6B7280',
-    }
     cat_labels = dict(Job.Categoria.choices)
-    for item in cat_qs:
-        categorias_data.append({
-            'nombre': cat_labels.get(item['categoria'], item['categoria']),
-            'total': item['total'],
-            'color': cat_colors.get(item['categoria'], '#6B7280'),
+    categorias_data = [
+        {'nombre': cat_labels.get(item['categoria'], item['categoria']),
+         'total': item['total']}
+        for item in base_desglose.values('categoria')
+        .annotate(total=Count('id')).order_by('-total')
+    ]
+
+    mod_labels = dict(Job.Modalidad.choices)
+    modalidades_data = [
+        {'nombre': mod_labels.get(item['modalidad'], item['modalidad']),
+         'total': item['total']}
+        for item in base_desglose.values('modalidad')
+        .annotate(total=Count('id')).order_by('-total')
+    ]
+
+    # --- Ventanas de los ultimos seis meses ---
+    # Doce meses: seis no alcanzan a cubrir un ciclo completo de trabajo
+    # y dejan fuera el invierno academic anterior.
+    ventanas = _ventanas_menuales(12)
+
+    # --- Dinero por mes ---
+    # El modelo Job no guarda la fecha de finalizacion: se usa updated_at,
+    # que es la ultima modificacion del trabajo y por tanto el momento en
+    # que paso a estado finalizado (salvo que se edite despues).
+    if user.es_estudiante:
+        base_dinero = trabajos_asignados.filter(estado=Job.Estado.FINALIZADO)
+    else:
+        base_dinero = trabajos_creados.filter(estado=Job.Estado.FINALIZADO)
+
+    dinero_mes = []
+    for ventana in ventanas:
+        total = base_dinero.filter(
+            updated_at__gte=ventana['inicio'],
+            updated_at__lt=ventana['fin'],
+        ).aggregate(total=Sum('pago'))['total'] or 0
+        dinero_mes.append({'label': ventana['label'], 'total': total})
+
+    max_dinero_mes = max((m['total'] for m in dinero_mes), default=0) or 0
+
+    # --- Actividad por mes ---
+    if user.es_estudiante:
+        base_actividad = Application.objects.filter(usuario=user)
+    else:
+        base_actividad = trabajos_creados
+
+    actividad_mes = []
+    for ventana in ventanas:
+        count = base_actividad.filter(
+            created_at__gte=ventana['inicio'],
+            created_at__lt=ventana['fin'],
+        ).count()
+        actividad_mes.append({'label': ventana['label'], 'count': count})
+
+    max_actividad_mes = max((m['count'] for m in actividad_mes), default=0) or 0
+
+    # --- Dinero que aun no esta en el total ---
+    # Un trabajo en proceso ya tiene un valor pactado: no se ha cobrado
+    # (el estudiante) ni se ha pagado (el empleador), pero ya no es
+    # hipotetico.
+    if user.es_estudiante:
+        en_proceso_dinero = trabajos_asignados.filter(
+            estado=Job.Estado.EN_PROCESO).aggregate(total=Sum('pago'))['total'] or 0
+    else:
+        en_proceso_dinero = trabajos_creados.filter(
+            estado=Job.Estado.EN_PROCESO).aggregate(total=Sum('pago'))['total'] or 0
+
+    # --- Promedio por trabajo finalizado ---
+    promedio_trabajo = base_dinero.aggregate(promedio=Avg('pago'))['promedio'] or 0
+
+    # --- Como le va al usuario ---
+    postulaciones_recibidas = 0
+    aceptadas_recibidas = 0
+    candidatos_por_trabajo = 0
+    if user.es_estudiante:
+        tasa_aceptacion = (
+            round(postulaciones_aceptadas * 100 / total_postulaciones)
+            if total_postulaciones else 0
+        )
+    else:
+        # Del lado del empleador lo que cuenta es cuanto le aceptan de lo
+        # que le postulan a sus avisos.
+        postulaciones_recibidas = Application.objects.filter(
+            trabajo__creador=user).count()
+        aceptadas_recibidas = Application.objects.filter(
+            trabajo__creador=user,
+            estado=Application.Estado.ACEPTADA).count()
+        tasa_aceptacion = (
+            round(aceptadas_recibidas * 100 / postulaciones_recibidas)
+            if postulaciones_recibidas else 0
+        )
+        candidatos_por_trabajo = (
+            round(postulaciones_recibidas / total_publicados, 1)
+            if total_publicados else 0
+        )
+
+    # --- Distribucion de las calificaciones recibidas ---
+    distribucion_calificaciones = []
+    for puntos in (5, 4, 3, 2, 1):
+        distribucion_calificaciones.append({
+            'puntos': puntos,
+            'total': user.reviews_recibidas.filter(puntuacion=puntos).count(),
         })
+    max_calificacion = max(
+        (d['total'] for d in distribucion_calificaciones), default=0) or 0
 
-    # Monthly activity (last 6 months)
-    from django.utils import timezone
-    import datetime
-    now = timezone.now()
-    meses = []
-    # Build proper calendar month boundaries
-    for i in range(5, -1, -1):
-        # month_start: first day of (current_month - i)
-        year  = now.year
-        month = now.month - i
-        while month <= 0:
-            month += 12
-            year  -= 1
-        month_start = now.replace(year=year, month=month, day=1,
-                                  hour=0, minute=0, second=0, microsecond=0)
-        # month_end: first day of next month
-        next_month = month + 1
-        next_year  = year
-        if next_month > 12:
-            next_month = 1
-            next_year += 1
-        month_end = now.replace(year=next_year, month=next_month, day=1,
-                                hour=0, minute=0, second=0, microsecond=0)
-        # For the current month cap at now
-        if i == 0:
-            month_end = now
+    # --- Ultimas calificaciones recibidas ---
+    ultimas_calificaciones = list(
+        user.reviews_recibidas.select_related('autor', 'trabajo').order_by('-created_at')[:3]
+    )
 
-        if user.es_estudiante:
-            count = Application.objects.filter(
-                usuario=user,
-                created_at__gte=month_start,
-                created_at__lt=month_end,
-            ).count()
-        else:
-            count = Job.objects.filter(
-                creador=user,
-                created_at__gte=month_start,
-                created_at__lt=month_end,
-            ).count()
+    # --- Actividad reciente ---
+    if user.es_estudiante:
+        actividad_reciente = list(
+            Application.objects.filter(usuario=user)
+            .select_related('trabajo')
+            .order_by('-created_at')[:5]
+        )
+    else:
+        actividad_reciente = list(
+            trabajos_creados.select_related('asignado').order_by('-created_at')[:5]
+        )
 
-        meses.append({
-            'label': month_start.strftime('%b'),
-            'count': count,
-        })
-
-    max_mes = max((m['count'] for m in meses), default=1) or 1
+    # --- El trabajo de mayor valor ---
+    if user.es_estudiante:
+        mejor_trabajo = trabajos_asignados.order_by('-pago').first()
+    else:
+        mejor_trabajo = trabajos_creados.order_by('-pago').first()
 
     context = {
         'total_publicados': total_publicados,
@@ -307,7 +419,22 @@ def balance(request):
         'reviews_recibidas': reviews_recibidas,
         'reviews_realizadas': reviews_realizadas,
         'categorias_data': categorias_data,
-        'meses': meses,
-        'max_mes': max_mes,
+        'meses': actividad_mes,
+        'max_mes': max_actividad_mes,
+        # Lo nuevo
+        'dinero_mes': dinero_mes,
+        'max_dinero_mes': max_dinero_mes,
+        'en_proceso_dinero': en_proceso_dinero,
+        'promedio_trabajo': promedio_trabajo,
+        'tasa_aceptacion': tasa_aceptacion,
+        'postulaciones_recibidas': postulaciones_recibidas,
+        'aceptadas_recibidas': aceptadas_recibidas,
+        'candidatos_por_trabajo': candidatos_por_trabajo,
+        'modalidades_data': modalidades_data,
+        'distribucion_calificaciones': distribucion_calificaciones,
+        'max_calificacion': max_calificacion,
+        'ultimas_calificaciones': ultimas_calificaciones,
+        'actividad_reciente': actividad_reciente,
+        'mejor_trabajo': mejor_trabajo,
     }
     return render(request, 'accounts/balance.html', context)

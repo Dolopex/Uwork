@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Bitácora de sanciones — U-Work{% endblock %}
+{% block title %}Bitácora de sanciones · U-Work{% endblock %}
 {% block content %}
 <div style="max-width:1000px; margin:0 auto;">
 
@@ -13,7 +13,7 @@
             </p>
         </div>
         <a href="{% url 'moderation:panel_reportes' %}" class="btn btn-sm"
-           style="border:1.5px solid var(--border); border-radius:10px; font-weight:700; color:var(--text); padding:8px 14px;">
+           style="border:1.5px solid var(--border); border-radius: var(--radius-sm); font-weight:700; color:var(--text); padding:8px 14px;">
             <i class="bi bi-arrow-left"></i> Reportes
         </a>
     </div>
@@ -37,17 +37,23 @@
                 {% for s in sanciones %}
                 <tr>
                     <td>{{ s.pk }}</td>
-                    <td><a href="{% url 'accounts:user_detail' s.usuario.pk %}"
-                           style="color:var(--primary-light); text-decoration:none;">{{ s.usuario }}</a></td>
+                    <td>
+                        {% if s.usuario_id and s.usuario %}
+                        <a href="{% url 'accounts:user_detail' s.usuario.pk %}"
+                           style="color:var(--primary-light); text-decoration:none;">{{ s.usuario_nombre }}</a>
+                        {% else %}
+                        <span style="color:var(--text-secondary);" title="La cuenta fue eliminada; la bitácora conserva la copia.">{{ s.usuario_nombre }}</span>
+                        {% endif %}
+                    </td>
                     <td>{{ s.get_tipo_display }}</td>
                     <td style="max-width:220px;">{{ s.motivo|truncatechars:70 }}</td>
-                    <td>{{ s.aplicada_por|default:"—" }}</td>
+                    <td>{{ s.aplicada_por|default:"sin registro" }}</td>
                     <td>{{ s.created_at|date:"d/m/Y H:i" }}</td>
                     <td>
                         {% if s.vigente %}
-                        <span class="badge" style="background:rgba(220,38,38,0.15); color:#DC2626;">Vigente</span>
+                        <span class="badge" style="background:rgba(220,38,38,0.15); color:var(--state-danger);">Vigente</span>
                         {% else %}
-                        <span class="badge" style="background:rgba(5,150,105,0.15); color:#059669;">Levantada</span>
+                        <span class="badge" style="background:rgba(5,150,105,0.15); color:var(--state-success);">Levantada</span>
                         {% endif %}
                     </td>
                     <td>
@@ -55,7 +61,7 @@
                         <form method="post" action="{% url 'moderation:levantar_sancion' s.pk %}">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-secondary"
-                                    style="border-radius:8px; font-weight:700;">Levantar</button>
+                                    style="border-radius: var(--radius-sm); font-weight:700;">Levantar</button>
                         </form>
                         {% else %}
                         <span style="font-size:0.72rem; color:var(--text-secondary);">

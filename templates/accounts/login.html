@@ -1,417 +1,208 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar sesión — U-Work</title>
+    <title>Iniciar sesión · U-Work</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%234F46E5'/%3E%3Cstop offset='100%25' stop-color='%23818CF8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Ctext x='50' y='74' text-anchor='middle' font-family='Inter,sans-serif' font-weight='900' font-size='62' fill='white'%3EU%3C/text%3E%3C/svg%3E">
+    <meta name="description" content="Accede a tu panel de U-Work para seguir tus postulaciones, tus publicaciones y tu balance.">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>(function(){var t=localStorage.getItem('uwork-theme');if(t==='dark')document.documentElement.setAttribute('data-theme','dark');})()</script>
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        :root {
-            --ln-bg: #F4F7FF;
-            --ln-scene: linear-gradient(160deg, #EEF2FF 0%, #F4F7FF 60%, #EBF0FF 100%);
-            --ln-text: #0F172A;
-            --ln-text-muted: #64748B;
-            --ln-card-bg: #FFFFFF;
-            --ln-card-border: #DBEAFE;
-            --ln-card-shadow: 0 4px 16px rgba(37,99,235,0.06);
-            --ln-input-bg: #F8FAFC;
-            --ln-input-border: #CBD5E1;
-            --ln-placeholder: #94A3B8;
-            --ln-icon-color: #94A3B8;
-            --ln-focus-border: #2563EB;
-            --ln-focus-bg: rgba(37,99,235,0.04);
-            --ln-focus-shadow: rgba(37,99,235,0.08);
-            --ln-toggle-pw: #94A3B8;
-            --ln-toggle-pw-hover: #64748B;
-            --ln-divider-text: #94A3B8;
-            --ln-divider-line: #E2E8F0;
-            --ln-link: #1D4ED8;
-            --ln-link-hover: #1E40AF;
-            --ln-mobile-text: #0F172A;
-            --ln-mobile-muted: #64748B;
-            --ln-form-panel-bg: #F4F7FF;
-            --ln-error-text: #DC2626;
-        }
-        [data-theme="dark"] {
-            --ln-bg: #101C2C;
-            --ln-scene: linear-gradient(160deg, #0D1B2A 0%, #101C2C 60%, #0C2037 100%);
-            --ln-text: #E3F6FF;
-            --ln-text-muted: #7FB7C9;
-            --ln-card-bg: #16243A;
-            --ln-card-border: #223A5E;
-            --ln-card-shadow: 0 4px 16px rgba(16,28,44,0.15);
-            --ln-input-bg: #132033;
-            --ln-input-border: #223A5E;
-            --ln-placeholder: #4B6A88;
-            --ln-icon-color: #4B6A88;
-            --ln-focus-border: #38BDF8;
-            --ln-focus-bg: rgba(56,189,248,0.06);
-            --ln-focus-shadow: rgba(56,189,248,0.12);
-            --ln-toggle-pw: #4B6A88;
-            --ln-toggle-pw-hover: #7FB7C9;
-            --ln-divider-text: #4B6A88;
-            --ln-divider-line: #223A5E;
-            --ln-link: #38BDF8;
-            --ln-link-hover: #7DD3FC;
-            --ln-mobile-text: #E3F6FF;
-            --ln-mobile-muted: #7FB7C9;
-            --ln-form-panel-bg: #0D1B2A;
-            --ln-error-text: #FCA5A5;
-        }
-        body {
-            font-family: 'Inter', -apple-system, sans-serif;
-            min-height: 100vh;
-            background: var(--ln-bg);
-            display: flex;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-        }
-
-        /* ---- Background ---- */
-        .bg-scene {
-            position: fixed; inset: 0; z-index: 0;
-            background: var(--ln-scene);
-        }
-
-        /* ---- Layout ---- */
-        .login-wrapper {
-            position: relative; z-index: 1;
-            display: flex; width: 100%; min-height: 100vh;
-        }
-        /* Left: Illustration panel (desktop only) */
-        .illus-panel {
-            display: none; flex: 1; flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 60px 40px; position: relative; overflow: hidden;
-            background: linear-gradient(160deg, #0D1B2A, #16243A);
-        }
-        .illus-content { text-align: center; color: #fff; max-width: 420px; }
-        .illus-content .hero-icon {
-            width: 120px; height: 120px; border-radius: 32px;
-            background: linear-gradient(135deg, #4F46E5, #818CF8);
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 28px; font-size: 3rem; color: #fff;
-            box-shadow: 0 8px 28px rgba(79,70,229,0.3);
-        }
-        .illus-content h2 { font-weight: 900; font-size: 2.4rem; line-height: 1.1; margin-bottom: 14px; letter-spacing: -1px; color: #E3F6FF; }
-        .illus-content p { font-size: 1.05rem; color: #7FB7C9; line-height: 1.6; }
-        /* Floating feature cards */
-        .float-cards { margin-top: 40px; display: flex; flex-direction: column; gap: 14px; width: 100%; }
-        .float-card {
-            background: #1B2B44;
-            border: 1px solid #223A5E;
-            border-radius: 14px; padding: 16px 20px;
-            display: flex; align-items: center; gap: 14px;
-            color: #E3F6FF; animation: cardSlideUp 0.8s ease-out both;
-        }
-        .float-card:nth-child(2) { animation-delay: 0.15s; }
-        .float-card:nth-child(3) { animation-delay: 0.3s; }
-        @keyframes cardSlideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .float-card .fc-icon {
-            width: 44px; height: 44px; border-radius: 12px; flex-shrink: 0;
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-        }
-        .float-card .fc-text { font-weight: 600; font-size: 0.9rem; }
-        .float-card .fc-sub { font-size: 0.75rem; color: #7FB7C9; margin-top: 2px; }
-
-        /* Right: Form panel */
-        .form-panel {
-            flex: 1; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-            padding: 40px 20px; position: relative;
-        }
-        .form-inner {
-            max-width: 420px; width: 100%;
-            animation: formFadeIn 0.6s ease-out;
-        }
-        @keyframes formFadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .mobile-brand {
-            text-align: center; margin-bottom: 32px;
-        }
-        .mobile-brand .mb-icon {
-            width: 64px; height: 64px; border-radius: 18px;
-            background: linear-gradient(135deg, #4F46E5, #818CF8);
-            display: inline-flex; align-items: center; justify-content: center;
-            font-size: 1.8rem; color: #fff; margin-bottom: 14px;
-            box-shadow: 0 8px 24px rgba(79,70,229,0.3);
-        }
-        .mobile-brand h1 { font-weight: 900; font-size: 1.8rem; color: var(--ln-mobile-text); }
-        .mobile-brand p { color: var(--ln-mobile-muted); font-size: 0.9rem; margin-top: 4px; }
-
-        .login-card {
-            background: var(--ln-card-bg);
-            border: 1px solid var(--ln-card-border);
-            border-radius: 20px;
-            padding: 32px 24px;
-            box-shadow: var(--ln-card-shadow);
-        }
-        .login-card h3 {
-            color: var(--ln-text); font-weight: 800; font-size: 1.3rem; margin-bottom: 6px;
-        }
-        .login-card .sub { color: var(--ln-text-muted); font-size: 0.85rem; margin-bottom: 24px; }
-
-        .input-group-custom {
-            position: relative; margin-bottom: 18px;
-        }
-        .input-group-custom .input-icon {
-            position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-            color: var(--ln-icon-color); font-size: 1.1rem; z-index: 2;
-            transition: color 0.2s;
-        }
-        .input-group-custom input {
-            width: 100%; padding: 16px 16px 16px 48px;
-            background: var(--ln-input-bg); border: 2px solid var(--ln-input-border);
-            border-radius: 14px; color: var(--ln-text); font-size: 1rem;
-            transition: all 0.25s;
-            font-family: 'Inter', sans-serif;
-        }
-        .input-group-custom input::placeholder { color: var(--ln-placeholder); }
-        .input-group-custom input:focus {
-            outline: none;
-            border-color: var(--ln-focus-border);
-            background: var(--ln-focus-bg);
-            box-shadow: 0 0 0 3px var(--ln-focus-shadow);
-        }
-        .input-group-custom input:focus ~ .input-icon { color: var(--ln-focus-border); }
-        .input-group-custom .toggle-pw {
-            position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-            background: none; border: none; color: var(--ln-toggle-pw); cursor: pointer;
-            font-size: 1.1rem; z-index: 2; padding: 4px;
-        }
-        .input-group-custom .toggle-pw:hover { color: var(--ln-toggle-pw-hover); }
-
-        .btn-login {
-            background: linear-gradient(135deg, #1D4ED8, #10B981);
-            border: none; border-radius: 14px; padding: 16px;
-            font-size: 1.05rem; font-weight: 700; color: #fff;
-            width: 100%; cursor: pointer;
-            transition: all 0.25s;
-            box-shadow: 0 4px 16px rgba(29,78,216,0.2);
-        }
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(29,78,216,0.3);
-        }
-        .btn-login:active { transform: translateY(0); }
-
-        .divider {
-            display: flex; align-items: center; gap: 14px;
-            margin: 22px 0; color: var(--ln-divider-text); font-size: 0.78rem;
-        }
-        .divider::before, .divider::after {
-            content: ''; flex: 1; height: 1px; background: var(--ln-divider-line);
-        }
-
-        .error-msg {
-            background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.2);
-            color: var(--ln-error-text); border-radius: 12px; padding: 12px 14px;
-            font-size: 0.82rem; margin-bottom: 16px;
-            animation: shake 0.4s ease;
-        }
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-6px); }
-            75% { transform: translateX(6px); }
-        }
-
-        .bottom-links {
-            text-align: center; margin-top: 28px; color: var(--ln-text-muted);
-            font-size: 0.9rem;
-        }
-        .bottom-links a {
-            color: var(--ln-link); font-weight: 700; text-decoration: none;
-            transition: color 0.2s;
-        }
-        .bottom-links a:hover { color: var(--ln-link-hover); text-decoration: underline; }
-
-        /* Desktop */
-        @media (min-width: 992px) {
-            .illus-panel { display: flex; }
-            .form-panel { flex: 0 0 520px; background: var(--ln-form-panel-bg); }
-            .mobile-brand { display: none; }
-            .login-card h3 { font-size: 1.5rem; }
-        }
-        @media (min-width: 768px) and (max-width: 991px) {
-            .form-inner { max-width: 460px; }
-        }
-
-        /* Crear cuenta button */
-        .btn-create {
-            display: block; text-align: center; padding: 14px;
-            border-radius: 14px; border: 2px solid var(--ln-card-border);
-            color: var(--ln-text); text-decoration: none;
-            font-weight: 600; font-size: 0.95rem;
-            transition: all 0.2s;
-            background: transparent;
-        }
-        .btn-create:hover {
-            border-color: var(--ln-focus-border);
-            color: var(--ln-focus-border);
-            background: var(--ln-focus-bg);
-        }
-
-        /* Theme toggle */
-        .theme-btn {
-            position: fixed; top: 16px; right: 16px; z-index: 100;
-            background: var(--ln-card-bg); border: 1px solid var(--ln-card-border);
-            color: var(--ln-text); border-radius: 50%;
-            width: 40px; height: 40px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 1.1rem;
-            box-shadow: var(--ln-card-shadow);
-            transition: all 0.2s;
-        }
-        .theme-btn:hover { transform: scale(1.1); }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    {% include 'partials/theme_head.html' %}
 </head>
-<body>
-    {% load form_tags %}
-    <button class="theme-btn" onclick="toggleLoginTheme()" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema">
-        <i class="bi bi-sun" id="themeBtnIcon"></i>
-    </button>
-    <div class="bg-scene"></div>
+<body class="sin-navegacion">
+    <div class="auth-shell">
 
-    <div class="login-wrapper">
-        <!-- Left illustration panel (desktop) -->
-        <div class="illus-panel">
-            <div class="illus-content">
-                <div class="hero-icon"><span style="font-weight:900;font-size:2.8rem;line-height:1;">U</span></div>
-                <h2>Conecta tu talento<br>con oportunidades</h2>
-                <p>Miles de estudiantes ya están ganando experiencia y dinero con microtrabajos flexibles.</p>
-                <div class="float-cards">
-                    <div class="float-card">
-                        <div class="fc-icon" style="background:linear-gradient(135deg,#1D4ED8,#2563EB);"><i class="bi bi-lightning-charge-fill"></i></div>
-                        <div>
-                            <div class="fc-text">Trabajos rápidos</div>
-                            <div class="fc-sub">Tareas cortas que se adaptan a tu horario</div>
-                        </div>
-                    </div>
-                    <div class="float-card">
-                        <div class="fc-icon" style="background:linear-gradient(135deg,#10B981,#059669);"><i class="bi bi-cash-stack"></i></div>
-                        <div>
-                            <div class="fc-text">Pagos seguros</div>
-                            <div class="fc-sub">Recibe tu dinero al completar cada tarea</div>
-                        </div>
-                    </div>
-                    <div class="float-card">
-                        <div class="fc-icon" style="background:linear-gradient(135deg,#0891B2,#0E7490);"><i class="bi bi-star-fill"></i></div>
-                        <div>
-                            <div class="fc-text">Construye reputación</div>
-                            <div class="fc-sub">Reviews y calificaciones que respaldan tu trabajo</div>
-                        </div>
-                    </div>
-                </div>
+        <!-- Panel de marca: en movil se oculta, el formulario ocupa todo -->
+        <aside class="auth-brand">
+            <div class="auth-brand__inner">
+            <a class="auth-brand__mark" href="{% url 'accounts:role_select' %}">
+                <span class="auth-brand__glyph" aria-hidden="true">U</span>
+                <span>
+                    <span class="auth-brand__name">U-Work</span>
+                    <span class="auth-brand__sub">Microtrabajo universitario</span>
+                </span>
+            </a>
+
+            <div>
+                <h1 class="auth-brand__title">Trabajo de tu carrera, paso a paso</h1>
+                <p class="auth-brand__text">
+                    Publica ofertas, postulaste a proyectos y revisa balances y pagos
+                    desde un solo panel.
+                </p>
+
+                <ul class="auth-brand__list">
+                    <li class="auth-brand__item">
+                        <span class="icon-tile icon-tile--brand" aria-hidden="true"><i class="bi bi-patch-check-fill"></i></span>
+                        <span>
+                            <strong>Cuentas verificadas</strong>
+                            <span>Correo confirmado y dominio institucional para estudiantes.</span>
+                        </span>
+                    </li>
+                    <li class="auth-brand__item">
+                        <span class="icon-tile icon-tile--brand" aria-hidden="true"><i class="bi bi-shield-check"></i></span>
+                        <span>
+                            <strong>Publicaciones revisadas</strong>
+                            <span>Cada oferta pasa por moderación antes de quedar visible.</span>
+                        </span>
+                    </li>
+                    <li class="auth-brand__item">
+                        <span class="icon-tile icon-tile--brand" aria-hidden="true"><i class="bi bi-journal-text"></i></span>
+                        <span>
+                            <strong>Historial trazable</strong>
+                            <span>Reportes, sanciones y apelaciones quedan registrados.</span>
+                        </span>
+                    </li>
+                </ul>
             </div>
-        </div>
 
-        <!-- Right form panel -->
-        <div class="form-panel">
-            <div class="form-inner">
-                <div class="mobile-brand">
-                    <div class="mb-icon"><span style="font-weight:900;font-size:1.8rem;line-height:1;">U</span></div>
-                    <h1>U-Work</h1>
-                    <p>Plataforma de microtrabajos</p>
+            <p class="auth-brand__foot">
+                Proyecto académico de intermediación laboral para la comunidad universitaria.
+            </p>
+            </div>
+        </aside>
+
+        <!-- Panel del formulario -->
+        <main class="auth-panel" style="position:relative;">
+            {% include 'partials/theme_toggle.html' %}
+
+            <div class="auth-panel__inner">
+                <a class="auth-compact" href="{% url 'accounts:role_select' %}">
+                    <span class="auth-compact__glyph" aria-hidden="true">U</span>
+                    <span class="auth-compact__name">U-Work</span>
+                </a>
+
+                {% if messages %}
+                {% for message in messages %}
+                <div class="auth-alert" role="status" style="background:var(--state-info-soft); border-color:var(--state-info); color:var(--state-info);">
+                    <i class="bi bi-info-circle-fill" aria-hidden="true"></i>
+                    <span>{{ message }}</span>
                 </div>
+                {% endfor %}
+                {% endif %}
 
-                <div class="login-card">
-                    <h3>Bienvenido de vuelta</h3>
-                    <p class="sub">Inicia sesión para continuar</p>
+                <div class="auth-card">
+                    <h2 class="auth-title">Inicia sesión</h2>
+                    <p class="auth-sub">Escribe tus credenciales para entrar a tu panel.</p>
 
                     {% if form.errors %}
-                    <div class="error-msg">
-                        <i class="bi bi-exclamation-triangle-fill"></i> Usuario o contraseña incorrectos
+                    <div class="auth-alert" role="alert" id="login-error">
+                        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                        <span>El usuario o la contraseña no coinciden. Revisa los datos e inténtalo otra vez.</span>
                     </div>
                     {% endif %}
 
-                    <form method="post" id="loginForm">
+                    <form method="post" id="loginForm" novalidate>
                         {% csrf_token %}
-                        {% if messages %}
-                        {% for message in messages %}
-                        <div class="alert alert-{{ message.tags|default:'info' }} py-2 px-3" style="font-size:0.8rem; border-radius:12px;">
-                            {{ message }}
-                        </div>
-                        {% endfor %}
-                        {% endif %}
                         {% if form.non_field_errors %}
-                        <div class="alert alert-danger py-2 px-3" style="font-size:0.8rem; border-radius:12px;">
-                            {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                        <div class="auth-alert" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+                            <span>{% for error in form.non_field_errors %}{{ error }}{% endfor %}</span>
                         </div>
                         {% endif %}
-                        <div class="input-group-custom">
-                            <i class="bi bi-person-fill input-icon"></i>
-                            <input type="text" name="username" placeholder="Tu usuario" value="{{ form.username.value|default:'' }}" autocomplete="username" required>
+
+                        <div class="field mb-3">
+                            <label class="field__label" for="{{ form.username.id_for_label }}">Usuario o correo institucional</label>
+                            <div class="auth-input">
+                                <i class="bi bi-person auth-input__icon" aria-hidden="true"></i>
+                                <input type="text" class="form-control" name="username" id="{{ form.username.id_for_label }}"
+                                       value="{{ form.username.value|default:'' }}" autocomplete="username"
+                                       autocapitalize="none" spellcheck="false" required
+                                       {% if form.errors %}aria-invalid="true" aria-describedby="login-error"{% endif %}>
+                            </div>
                         </div>
-                        <div class="input-group-custom">
-                            <i class="bi bi-lock-fill input-icon"></i>
-                            <input type="password" name="password" id="pwField" placeholder="Tu contraseña" autocomplete="current-password" required>
-                            <button type="button" class="toggle-pw" onclick="togglePw()">
-                                <i class="bi bi-eye" id="pwIcon"></i>
-                            </button>
+
+                        <div class="field mb-4">
+                            <label class="field__label" for="{{ form.password.id_for_label }}">Contraseña</label>
+                            <div class="auth-input">
+                                <i class="bi bi-lock auth-input__icon" aria-hidden="true"></i>
+                                <input type="password" class="form-control" name="password" id="{{ form.password.id_for_label }}"
+                                       autocomplete="current-password" required
+                                       {% if form.errors %}aria-invalid="true" aria-describedby="login-error"{% endif %}>
+                                <button type="button" class="auth-input__action" data-toggle-pw
+                                        aria-label="Mostrar contraseña" aria-pressed="false">
+                                    <i class="bi bi-eye" aria-hidden="true"></i>
+                                </button>
+                            </div>
                         </div>
-                        <button type="submit" class="btn-login">
-                            Iniciar sesión <i class="bi bi-arrow-right"></i>
+
+                        <button type="submit" class="auth-submit" data-submit-btn>
+                            <span data-submit-label>Iniciar sesión</span>
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
                         </button>
                     </form>
 
                     {% if pending_email %}
-                    <div class="divider">o</div>
-                    <a href="{% url 'accounts:resend_verification' %}?email={{ pending_email }}" class="btn-create">
-                        <i class="bi bi-send"></i> Reenviar verificación de correo
+                    <div class="auth-sep">o</div>
+                    <a href="{% url 'accounts:resend_verification' %}?email={{ pending_email }}" class="auth-secondary">
+                        <i class="bi bi-send" aria-hidden="true"></i> Reenviar verificación de correo
                     </a>
                     {% endif %}
+                </div>
 
-                    <div class="divider">o</div>
+                <p class="auth-note">
+                    ¿Todavía no tienes cuenta? <a href="{% url 'accounts:role_select' %}">Crear una cuenta</a>
+                </p>
 
-                    <a href="{% url 'accounts:role_select' %}" class="btn-create">
-                        <i class="bi bi-person-plus-fill"></i> Crear una cuenta nueva
+                <nav class="auth-links" aria-label="Enlaces de ayuda">
+                    <a href="{% url 'accounts:password_reset' %}">
+                        <i class="bi bi-key" aria-hidden="true"></i> Olvidé mi contraseña
                     </a>
-                    <div style="text-align:center; margin-top:14px;">
-                        <a href="{% url 'accounts:password_reset' %}"
-                           style="font-size:0.78rem; color:var(--ln-muted); text-decoration:none;">
-                            <i class="bi bi-key"></i> Olvidé mi contraseña
-                        </a>
-                    </div>
-                </div>
+                    <a href="{% url 'moderation:apelacion_crear' %}">
+                        <i class="bi bi-arrow-counterclockwise" aria-hidden="true"></i> Cuenta suspendida: apelar
+                    </a>
+                </nav>
 
-                <div class="bottom-links">
-                    ¿Necesitas ayuda? <a href="{% url 'accounts:role_select' %}">Contáctanos</a>
-                </div>
+                <nav class="auth-links" aria-label="Documentos legales" style="margin-top:var(--space-3);">
+                    <a href="{% url 'legal:terminos' %}">Términos y Condiciones</a>
+                    <a href="{% url 'legal:privacidad' %}">Política de Privacidad</a>
+                </nav>
             </div>
-        </div>
+        </main>
     </div>
 
-    <script>
-        function togglePw() {
-            var f = document.getElementById('pwField'), ic = document.getElementById('pwIcon');
-            if (f.type === 'password') { f.type = 'text'; ic.className = 'bi bi-eye-slash'; }
-            else { f.type = 'password'; ic.className = 'bi bi-eye'; }
+    <script src="{% static 'js/theme.js' %}" defer></script>
+    <script nonce="{{ csp_nonce }}">
+    (function () {
+        // Mostrar u ocultar la contraseña.
+        var boton = document.querySelector('[data-toggle-pw]');
+        var icono = boton ? boton.querySelector('i') : null;
+        if (boton) {
+            boton.addEventListener('click', function () {
+                var campo = document.getElementById('id_password');
+                var visible = campo.type === 'text';
+                campo.type = visible ? 'password' : 'text';
+                icono.className = visible ? 'bi bi-eye' : 'bi bi-eye-slash';
+                boton.setAttribute('aria-label', visible ? 'Mostrar contraseña' : 'Ocultar contraseña');
+                boton.setAttribute('aria-pressed', visible ? 'false' : 'true');
+            });
         }
-        function toggleLoginTheme() {
-            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            if (isDark) {
-                document.documentElement.removeAttribute('data-theme');
-                localStorage.setItem('uwork-theme', 'light');
-            } else {
-                document.documentElement.setAttribute('data-theme', 'dark');
-                localStorage.setItem('uwork-theme', 'dark');
-            }
-            updateThemeBtn();
+
+        // Boton en estado de envio: evita el doble clic y avisa que hay algo
+        // en marcha. No deshabilita los campos: el formulario debe poder
+        // enviarse con el teclado.
+        var formulario = document.getElementById('loginForm');
+        var botonEnviar = formulario ? formulario.querySelector('[data-submit-btn]') : null;
+        var etiqueta = botonEnviar ? botonEnviar.querySelector('[data-submit-label]') : null;
+        if (formulario && botonEnviar) {
+            formulario.addEventListener('submit', function () {
+                botonEnviar.disabled = true;
+                if (etiqueta) etiqueta.textContent = 'Entrando...';
+            });
         }
-        function updateThemeBtn() {
-            var isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-            document.getElementById('themeBtnIcon').className = isDark ? 'bi bi-moon-stars' : 'bi bi-sun';
+
+        // Si hay un error, el foco va al campo con el problema: el mensaje
+        // se anuncia y el teclado queda donde toca.
+        var error = document.getElementById('login-error');
+        if (error) {
+            var primerCampo = document.querySelector('#loginForm input[name="username"]');
+            if (primerCampo) primerCampo.focus();
         }
-        updateThemeBtn();
+    })();
     </script>
 </body>
 </html>

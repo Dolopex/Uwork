@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Apelar una sanción · U-Work{% endblock %}
+{% block content %}
+<div style="max-width:640px; margin:0 auto;">
+
+    <div class="mb-3">
+        <h4 style="font-weight:800; color:var(--text); margin:0 0 4px;">
+            <i class="bi bi-arrow-counterclockwise"></i> Canal de apelación
+        </h4>
+        <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+            Si consideras que la sanción no corresponde, explica por qué y la
+            moderación revisará tu caso.
+        </p>
+    </div>
+
+    {% if sin_sancion %}
+    <div class="card"><div class="card-body text-center" style="padding:40px 16px;">
+        <i class="bi bi-shield-check" style="font-size:2rem; color:var(--text-secondary); opacity:0.5;"></i>
+        <p style="font-size:0.9rem; font-weight:700; color:var(--text); margin:12px 0 4px;">
+            No tienes sanciones vigentes
+        </p>
+        <p style="font-size:0.8rem; color:var(--text-secondary); margin:0;">
+            Si crees que esto es un error, escribe al
+            <a href="{% url 'support:create' %}" style="color:var(--primary-light);">soporte</a>.
+        </p>
+    </div></div>
+    {% else %}
+
+    {% for sancion in sanciones %}
+    <div class="card mb-3" style="border-color:rgba(220,38,38,0.3);">
+        <div class="card-body">
+            <div style="font-size:var(--fs-xs); font-weight:700; font-size:0.9rem; color:var(--text); margin-bottom:4px;">
+                <i class="bi bi-slash-circle" style="color:var(--state-danger);"></i>
+                {{ sancion.get_tipo_display }}
+            </div>
+            <div style="font-size:0.82rem; color:var(--text-secondary); line-height:1.6;">
+                <strong>Motivo:</strong> {{ sancion.motivo }}<br>
+                {% if sancion.hasta %}
+                <strong>Vence:</strong> {{ sancion.hasta|date:"d/m/Y H:i" }}<br>
+                {% else %}
+                <strong>Sanción permanente.</strong><br>
+                {% endif %}
+                <strong>Registrada:</strong> {{ sancion.created_at|date:"d/m/Y" }}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div class="card">
+        <div class="card-body">
+            {% if form.errors %}
+            <div class="alert alert-danger" style="font-size:0.82rem;">
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                {% for error in form.motivo.errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                {% if sanciones|length > 1 %}
+                <div class="mb-3">
+                    <label for="sancion" style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">
+                        ¿A qué sanción corresponde la apelación?
+                    </label>
+                    <select name="sancion" id="sancion" class="form-select">
+                        {% for sancion in sanciones %}
+                        <option value="{{ sancion.pk }}">Sanción #{{ sancion.pk }}: {{ sancion.get_tipo_display }} ({{ sancion.created_at|date:"d/m/Y" }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% else %}
+                <input type="hidden" name="sancion" value="{{ sanciones.0.pk }}">
+                {% endif %}
+
+                <div class="mb-3">
+                    <label for="{{ form.motivo.id_for_label }}" style="font-size:0.82rem; font-weight:600; color:var(--text-secondary); display:block; margin-bottom:4px;">
+                        {{ form.motivo.label }}
+                    </label>
+                    {{ form.motivo }}
+                    <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:6px;">
+                        Cuanta más información des, más rápido se resuelve.
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100" style="padding:13px;">
+                    <i class="bi bi-send-fill"></i> Enviar apelación
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div style="text-align:center; margin-top:14px;">
+        <a href="{% url 'moderation:mis_apelaciones' %}" style="font-size:0.85rem; color:var(--primary-light); text-decoration:none;">
+            <i class="bi bi-clock-history"></i> Ver mis apelaciones
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
