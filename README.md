@@ -284,7 +284,17 @@ cp .env.example .env   # (o crear .env manualmente)
 python manage.py migrate
 
 # 7. Crear superusuario (opcional)
-python manage.py createsuperuser
+# Ojo: `createsuperuser` de Django NO sirve aquí. El backend de
+# autenticación (accounts.backends.EmailVerifiedBackend) rechaza las
+# cuentas sin correo verificado, así que un superusuario creado con
+# createsuperuser se queda sin poder iniciar sesión.
+#
+# Usa el comando del proyecto, que además es idempotente:
+python manage.py crear_admin
+
+# Lee la contraseña de DJANGO_SUPERUSER_PASSWORD. Sin esa variable no
+# crea nada y avisa por pantalla (preferible a una contraseña
+# predecible).
 
 # 8. Cargar datos de prueba (opcional)
 python manage.py seed_data
@@ -378,6 +388,36 @@ El tema se persiste en `localStorage` y se puede cambiar desde:
 ## Panel de administración
 
 Accesible en `/admin/` con un superusuario. Registra los modelos User, Job, Application y Review con filtros y fieldsets personalizados.
+
+### El superusuario en producción
+
+El comando `python manage.py crear_admin` crea el superusuario (o repara el que ya existe) y está pensado para correr en cada despliegue:
+
+- Es **idempotente**: si la cuenta ya está, la repara sin tocar la contraseña.
+- Pone `is_email_verified=True`, sin lo cual el backend de autenticación no deja entrar ni al superusuario.
+- Lee la contraseña de `DJANGO_SUPERUSER_PASSWORD`. Si no está definida, no hace nada y avisa.
+
+El `buildCommand` de `vercel.json` lo ejecuta junto con `migrate` y `collectstatic`, de modo que un despliegue deja la base al día y garantiza que el superusuario existe.
+
+Define estas variables en el panel de Vercel (Settings > Environment Variables), **nunca en el repositorio**:
+
+```
+DJANGO_SUPERUSER_USERNAME=admin
+DJANGO_SUPERUSER_EMAIL=tu@correo.com
+DJANGO_SUPERUSER_PASSWORD=(una contraseña larga)
+```
+
+### Los paneles propios
+
+El personal no usa `/admin/`, sino los paneles de la aplicación, que exigen `is_staff`:
+
+| Panel | Ruta |
+|---|---|
+| Moderación de reportes | `/moderacion/panel/` |
+| Moderación previa de publicaciones | `/moderacion/panel/publicaciones/` |
+| Bitácora de sanciones | `/moderacion/bitacora/` |
+| Apelaciones | `/moderacion/apelaciones/` |
+| Cola de soporte | `/soporte/panel/` |
 
 ---
 
